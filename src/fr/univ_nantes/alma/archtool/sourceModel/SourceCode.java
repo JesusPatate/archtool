@@ -1,10 +1,11 @@
-package sourceModel;
+package fr.univ_nantes.alma.archtool.sourceModel;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Contains all elements of the source code.
+ * Classe du modèle de code source regroupant l'ensemble des éléments
+ * d'un programme.
  */
 public class SourceCode
 {

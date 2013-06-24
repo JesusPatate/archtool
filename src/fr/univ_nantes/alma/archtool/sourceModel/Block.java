@@ -1,20 +1,38 @@
-package sourceModel;
+package fr.univ_nantes.alma.archtool.sourceModel;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Classe du modèle de code source représentant un bloc de code d'une fonction. 
+ */
 public class Block
 {
+    /**
+     * Les appels effectués dans le bloc.
+     */
     private Set<Call> calls;
 
+    /**
+     * Les variables globales au programme accédées à l'intérieur du bloc.
+     */
     private Map<ProgramGlobalVariable, Integer> programGlobals;
 
+    /**
+     * Les variables globales au fichier accédées à l'intérieur du bloc.
+     */
     private Map<FileGlobalVariable, Integer>  fileGlobals;
 
+    /**
+     * Les variables locales utilisées à l'intérieur du bloc.
+     */
     private Map<LocalVariable, Integer> locals;
 
+    /**
+     * Les sous-blocs du bloc.
+     */
     private Set<Block> subBlocks;
 
     public Block(Set<Call> calls,
@@ -30,6 +48,12 @@ public class Block
         this.subBlocks = subBlocks;
     }
 
+    /**
+     * Retourne l'ensemble des variables globales au programme du bloc.
+     * 
+     * @return Une map contenant les variables globales au programme accédées
+     * dans le bloc et pour chacune, le nombre d'accès.
+     */
     public Map<ProgramGlobalVariable, Integer> getProgramGlobals()
     {
         Map<ProgramGlobalVariable, Integer> total =
@@ -54,6 +78,12 @@ public class Block
         return total;
     }
 
+    /**
+     * Retourne l'ensemble des variables globales au fichier du bloc.
+     * 
+     * @return Une map contenant les variables globales au fichier accédées
+     * dans le bloc et pour chacune, le nombre d'accès.
+     */
     public Map<FileGlobalVariable, Integer> getFileGlobals()
     {
         Map<FileGlobalVariable, Integer> total =
@@ -78,6 +108,12 @@ public class Block
         return total;
     }
 
+    /**
+     * Retourne l'ensemble des variables locales du bloc.
+     * 
+     * @return Une map contenant les variables locales utilisées dans le bloc
+     * et pour chacune, le nombre d'utilisations.
+     */
     public Map<LocalVariable, Integer> getLocals()
     {
         Map<LocalVariable, Integer> total =
@@ -102,6 +138,11 @@ public class Block
         return total;
     }
 
+    /**
+     * Retourne l'ensemble des appels du bloc.
+     * 
+     * @return Un set des appels de fonction effectués à l'intérieur du bloc.
+     */
     public Set<Call> getCalls()
     {
         Set<Call> total = new HashSet<Call>(this.calls);
@@ -112,5 +153,34 @@ public class Block
         }
         
         return total;
+    }
+    
+    /**
+     * Renvoie l'ensemble des types complexes ou primitifs
+     * utilisés dans le bloc.
+     * 
+     * @return Une map contenant l'ensemble des types utilisés dans le bloc
+     * et pour chacun d'eux, le nombre d'utilisations.
+     */
+    public Set<Type> getUsedTypes()
+    {
+        Set<Type> usedTypes = new HashSet<Type>();
+        
+        for(Variable var : this.programGlobals.keySet())
+        {
+            usedTypes.add(var.getType());
+        }
+        
+        for(Variable var : this.fileGlobals.keySet())
+        {
+            usedTypes.add(var.getType());
+        }
+
+        for(Variable var : this.locals.keySet())
+        {
+            usedTypes.add(var.getType());
+        }
+        
+        return usedTypes;
     }
 }

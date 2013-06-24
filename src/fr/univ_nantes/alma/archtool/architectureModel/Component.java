@@ -2,8 +2,6 @@ package fr.univ_nantes.alma.archtool.architectureModel;
 
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.sourceModel.CodeEntity;
-
 
 public class Component
 {
@@ -11,7 +9,5 @@ public class Component
     
     private Set<Interface> providedInterfaces;
     
-    private Set<CodeEntity> codeEntities;
-    
-    
+    // private Set<CodeEntity> codeEntities;
 }

@@ -1,4 +1,4 @@
-package sourceModel;
+package fr.univ_nantes.alma.archtool.sourceModel;
 
 import java.util.HashSet;
 import java.util.Set;

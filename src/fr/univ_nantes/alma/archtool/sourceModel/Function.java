@@ -1,10 +1,23 @@
-package sourceModel;
+package fr.univ_nantes.alma.archtool.sourceModel;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Classe du modèle de code source représentant une fonction.
+ * 
+ * <p>
+ *     Une fonction est composée de
+ *     <ul>
+ *         <li>son nom,</li>
+ *         <li>son type de retour,</li>
+ *         <li>l'ensemble de ses arguments,</li>
+ *         <li>le fichier dans lequel elle est définie,
+ *         <li>son corps (bloc de code)</li>
+ *     </ul>
+ * </p>
+ */
 public class Function
 {
     private String name;
@@ -67,15 +80,23 @@ public class Function
         return this.body.getCalls();
     }
     
-    public Map<Type, Integer> getUsedTypes()
+    /**
+     * Renvoie l'ensemble des types complexes ou primitifs utilisés
+     * par la fonction (arguments compris).
+     * 
+     * @return Un ensemble des types utilisés dans la fonction.
+     */
+    public Set<Type> getUsedTypes()
     {
-        Map<Type, Integer> total = new HashMap<Type, Integer>();
+        Set<Type> usedTypes = new HashSet<Type>();
         
         for(Variable var : this.arguments)
         {
-            Type t = var.ge
+            usedTypes.add(var.getType());
         }
         
-        return total;
+        usedTypes.addAll(this.body.getUsedTypes());
+        
+        return usedTypes;
     }
 }
