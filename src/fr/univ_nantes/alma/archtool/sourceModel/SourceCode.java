@@ -18,10 +18,22 @@ public class SourceCode
             new HashSet<FileGlobalVariable>();
 
     private Set<ComplexType> types = new HashSet<ComplexType>();
+
+    
+    public Set<Function> getFunctions()
+    {
+        return new HashSet<Function>(this.functions);
+    }
     
     public void addFunction(Function function)
     {
         this.functions.add(function);
+    }
+    
+    
+    public Set<ProgramGlobalVariable> getProgramGlobals()
+    {
+        return new HashSet<ProgramGlobalVariable>(this.programGlobals);
     }
     
     public void addProgramGlobal(ProgramGlobalVariable var)
@@ -29,24 +41,36 @@ public class SourceCode
         this.programGlobals.add(var);
     }
     
-    public void addFileGlobal(FileGlobalVariable var)
-    {
-        this.fileGlobals.add(var);
-    }
-    
-    public void addType(ComplexType type)
-    {
-        this.types.add(type);
-    }
-    
     public boolean isProgramGlobal(Variable var)
     {
         return this.programGlobals.contains(var);
     }
     
+    
+    public Set<FileGlobalVariable> getFileGlobals()
+    {
+        return new HashSet<FileGlobalVariable>(this.fileGlobals);
+    }
+    
+    public void addFileGlobal(FileGlobalVariable var)
+    {
+        this.fileGlobals.add(var);
+    }
+    
     public boolean isFileGlobal(Variable var)
     {
         return this.fileGlobals.contains(var);
+    }
+    
+    
+    public Set<Type> getTypes()
+    {
+        return new HashSet<Type>(this.types);
+    }
+    
+    public void addType(ComplexType t1)
+    {
+        this.types.add(t1);
     }
     
     public boolean isComplexType(Type type)

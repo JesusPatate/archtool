@@ -36,4 +36,9 @@ public class PrimitiveType extends Type
     {
         return new PrimitiveType("double");
     }
+    
+    public static PrimitiveType voidType()
+    {
+        return new PrimitiveType("void");
+    }
 }
