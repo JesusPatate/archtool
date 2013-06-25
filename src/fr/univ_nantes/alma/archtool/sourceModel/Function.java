@@ -84,7 +84,7 @@ public class Function
      * Renvoie l'ensemble des types complexes ou primitifs utilisés
      * par la fonction (arguments compris).
      * 
-     * @return Un ensemble des types utilisés dans la fonction.
+     * @return L'ensemble des types utilisés dans la fonction.
      */
     public Set<Type> getUsedTypes()
     {
