@@ -5,10 +5,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import fr.univ_nantes.alma.archtool.clustering.Clustering;
@@ -25,16 +24,17 @@ import fr.univ_nantes.alma.archtool.sourceModel.ProgramGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
-public class ClusteringTest extends TestCase
+public class ClusteringTest
 {
+    private static ObjectiveFunction obj;
+    private static SourceCode sourceCode;
+    
     private Clustering clustering;
-    private SourceCode sourceCode;
 
-    @Before
-    public void setUp() throws Exception
+    @BeforeClass
+    public static void setUpBeforeClass()
     {
-        ObjectiveFunction obj = new ObjectiveFunction();
-        this.clustering = new Clustering(obj);
+        ClusteringTest.obj = new ObjectiveFunction();
         
         Folder fold = new Folder("fold", null);
         File file = new File("file", fold);
@@ -42,33 +42,39 @@ public class ClusteringTest extends TestCase
         LocalVariable v1 = new LocalVariable("x", PrimitiveType.charType());
         LocalVariable v2 = new LocalVariable("v", PrimitiveType.intType());
         
-        Function fct1 = createFct1(v1, v2, file);
-        Function fct2 = createFct2(v1, v2, file, fct1);
+        Function fct1 = ClusteringTest.createFct1(v1, v2, file);
+        Function fct2 = ClusteringTest.createFct2(v1, v2, file, fct1);
 
-        this.sourceCode = new SourceCode();
-        this.sourceCode.addFunction(fct1);
-        this.sourceCode.addFunction(fct2);
+        ClusteringTest.sourceCode = new SourceCode();
+        ClusteringTest.sourceCode.addFunction(fct1);
+        ClusteringTest.sourceCode.addFunction(fct2);
+    }
+    
+    @Before
+    public void setUp() throws Exception
+    {
+        System.out.println(ClusteringTest.sourceCode);
+        System.out.println(ClusteringTest.obj);
         
-        this.clustering.process(sourceCode);
+        this.clustering = new Clustering(ClusteringTest.obj);
+        this.clustering.process(ClusteringTest.sourceCode);
     }
 
     @After
     public void tearDown()
     {
         this.clustering = null;
-        this.sourceCode = null;
     }
 
     @Test
     public void test()
     {
-        fail("Not yet implemented");
     }
 
     /**
      * Crée la première fonction du code source
      */
-    private Function createFct1(LocalVariable v1, LocalVariable v2, File file)
+    private static Function createFct1(LocalVariable v1, LocalVariable v2, File file)
     {
         Set<LocalVariable> args1 = new HashSet<LocalVariable>();
         Map<LocalVariable, Integer> locals1 =
@@ -89,7 +95,7 @@ public class ClusteringTest extends TestCase
     /**
      * Crée la seconde fonction du code source
      */
-    private Function createFct2(LocalVariable v1, LocalVariable v2, File file,
+    private static Function createFct2(LocalVariable v1, LocalVariable v2, File file,
             Function fct)
     {
         Set<LocalVariable> args2 = new HashSet<LocalVariable>();

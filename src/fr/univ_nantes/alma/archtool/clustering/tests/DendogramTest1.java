@@ -16,6 +16,7 @@ import junitx.util.PrivateAccessor;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
@@ -40,32 +41,36 @@ import fr.univ_nantes.alma.archtool.sourceModel.Variable;
  */
 public class DendogramTest1
 {
-    private Dendogram dendogram;
-    private SourceCode sourceCode;
+    private static SourceCode sourceCode;
 
-    @Before
-    public void setUp() throws Exception
+    private Dendogram dendogram;
+    
+    @BeforeClass
+    public static void setUpBeforeClass()
     {
         Folder fold = new Folder("fold", null);
         File file = new File("file", fold);
-
+        
         LocalVariable v1 = new LocalVariable("x", PrimitiveType.charType());
         LocalVariable v2 = new LocalVariable("v", PrimitiveType.intType());
 
-        Function fct1 = createFct1(v1, v2, file);
-        Function fct2 = createFct2(v1, v2, file, fct1);
+        Function fct1 = DendogramTest1.createFct1(v1, v2, file);
+        Function fct2 = DendogramTest1.createFct2(v1, v2, file, fct1);
 
-        this.sourceCode = new SourceCode();
-        this.sourceCode.addFunction(fct1);
-        this.sourceCode.addFunction(fct2);
-
-        this.dendogram = new Dendogram(this.sourceCode);
+        DendogramTest1.sourceCode = new SourceCode();
+        DendogramTest1.sourceCode.addFunction(fct1);
+        DendogramTest1.sourceCode.addFunction(fct2);
+    }
+    
+    @Before
+    public void setUp() throws Exception
+    {
+        this.dendogram = new Dendogram(DendogramTest1.sourceCode);
     }
 
     @After
     public void tearDown()
     {
-        this.sourceCode = null;
         this.dendogram = null;
     }
 
@@ -83,8 +88,7 @@ public class DendogramTest1
 
         catch (NoSuchFieldException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            fail(e.getMessage());
         }
     }
 
@@ -97,14 +101,13 @@ public class DendogramTest1
             ArrayList<Dendogram.Node> nodes = (ArrayList<Node>)
                     PrivateAccessor.getField(this.dendogram, "nodes");
 
-            assertEquals("Mauvais résultat -", nodes.size(),
+            assertEquals("Mauvaise taille retournée -", nodes.size(),
                     this.dendogram.size());
         }
 
         catch (NoSuchFieldException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            fail(e.getMessage());
         }
     }
 
@@ -172,10 +175,14 @@ public class DendogramTest1
             Set<Interface> pro1 = comp1.getProvidedInterfaces();
             Set<Interface> pro2 = comp2.getProvidedInterfaces();
             
-            assertFalse(req1.isEmpty() && req2.isEmpty());
-            assertFalse(pro1.isEmpty() && pro2.isEmpty());
-            assertTrue(req1.isEmpty() ^ pro1.isEmpty());
-            assertTrue(req2.isEmpty() ^ pro2.isEmpty());
+            assertFalse("aucun des 2 noeuds n'a d'interface requise",
+                    req1.isEmpty() && req2.isEmpty());
+            assertFalse("aucun des 2 noeuds n'a d'interface fournie",
+                    pro1.isEmpty() && pro2.isEmpty());
+            assertTrue("node1 a des interfaces fournie ET requise",
+                    req1.isEmpty() ^ pro1.isEmpty());
+            assertTrue("node2 a des interfaces fournie ET requise",
+                    req2.isEmpty() ^ pro2.isEmpty());
         }
 
         catch (NoSuchFieldException e)
@@ -229,7 +236,7 @@ public class DendogramTest1
     }
 
     @Test
-    public void testClusterNodes2()
+    public void testInsertClusterNode()
     {
         try
         {
@@ -242,7 +249,7 @@ public class DendogramTest1
             Node node1 = nodesBefore.get(0);
             Node node2 = nodesBefore.get(1);
 
-            this.dendogram.clusterNodes(clusterNode.getComponent(), 0, 1);
+            this.dendogram.insertClusterNode(clusterNode);
 
             @SuppressWarnings("unchecked")
             ArrayList<Dendogram.Node> nodesAfter = (ArrayList<Node>)
@@ -267,7 +274,7 @@ public class DendogramTest1
     /**
      * Crée la première fonction du code source
      */
-    private Function createFct1(LocalVariable v1, LocalVariable v2, File file)
+    private static Function createFct1(LocalVariable v1, LocalVariable v2, File file)
     {
         Set<LocalVariable> args1 = new HashSet<LocalVariable>();
         Map<LocalVariable, Integer> locals1 =
@@ -288,7 +295,7 @@ public class DendogramTest1
     /**
      * Crée la seconde fonction du code source
      */
-    private Function createFct2(LocalVariable v1, LocalVariable v2, File file,
+    private static Function createFct2(LocalVariable v1, LocalVariable v2, File file,
             Function fct)
     {
         Set<LocalVariable> args2 = new HashSet<LocalVariable>();
