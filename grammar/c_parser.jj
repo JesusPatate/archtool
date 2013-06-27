@@ -128,9 +128,7 @@ TOKEN:
 
 void identifier() : {}
 {            
-	identifierNonDigit() | 
-	identifier() identifierNonDigit() | 
-	identifier() <DIGIT>
+	identifierNonDigit() ( identifierNonDigit() | <DIGIT> )*
 }
 
 void identifierNonDigit() : {}
@@ -167,20 +165,17 @@ void integerConstant() : {}
 
 void decimalConstant() : {}
 {            
-	<NON_ZERO_DIGIT> |
-	decimalConstant() <DIGIT>
+	<NON_ZERO_DIGIT> ( <DIGIT> )*
 }
 
 void octalConstant() : {}
 {            
-	"0" |
-	octalConstant() <OCTAL_DIGIT>
+	"0" ( <OCTAL_DIGIT> )*
 }
 
 void hexadecimalConstant() : {}
 {            
-	<HEXADECIMAL_PREFIX> <HEXADECIMAL_DIGIT> |
-	hexadecimalConstant() <HEXADECIMAL_DIGIT>
+	<HEXADECIMAL_PREFIX> ( <HEXADECIMAL_DIGIT> )+
 }
 
 void integerSuffix() : {}
@@ -225,8 +220,7 @@ void exponentPart() : {}
 
 void digitSequence() : {}
 {            
-	<DIGIT> |
-	digitSequence() <DIGIT>
+	( <DIGIT> )+
 }
 
 void hexadecimalFractionalConstant() : {}
@@ -243,8 +237,7 @@ void binaryExponentPart() : {}
 
 void hexadecimalDigitSequence() : {}
 {            
-	<HEXADECIMAL_DIGIT> |
-	hexadecimalDigitSequence() <HEXADECIMAL_DIGIT>
+	( <HEXADECIMAL_DIGIT> )+
 }
 
 void enumerationConstant() : {}
@@ -262,8 +255,7 @@ void characterConstant() : {}
 
 void cCharSequence() : {}
 {            
-	cChar() |
-	cCharSequence() cChar()
+	( cChar() )+
 }
 
 void cChar() : {}
@@ -289,8 +281,7 @@ void octalEscapeSequence() : {}
 
 void hexadecimalEscapeSequence() : {}
 {            
-	"\\x" <HEXADECIMAL_DIGIT> |
-	hexadecimalEscapeSequence() <HEXADECIMAL_DIGIT>
+	"\\x" ( <HEXADECIMAL_DIGIT> )+
 }
 
 void stringLiteral() : {}
@@ -300,8 +291,7 @@ void stringLiteral() : {}
 
 void sCharSequence() : {}
 {            
-	sChar() |
-	sCharSequence() sChar()
+	( sChar() )+
 }
 
 void sChar() : {}
@@ -328,8 +318,7 @@ void genericSelection() : {}
 
 void genericAssocList() : {}
 {
-	genericAssociation() |
-	genericAssocList() "," genericAssociation()
+	genericAssociation() ( "," genericAssociation() )*
 }
 
 void genericAssociation() : {}
@@ -340,21 +329,19 @@ void genericAssociation() : {}
 
 void postfixExpression() : {}
 {
-	pimaryExpression() |
-	postfixExpression() "[" expression() "]" |
-	postfixExpression() "(" [ argumentExpressionList() ] ")" |
-	postfixExpression() "." identifier() |
-	postfixExpression() "->" identifier() |
-	postfixExpression() "++" |
-	postfixExpression() "--" |
+	( pimaryExpression() |
 	"(" typeName() ")" "{" initializerList() "}" |
-	"(" typeName() ")" "{" initializerList() "," "}"
+	"(" typeName() ")" "{" initializerList() "," "}" ) ( "[" expression() "]" |
+		"(" [ argumentExpressionList() ] ")" |
+		"." identifier() |
+		"->" identifier() |
+		"++" |
+		"--" )*
 }
 
 void argumentExpressionList() : {}
 {
-	assignmentExpression() |
-	argumentExpressionList() "," assignmentExpression()
+	assignmentExpression() ( "," assignmentExpression() )*
 }
 
 void unaryExpression() : {}
@@ -386,70 +373,52 @@ void castExpression() : {}
 
 void multiplicativeExpression() : {}
 {
-	castExpression() |
-	multiplicativeExpression() "*" castExpression() |
-	multiplicativeExpression() "/" castExpression() |
-	multiplicativeExpression() "%" castExpression()
+	castExpression() ( ( "*" | "/" | "%" ) castExpression() )*
 }
 
 void additiveExpression() : {}
 {
-	multiplicativeExpression() |
-	additiveExpression() "+" multiplicativeExpression() |
-	additiveExpression() "-" multiplicativeExpression()
+	multiplicativeExpression() ( ( "+" | "-" ) multiplicativeExpression() )*
 }
 
 void shiftExpression() : {}
 {
-	additiveExpression() |
-	shiftExpression() "<<" additiveExpression() |
-	shiftExpression() ">>" additiveExpression()
+	additiveExpression() ( ( "<<" | ">>" ) additiveExpression() )*
 }
 
 void relationalExpression() : {}
 {
-	shiftExpression() |
-	relationalExpression() "<" shiftExpression() |
-	relationalExpression() ">" shiftExpression() |
-	relationalExpression() "<=" shiftExpression() |
-	relationalExpression() ">=" shiftExpression()
+	shiftExpression() ( ( "<" | ">" | "<=" | ">=" ) shiftExpression() )*
 }
 
 void equalityExpression() : {}
 {
-	relationalExpression() |
-	equalityExpression() "==" relationalExpression() |
-	equalityExpression() "!=" relationalExpression()
+	relationalExpression() ( ( "==" | "!=" ) relationalExpression() )*
 }
 
 void andExpression() : {}
 {
-	equalityExpression() |
-	andExpression() "&" equalityExpression()
+	equalityExpression() ( "&" equalityExpression() )*
 }
 
 void exclusiveOrExpression() : {}
 {
-	andExpression() |
-	exclusiveOrExpression() "^" andExpression()
+	andExpression() ( "^" andExpression() )*
 }
 
 void inclusiveOrExpression() : {}
 {
-	exclusiveOrExpression() |
-	inclusiveOrExpression() "|" exclusiveOrExpression()
+	exclusiveOrExpression() ( "|" exclusiveOrExpression() )*
 }
 
 void logicalAndExpression() : {}
 {
-	inclusiveOrExpression() |
-	logicalAndExpression() "&&" inclusiveOrExpression()
+	inclusiveOrExpression() ( "&&" inclusiveOrExpression() )*
 }
 
 void logicalOrExpression() : {}
 {
-	logicalAndExpression() |
-	logicalOrExpression() "||" logicalAndExpression()
+	logicalAndExpression() ( "||" logicalAndExpression() )*
 }
 
 void conditionalExpression() : {}
@@ -481,8 +450,7 @@ void assignmentOperator() : {}
 
 void expression() : {}
 {
-	assignmentExpression() |
-	expression() "," assignmentExpression()
+	assignmentExpression() ( "," assignmentExpression() )*
 }
 
 void constantExpression() : {}
@@ -509,8 +477,7 @@ void declarationSpecifiers() : {}
 
 void initDeclaratorList() : {}
 {
-	initDeclarator() |
-	initDeclaratorList() "," initDeclarator()
+	initDeclarator() ( "," initDeclarator() )*
 }
 
 void initDeclarator() : {}
@@ -562,8 +529,7 @@ void structOrUnion() : {}
 
 void structDeclarationList() : {}
 {
-	structDeclaration() |
-	structDeclarationList() structDeclaration()
+	( structDeclaration() )+
 }
 
 void structDeclaration() : {}
@@ -580,8 +546,7 @@ void specifierQualifierList() : {}
 
 void structDeclaratorList() : {}
 {
-	structDeclarator() |
-	structDeclaratorList() "," structDeclarator()
+	structDeclarator() ( "," structDeclarator() )*
 }
 
 void structDeclarator() : {}
@@ -640,14 +605,12 @@ void declarator() : {}
 
 void directDeclarator() : {}
 {
-	identifier() |
-	"(" declarator() ")" |
-	directDeclarator() "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
-	directDeclarator() "[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
-	directDeclarator() "[" typeQualifierList()  <STATIC> assignmentExpression() "]" |
-	directDeclarator() "[" [ typeQualifierList() ] "*" "]" |
-	directDeclarator() "(" parameterTypeList() ")" |
-	directDeclarator() "(" [ identifierList() ] ")"	
+	( identifier() | "(" declarator() ")" ) ( "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
+		 "[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
+		 "[" typeQualifierList()  <STATIC> assignmentExpression() "]" |
+ 		 "[" [ typeQualifierList() ] "*" "]" |
+ 		 "(" parameterTypeList() ")" |
+ 		 "(" [ identifierList() ] ")" )*
 }
 
 void pointer() : {}
@@ -658,8 +621,7 @@ void pointer() : {}
 
 void typeQualifierList() : {}
 {
-	typeQualifier() |
-	typeQualifierList() typeQualifier()
+	( typeQualifier() )+
 }
 
 void parameterTypeList() : {}
@@ -697,12 +659,16 @@ void abstractDeclarator() : {}
 
 void directAbstractDeclarator() : {}
 {
-	"(" abstractDeclarator() ")" |
-	[ directAbstractDeclarator() ] "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
-	[ directAbstractDeclarator() ] "[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
-	[ directAbstractDeclarator() ] "[" typeQualifierList() <STATIC> assignmentExpression() "]" |
-	[ directAbstractDeclarator() ] "[" "*" "]" |
-	[ directAbstractDeclarator() ] "(" [ parameterTypeList() ] ")"
+	"(" abstractDeclarator() ")" ( "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
+		"[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
+		"[" typeQualifierList() <STATIC> assignmentExpression() "]" |
+		"[" "*" "]" |
+		"(" [ parameterTypeList() ] ")" )* |
+	( "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
+		"[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
+		"[" typeQualifierList() <STATIC> assignmentExpression() "]" |
+		"[" "*" "]" |
+		"(" [ parameterTypeList() ] ")" )+
 }
 
 void typedefName() : {}
@@ -719,8 +685,7 @@ void initializer() : {}
 
 void initializerList() : {}
 {
-	[ designation() ] initializer() |
-	initializerList() "," [ designation() ] initializer()
+	[ designation() ] initializer() ( "," [ designation() ] initializer() )*
 }
 
 void designation() : {}
