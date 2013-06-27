@@ -38,6 +38,18 @@ public class Block
     public Block(Set<Call> calls,
            Map<ProgramGlobalVariable, Integer> programGlobals,
            Map<FileGlobalVariable, Integer> fileGlobals,
+           Map<LocalVariable, Integer> locals)
+    {
+        this.calls = calls;
+        this.programGlobals = programGlobals;
+        this.fileGlobals = fileGlobals;
+        this.locals = locals;
+        this.subBlocks = new HashSet<Block>();
+    }
+    
+    public Block(Set<Call> calls,
+           Map<ProgramGlobalVariable, Integer> programGlobals,
+           Map<FileGlobalVariable, Integer> fileGlobals,
            Map<LocalVariable, Integer> locals,
            Set<Block> subBlocks)
     {

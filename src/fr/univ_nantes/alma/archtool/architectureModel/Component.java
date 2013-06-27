@@ -78,6 +78,11 @@ public class Component
     {
         return new HashSet<Interface>(this.requiredInterfaces);
     }
+
+    public boolean requiresInterface(final Interface i)
+    {
+        return this.requiredInterfaces.contains(i);
+    }
     
     public boolean addRequiredInterface(final Interface i)
     {
@@ -92,6 +97,11 @@ public class Component
     public Set<Interface> getProvidedInterfaces()
     {
         return new HashSet<Interface>(this.providedInterfaces);
+    }
+
+    public boolean providesInterface(final Interface i)
+    {
+        return this.providedInterfaces.contains(i);
     }
 
     public boolean addProvidedInterface(final Interface i)

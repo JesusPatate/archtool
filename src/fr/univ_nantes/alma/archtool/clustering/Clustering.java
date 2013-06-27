@@ -1,91 +1,30 @@
 package fr.univ_nantes.alma.archtool.clustering;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.Iterator;
 import java.util.Set;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
-import fr.univ_nantes.alma.archtool.sourceModel.Call;
-import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.Function;
-import fr.univ_nantes.alma.archtool.sourceModel.ProgramGlobalVariable;
+import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
-import fr.univ_nantes.alma.archtool.sourceModel.Type;
-import fr.univ_nantes.alma.archtool.sourceModel.Variable;
+import fr.univ_nantes.alma.archtool.utils.Pair;
 
 /**
  * Méthode de regroupement hiérarchique.
  */
 public class Clustering
 {
-    /**
-     * Un noeud du dendogramme.
-     * 
-     * <p>
-     * Chaque noeud est composé d'un composant (la valeur du noeud) et de deux
-     * noeud fils.
-     * </p>
-     */
-    private class Node
+    private Dendogram dendogram;
+    
+    private ObjectiveFunction objectiveFct;
+    
+    public Clustering(ObjectiveFunction objFct)
     {
-        private final Component component;
-
-        private Node leftChild;
-
-        private Node rightChild;
-
-        public Node(final Component component)
-        {
-            this.component = component;
-            this.leftChild = null;
-            this.rightChild = null;
-        }
-
-        public Node(final Component component, final Node leftChild,
-                final Node rightChild)
-        {
-            this.component = component;
-            this.leftChild = leftChild;
-            this.rightChild = rightChild;
-        }
-
-        public Component getComponent()
-        {
-            return this.component;
-        }
-
-        public Node getLeftChild()
-        {
-            return this.leftChild;
-        }
-
-        public void setLeftChild(final Node child)
-        {
-            this.leftChild = child;
-        }
-
-        public Node getRightChild()
-        {
-            return this.rightChild;
-        }
-
-        public void setRightChild(final Node child)
-        {
-            this.rightChild = child;
-        }
+        this.objectiveFct = objFct;
     }
-
-    /**
-     * Le dendogramme résultat de la première phase de l'algorithme.
-     * 
-     * @see #Clustering.createDendogram()
-     */
-    private final List<Node> dendogram = new ArrayList<Clustering.Node>();
-
+    
     /**
      * Applique l'algorithme de clustering à un modèle de code source..
      * 
@@ -97,29 +36,58 @@ public class Clustering
     public Set<Component> process(final SourceCode sourceCode)
     {
         final HashSet<Component> components = new HashSet<Component>();
-
-        this.extractFunctions(sourceCode);
-        this.extractVariables(sourceCode);
-        this.extractTypes(sourceCode);
-
-        this.processInterfaces();
-
-        this.createDendogram();
+        
+        this.dendogram = new Dendogram(sourceCode);
+        this.buildDendogram();
 
         return components;
     }
 
     /**
      * Phase 1 : création du dendogramme par regroupement hiérarchique.
+     * 
+     * <p>
+     * A chaque itération, les deux noeuds formant la meilleure paire au vu de
+     * la fonction objectif (qui ont donc le plus de chance d'appartenir à un
+     * même composant) sont regroupés dans un nouveau noeud. Ceci jusqu'à ce
+     * qu'il ne reste plus qu'un noeud racine.
+     * </p>
      */
-    private void createDendogram()
+    private void buildDendogram()
     {
-        for (int i = 0; i < (this.dendogram.size() - 1); ++i)
+        double bestScore = 0.0;
+        Pair<Integer, Integer> bestPair = null;
+        Component bestComponent = null;
+        
+        while (this.dendogram.size() > 1)
         {
-            for (int j = i + 1; j < this.dendogram.size(); ++j)
+            for (int idx1 = 0; idx1 < (this.dendogram.size() - 1); ++idx1)
             {
-                clusterNodes(i, j);
+                for (int idx2 = idx1 + 1; idx2 < this.dendogram.size(); ++idx2)
+                {
+                    final Dendogram.Node clusterNode = this.clusterNodes(idx1, idx2);
+                    
+                    final Component comp = clusterNode.getComponent();
+                    final double score = this.objectiveFct.evaluate(comp);
+                    
+                    if(score > bestScore)
+                    {
+                        bestScore = score;
+                        bestPair = new Pair<Integer, Integer>(idx1, idx2);
+                        bestComponent = comp;
+                    }
+                }
             }
+            
+            if(bestPair != null && bestComponent != null)
+            {
+                this.dendogram.clusterNodes(bestComponent,
+                        bestPair.getFirst(), bestPair.getSecond());
+            }
+            
+            bestScore = 0.0;
+            bestPair = null;
+            bestComponent = null;
         }
     }
 
@@ -132,296 +100,125 @@ public class Clustering
     }
 
     /**
-     * Crée des noeuds du dendogramme à partir des fonctions d'un modèle de code
-     * source.
-     * 
-     * @param sourceCode
-     *            Un modèle de code source
-     */
-    private void extractFunctions(final SourceCode sourceCode)
-    {
-        for (final Function fct : sourceCode.getFunctions())
-        {
-            final Component comp = new Component();
-            comp.addFunction(fct);
-
-            final Clustering.Node node = new Node(comp);
-            this.dendogram.add(node);
-        }
-    }
-
-    /**
-     * Crée des noeuds du dendogramme à partir des variables globales d'un
-     * modèle de code source.
-     * 
-     * @param sourceCode
-     *            Un modèle de code source
-     */
-    private void extractVariables(final SourceCode sourceCode)
-    {
-        for (final Variable var : sourceCode.getFileGlobals())
-        {
-            final Component comp = new Component();
-            comp.addVariable(var);
-
-            final Clustering.Node node = new Node(comp);
-            this.dendogram.add(node);
-        }
-    }
-
-    /**
-     * Crée des noeuds du dendogramme à partir des définitions de type d'un
-     * modèle de code source.
-     * 
-     * @param sourceCode
-     *            Un modèle de code source
-     */
-    private void extractTypes(final SourceCode sourceCode)
-    {
-        for (final Type type : sourceCode.getTypes())
-        {
-            final Component comp = new Component();
-            comp.addType(type);
-
-            final Clustering.Node node = new Node(comp);
-            this.dendogram.add(node);
-        }
-    }
-
-    /**
-     * Fonction appelée à la création du dendogramme pour initialiser les
-     * interfaces des composants.
-     */
-    private void processInterfaces()
-    {
-        // At this time, a node is a function, a variable or a type
-
-        for (int idxNode = 0; idxNode < this.dendogram.size(); ++idxNode)
-        {
-            Component compo = this.dendogram.get(idxNode).getComponent();
-
-            // Function
-            if (compo.getFunctions().isEmpty() == false)
-            {
-                processInterfacesFct(idxNode);
-            }
-
-            // Variable
-            if (compo.getVariables().isEmpty() == false)
-            {
-                processInterfacesVar(idxNode);
-            }
-
-            // type
-            if (compo.getTypes().isEmpty() == false)
-            {
-                processInterfacesType(idxNode);
-            }
-        }
-    }
-
-    /**
-     * Fonction appelée à la création du dendogramme pour initialiser les
-     * interfaces liées à la fonction d'un composant
+     * Calcule les interfaces requises d'un nouveau cluster.
      * 
      * <p>
-     * Recherche les appels à la fonction fournie par un composant. Une
-     * interface requise est créée pour chaque composant faisant appel à cette
-     * fonction. Une interface fournie est créée pour le composant qui contient
-     * la fonction en question.
+     * Une interface requise d'un des composants fils ne doit pas être
+     * transférée au cluster si l'autre composant fils la fournit.
      * </p>
      * 
-     * @param idxNode
-     *            Index dans le dendogramme du composant qui contient la
-     *            fonction en question
-     * 
-     * @see #processInterfaces()
+     * @param cluster
+     *            Le composant cluster
+     * @param idxChild1
+     *            L'index du premier noeud fils
+     * @param idxChild2
+     *            L'index du second noeud fils
      */
-    private void processInterfacesFct(int idxNode)
+    private void updateRequiredInterfaces(final Component cluster,
+            final int idxChild1, final int idxChild2)
     {
-        Component compo1 = this.dendogram.get(idxNode).getComponent();
-        Function fct = compo1.getFunctions().iterator().next();
+        final Component child1 = this.dendogram.getNode(idxChild1)
+                .getComponent();
+        final Component child2 = this.dendogram.getNode(idxChild2)
+                .getComponent();
 
-        Interface interfaceFct = new Interface();
-        interfaceFct.addFunction(fct);
-
-        int nbCallers = 0;
-
-        for (int idx = 0; idx < this.dendogram.size(); ++idx)
+        for (final Interface reqI : child1.getRequiredInterfaces())
         {
-            Component compo2 = this.dendogram.get(idx).getComponent();
-
-            // If compo2 contains no function, it cannot call fct
-            if (compo2.getFunctions().isEmpty() == false)
+            if (child2.providesInterface(reqI) == false)
             {
-                Function fct2 = compo2.getFunctions().iterator().next();
-                Set<Call> callsFct2 = fct2.getCalls();
+                cluster.addRequiredInterface(reqI);
+            }
+        }
 
-                for (Call call : callsFct2)
+        for (final Interface reqI : child2.getRequiredInterfaces())
+        {
+            if (child1.providesInterface(reqI))
+            {
+                cluster.addRequiredInterface(reqI);
+            }
+        }
+    }
+
+    /**
+     * Calcule les interfaces fournies d'un nouveau cluster.
+     * 
+     * <p>
+     * Une interface fournie d'un des composants fils ne doit pas être
+     * transférée au cluster si seul l'autre composant fils la requérais.
+     * </p>
+     * 
+     * @param cluster
+     *            L'index du noeud cluster
+     * @param idxChild1
+     *            L'index du premier noeud fils
+     * @param idxChild2
+     *            L'index du second noeud fils
+     */
+    private void updateProvidedInterfaces(final Component cluster,
+            final int idxChild1, final int idxChild2)
+    {
+        final Component child1 = this.dendogram.getNode(idxChild1)
+                .getComponent();
+        final Component child2 = this.dendogram.getNode(idxChild2)
+                .getComponent();
+
+        for (final Interface proI : child1.getProvidedInterfaces())
+        {
+            final Iterator<Dendogram.Node> itNodes = this.dendogram.iterator();
+            boolean required = false;
+
+            while (itNodes.hasNext() && (required == false))
+            {
+                final Component compo = itNodes.next().getComponent();
+
+                if ((compo != child1) && (compo != child2))
                 {
-                    if (call.getFunction().equals(fct))
+                    if (compo.requiresInterface(proI))
                     {
-                        compo2.addRequiredInterface(interfaceFct);
-                        nbCallers++;
+                        cluster.addProvidedInterface(proI);
+                        required = true;
                     }
                 }
             }
         }
 
-        if (nbCallers > 0)
+        for (final Interface proI : child2.getProvidedInterfaces())
         {
-            compo1.addProvidedInterface(interfaceFct);
+            final Iterator<Dendogram.Node> itNodes = this.dendogram.iterator();
+            boolean required = false;
+
+            while (itNodes.hasNext() && (required == false))
+            {
+                final Component compo = itNodes.next().getComponent();
+
+                if ((compo != child1) && (compo != child2))
+                {
+                    if (compo.requiresInterface(proI))
+                    {
+                        cluster.addProvidedInterface(proI);
+                        required = true;
+                    }
+                }
+            }
         }
     }
 
     /**
-     * Fonction appelée à la création du dendogramme pour initialiser les
-     * interfaces liées à une variable d'un composant
+     * Regroupe deux noeuds dans un nouveau noeud parent (cluster)
      * 
-     * <p>
-     * Recherche les accès à une variable fournie par un composant. Une
-     * interface requise est créée pour chaque composant qui accède à cette
-     * fonction. Une interface fournie est créée pour le composant qui contient
-     * la variable en question.
-     * </p>
-     * 
-     * @param idxNode
-     *            Index dans le dendogramme du composant qui contient la
-     *            variable en question
-     * 
-     * @see #processInterfaces()
+     * @param idxChild1
+     *            Index du premier noeud fils
+     * @param idxChild2
+     *            Index du second noeud fils
      */
-    private void processInterfacesVar(int idxNode)
+    private Dendogram.Node clusterNodes(final int idxChild1, final int idxChild2)
     {
-        Component compo1 = this.dendogram.get(idxNode).getComponent();
-        Variable var = compo1.getVariables().iterator().next();
+        final Dendogram.Node clusterNode = this.dendogram
+                .clusterNodes(idxChild1, idxChild2);
 
-        Interface interfaceVar = new Interface();
-        interfaceVar.addVariable(var);
+        this.updateRequiredInterfaces(clusterNode.getComponent(), idxChild1, idxChild2);
+        this.updateProvidedInterfaces(clusterNode.getComponent(), idxChild1, idxChild2);
 
-        int nbAccessors = 0;
-
-        for (int idx = 0; idx < this.dendogram.size(); ++idx)
-        {
-            Component compo2 = this.dendogram.get(idx).getComponent();
-
-            // If compo2 contains no function, it cannot access var
-            if (compo2.getFunctions().isEmpty() == false)
-            {
-                Function fct2 = compo2.getFunctions().iterator().next();
-
-                Map<FileGlobalVariable, Integer> fileGlobalsFct = fct2
-                        .getFileGlobals();
-                Map<ProgramGlobalVariable, Integer> progGlobalsFct = fct2
-                        .getProgramGlobals();
-
-                if (fileGlobalsFct.containsKey(var)
-                        || progGlobalsFct.containsKey(var))
-                {
-                    compo2.addRequiredInterface(interfaceVar);
-                    nbAccessors++;
-                }
-            }
-        }
-
-        if (nbAccessors > 0)
-        {
-            compo1.addProvidedInterface(interfaceVar);
-        }
-    }
-
-    /**
-     * Fonction appelée à la création du dendogramme pour initialiser les
-     * interfaces liées à un type d'un composant
-     * 
-     * <p>
-     * Recherche les utilisation d'un type fourni par un composant. Une
-     * interface requise est créée pour chaque composant qui utilise ce type.
-     * Une interface fournie est créée pour le composant qui contient le type en
-     * question.
-     * </p>
-     * 
-     * @param idxNode
-     *            Index dans le dendogramme du composant qui contient le type en
-     *            question
-     * 
-     * @see #processInterfaces()
-     */
-
-    private void processInterfacesType(int idxNode)
-    {
-        Component compo1 = this.dendogram.get(idxNode).getComponent();
-        Type type = compo1.getTypes().iterator().next();
-
-        Interface interfaceType = new Interface();
-        interfaceType.addType(type);
-
-        int nbUsers = 0;
-
-        for (int idx = 0; idx < this.dendogram.size(); ++idx)
-        {
-            Component compo2 = this.dendogram.get(idx).getComponent();
-
-            // If compo2 contains no function, it cannot access var
-            if (compo2.getFunctions().isEmpty() == false)
-            {
-                Function fct2 = compo2.getFunctions().iterator().next();
-
-                Set<Type> typesFct = fct2.getUsedTypes();
-
-                if (typesFct.contains(type))
-                {
-                    compo2.addRequiredInterface(interfaceType);
-                    nbUsers++;
-                }
-            }
-        }
-
-        if (nbUsers > 0)
-        {
-            compo1.addProvidedInterface(interfaceType);
-        }
-    }
-
-    private void clusterNodes(int i, int j)
-    {
-        Component compo1 = this.dendogram.get(i).getComponent();
-        Component compo2 = this.dendogram.get(j).getComponent();
-
-        Component newCompo = new Component();
-
-        newCompo.addFunctions(compo1.getFunctions());
-        newCompo.addFunctions(compo2.getFunctions());
-        newCompo.addVariables(compo1.getVariables());
-        newCompo.addVariables(compo2.getVariables());
-        newCompo.addTypes(compo1.getTypes());
-        newCompo.addTypes(compo2.getTypes());
-        
-        updateRequiredInterfaces(newCompo, compo1, compo2);
-    }
-    
-    private void updateRequiredInterfaces(Component parent, Component child1,
-            Component child2)
-    {
-        Set<Interface> reqIs1 = child1.getRequiredInterfaces();
-        Set<Interface> proIs1 = child1.getProvidedInterfaces();
-        Set<Interface> reqIs2 = child2.getRequiredInterfaces();
-        Set<Interface> proIs2 = child2.getProvidedInterfaces();
-        
-        for(Interface reqI : reqIs1)
-        {
-            for(Interface proI : proIs2)
-            {
-                
-            }
-        }
-        
-        for(Interface reqI : reqIs2)
-        {
-            for(Interface proI : proIs1)
-            {
-                
-            }
-        }
+        return clusterNode;
     }
 }

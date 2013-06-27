@@ -124,6 +124,21 @@ public class Function
         return this.body.getCalls();
     }
     
+    public boolean calls(Function fct)
+    {
+        boolean called = false;
+        
+        for (final Call call : this.getCalls())
+        {
+            if (call.getFunction().equals(fct))
+            {
+                called = true;
+            }
+        }
+        
+        return called;
+    }
+    
     /**
      * Renvoie l'ensemble des types utilisés par la fonction.
      * 
