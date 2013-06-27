@@ -150,7 +150,7 @@ public class Function
      * @return Un set contenant les types utilisés dans le corps
      * de la fonction.
      */
-    public Set<Type> getUsedTypes()
+    public Map<Type, Integer> getUsedTypes()
     {
         return this.body.getUsedTypes();
     }

@@ -174,23 +174,23 @@ public class Block
      * @return Une map contenant l'ensemble des types utilisés dans le bloc
      * et pour chacun d'eux, le nombre d'utilisations.
      */
-    public Set<Type> getUsedTypes()
+    public Map<Type, Integer> getUsedTypes()
     {
-        Set<Type> usedTypes = new HashSet<Type>();
+        Map<Type, Integer> usedTypes = new HashMap<Type, Integer>();
         
         for(Variable var : this.programGlobals.keySet())
         {
-            usedTypes.add(var.getType());
+            usedTypes.put(var.getType(), this.programGlobals.get(var));
         }
         
         for(Variable var : this.fileGlobals.keySet())
         {
-            usedTypes.add(var.getType());
+            usedTypes.put(var.getType(), this.fileGlobals.get(var));
         }
 
         for(Variable var : this.locals.keySet())
         {
-            usedTypes.add(var.getType());
+            usedTypes.put(var.getType(), this.locals.get(var));
         }
         
         return usedTypes;
