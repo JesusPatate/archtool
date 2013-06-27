@@ -1,3 +1,8 @@
+options 
+{
+	STATIC = false;
+}
+
 PARSER_BEGIN(CParser)
 
 import java.util.*;
@@ -288,22 +293,12 @@ void Declarator() : {}
 	[ Pointer() ] DirectDeclarator()
 }
 
-void DirectDeclarator() : { Token t;}
+void DirectDeclarator() : {}
 {
-	( t = <IDENTIFIER>
-
-	{ if(!(typedefParsingStack.empty()) && ((Boolean)typedefParsingStack.peek()).booleanValue()){
-				addType(t.image);
-	  }
-	}
-	 | "(" Declarator() ")" )
-  
-  { typedefParsingStack.push( Boolean.FALSE ); }
-
-	( "[" [ ConstantExpression() ] "]" |
-	    LOOKAHEAD(3) "(" ParameterTypeList() ")" |
-	    "(" [ IdentifierList() ] ")" )*
-      { typedefParsingStack.pop(); }
+	(<IDENTIFIER> | "(" Declarator() ")" )
+	( LOOKAHEAD("[" [ ConstantExpression() ] "]") "[" [ ConstantExpression() ] "]" |
+	   LOOKAHEAD(2) "(" ParameterTypeList() ")" |
+	  "(" [ IdentifierList() ] ")" )*
 }
 
 void Pointer() : {}
