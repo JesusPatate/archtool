@@ -160,9 +160,9 @@ void constant() : {}
 
 void integerConstant() : {}
 {            
-	decimalConstant() [integerSuffix()] |
-	octalConstant() [integerSuffix()] |
-	hexadecimalConstant() [integerSuffix()]
+	decimalConstant() [ integerSuffix() ] |
+	octalConstant() [ integerSuffix() ] |
+	hexadecimalConstant() [ integerSuffix() ]
 }
 
 void decimalConstant() : {}
@@ -199,7 +199,7 @@ void floatingConstant() : {}
 
 void decimalFloatingConstant() : {}
 {            
-	fractionalConstant() [ exponentPart() ] <FLOATING_SUFFIX> |
+	fractionalConstant() [ exponentPart() ] [ <FLOATING_SUFFIX> ] |
 	digitSequence() exponentPart() [ <FLOATING_SUFFIX> ]
 }
 
@@ -296,7 +296,6 @@ void hexadecimalEscapeSequence() : {}
 void stringLiteral() : {}
 {            
 	[ <ENCODING_PREFIX> ] "\"" [ sCharSequence() ] "\""
-	hexadecimalEscapeSequence() <HEXADECIMAL_DIGIT>
 }
 
 void sCharSequence() : {}
@@ -600,8 +599,7 @@ void enumSpecifier() : {}
 
 void enumeratorList() : {}
 {
-	enumerator() |
-	enumeratorList() "," enumerator()
+	enumerator() ( "," enumerator() )*
 }
 
 void enumerator() : {}
@@ -655,7 +653,7 @@ void directDeclarator() : {}
 void pointer() : {}
 {
 	"*" [ typeQualifierList() ] |
-	[ typeQualifierList() ] "*"
+	[ typeQualifierList() ] "*" pointer()
 }
 
 void typeQualifierList() : {}
@@ -672,8 +670,7 @@ void parameterTypeList() : {}
 
 void parameterList() : {}
 {
-	parameterDeclaration() |
-	parameterList() "," parameterDeclaration()
+	parameterDeclaration() ( "," parameterDeclaration() )*
 }
 
 void parameterDeclaration() : {}
@@ -684,8 +681,7 @@ void parameterDeclaration() : {}
 
 void identifierList() : {}
 {
-	identifier() |
-	identifierList() "," identifier()
+	identifier() ( "," identifier() )*
 }
 
 void typeName() : {}
@@ -706,7 +702,7 @@ void directAbstractDeclarator() : {}
 	[ directAbstractDeclarator() ] "[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
 	[ directAbstractDeclarator() ] "[" typeQualifierList() <STATIC> assignmentExpression() "]" |
 	[ directAbstractDeclarator() ] "[" "*" "]" |
-	[ directAbstractDeclarator() ] "(" parameterTypeList() ")"
+	[ directAbstractDeclarator() ] "(" [ parameterTypeList() ] ")"
 }
 
 void typedefName() : {}
@@ -734,8 +730,7 @@ void designation() : {}
 
 void designatorList() : {}
 {
-	designator() |
-	designatorList() designator()
+	( designator() )+
 }
 
 void designator() : {}
@@ -775,8 +770,7 @@ void compoundStatement() : {}
 
 void blockItemList() : {}
 {
-	blockItem() |
-	blockItemList() blockItem()
+	( blockItem() )+
 }
 
 void blockItem() : {}
@@ -807,7 +801,7 @@ void iterationStatement() : {}
 
 void jumpStatement() : {}
 {
-	<GOTO> identifier() |
+	<GOTO> identifier() ";" |
 	<CONTINUE> ";" |
 	<BREAK> ";" |
 	<RETURN> [ expression() ] ";"
@@ -817,8 +811,7 @@ void jumpStatement() : {}
 
 void translationUnit() : {}
 {
-	externalDeclaration() |
-	translationUnit() externalDeclaration()
+	( externalDeclaration() )+
 }
 
 void externalDeclaration() : {}
@@ -834,6 +827,5 @@ void functionDefinition() : {}
 
 void declarationList() : {}
 {
-	declaration() |
-	declarationList() declaration()
+	( declaration() )+
 }
