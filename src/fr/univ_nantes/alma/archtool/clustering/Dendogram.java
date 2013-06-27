@@ -109,55 +109,61 @@ public class Dendogram implements Iterable<Dendogram.Node>
     }
 
     /**
-     * Regroupe deux noeuds du dendogramme dans un nouveau noeud parent.
+     * Fusionne deux noeuds du dendogramme et retourne le nouveau noeud obtenu.
+     * 
+     * <p>
+     * ATTENTION : le nouveau noeud noeud n'est pas inséré dans le dendogramme.
+     * </p>
      * 
      * @param idxChild1
      *            Index du premier noeud à regrouper
      * @param idxChild2
      *            Index du second noeud à regrouper
      * 
-     * @return L'index du nouveau noeud parent
+     * @return Le noeud cluster généré
      */
     public Dendogram.Node clusterNodes(final int idxChild1, final int idxChild2)
     {
         Node childNode1 = this.getNode(idxChild1);
         Node childNode2 = this.getNode(idxChild2);
 
-        Component compo1 = childNode1.getComponent();
-        Component compo2 = childNode2.getComponent();
+        Component childComp1 = childNode1.getComponent();
+        Component childComp2 = childNode2.getComponent();
 
-        Component newCompo = new Component();
+        Component clusterComp = new Component();
 
-        newCompo.addFunctions(compo1.getFunctions());
-        newCompo.addFunctions(compo2.getFunctions());
-        newCompo.addVariables(compo1.getVariables());
-        newCompo.addVariables(compo2.getVariables());
-        newCompo.addTypes(compo1.getTypes());
-        newCompo.addTypes(compo2.getTypes());
+        clusterComp.addFunctions(childComp1.getFunctions());
+        clusterComp.addFunctions(childComp2.getFunctions());
+        clusterComp.addVariables(childComp1.getVariables());
+        clusterComp.addVariables(childComp2.getVariables());
+        clusterComp.addTypes(childComp1.getTypes());
+        clusterComp.addTypes(childComp2.getTypes());
 
-        Node clusterNode = new Node(newCompo, childNode1, childNode2);
+        this.updateRequiredInterfaces(clusterComp, idxChild1, idxChild2);
+        this.updateProvidedInterfaces(clusterComp, idxChild1, idxChild2);
+
+        Node clusterNode = new Dendogram.Node(clusterComp, childNode1,
+                childNode2);
 
         return clusterNode;
     }
-    
+
     /**
-     * Regroupe deux noeuds du dendogramme dans un nouveau noeud parent.
+     * Insert un nouveau noeud cluster.
      * 
-     * <p></p>
+     * <p>
+     * </p>
      * 
      * @param cluster
      * @param idxChild1
      * @param idxChild2
      * @return
      */
-    public int clusterNodes(final Component cluster, final int idxChild1,
-            final int idxChild2)
+    public int insertClusterNode(final Dendogram.Node clusterNode)
     {
-        Node childNode1 = this.getNode(idxChild1);
-        Node childNode2 = this.getNode(idxChild2);
-        
-        Node clusterNode = new Node(cluster, childNode1, childNode2);
-        
+        Node childNode1 = clusterNode.getLeftChild();
+        Node childNode2 = clusterNode.getRightChild();
+
         this.nodes.remove(childNode1);
         this.nodes.remove(childNode2);
         this.nodes.add(clusterNode);
@@ -181,7 +187,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
         this.extractFunctions(sourceCode);
         this.extractVariables(sourceCode);
         this.extractTypes(sourceCode);
-        
+
         this.processInterfaces();
     }
 
@@ -240,7 +246,9 @@ public class Dendogram implements Iterable<Dendogram.Node>
             final Dendogram.Node node = new Node(comp);
             this.nodes.add(node);
         }
-    }/**
+    }
+
+    /**
      * Fonction appelée à la création du dendogramme pour initialiser les
      * interfaces des composants.
      */
@@ -292,31 +300,33 @@ public class Dendogram implements Iterable<Dendogram.Node>
      */
     private void processInterfacesFct(final int idxNode)
     {
-        if(idxNode < this.nodes.size())
+        if (idxNode < this.nodes.size())
         {
             final Node node = this.nodes.get(idxNode);
             final Component comp = node.getComponent();
-            
-            if(comp.getFunctions().size() == 1)
+
+            if (comp.getFunctions().size() == 1)
             {
                 final Function fct = comp.getFunctions().iterator().next();
-        
+
                 final Interface interfaceFct = new Interface();
                 interfaceFct.addFunction(fct);
-        
+
                 int nbCallers = 0;
-        
+
                 for (int idx = 0; idx < this.nodes.size(); ++idx)
                 {
-                    if(idx != idxNode)
+                    if (idx != idxNode)
                     {
-                        final Component comp2 = this.nodes.get(idx).getComponent();
-            
+                        final Component comp2 = this.nodes.get(idx)
+                                .getComponent();
+
                         // If compo2 contains no function, it cannot call fct
                         if (comp2.getFunctions().isEmpty() == false)
                         {
-                            final Function fctComp2 = comp2.getFunctions().iterator().next();
-                            
+                            final Function fctComp2 = comp2.getFunctions()
+                                    .iterator().next();
+
                             if (fctComp2.calls(fct))
                             {
                                 comp2.addRequiredInterface(interfaceFct);
@@ -325,26 +335,26 @@ public class Dendogram implements Iterable<Dendogram.Node>
                         }
                     }
                 }
-        
+
                 if (nbCallers > 0)
                 {
                     comp.addProvidedInterface(interfaceFct);
                 }
             }
-            
+
             else
             {
                 throw new RuntimeException(
                         "Erreur interne (processInterfacesFct) - "
-                        + "le noeud en paramètre ne contient pas de fonction.");
+                                + "le noeud en paramètre ne contient pas de fonction.");
             }
         }
-        
+
         else
         {
             throw new RuntimeException(
                     "Erreur interne (processInterfacesFct) - "
-                    + "l'index passé en paramètre est incorrect.");
+                            + "l'index passé en paramètre est incorrect.");
         }
     }
 
@@ -493,6 +503,110 @@ public class Dendogram implements Iterable<Dendogram.Node>
         if (nbUsers > 0)
         {
             compo1.addProvidedInterface(interfaceType);
+        }
+    }
+
+    /**
+     * Calcule les interfaces requises d'un nouveau cluster.
+     * 
+     * <p>
+     * Une interface requise d'un des composants fils ne doit pas être
+     * transférée au cluster si l'autre composant fils la fournit.
+     * </p>
+     * 
+     * @param cluster
+     *            Le composant cluster
+     * @param idxChild1
+     *            L'index du premier noeud fils
+     * @param idxChild2
+     *            L'index du second noeud fils
+     */
+    private void updateRequiredInterfaces(final Component cluster,
+            final int idxChild1, final int idxChild2)
+    {
+        final Component child1 = this.nodes.get(idxChild1)
+                .getComponent();
+        final Component child2 = this.nodes.get(idxChild2)
+                .getComponent();
+
+        for (final Interface reqI : child1.getRequiredInterfaces())
+        {
+            if (child2.providesInterface(reqI) == false)
+            {
+                cluster.addRequiredInterface(reqI);
+            }
+        }
+
+        for (final Interface reqI : child2.getRequiredInterfaces())
+        {
+            if (child1.providesInterface(reqI))
+            {
+                cluster.addRequiredInterface(reqI);
+            }
+        }
+    }
+
+    /**
+     * Calcule les interfaces fournies d'un nouveau cluster.
+     * 
+     * <p>
+     * Une interface fournie d'un des composants fils ne doit pas être
+     * transférée au cluster si seul l'autre composant fils la requérais.
+     * </p>
+     * 
+     * @param cluster
+     *            L'index du noeud cluster
+     * @param idxChild1
+     *            L'index du premier noeud fils
+     * @param idxChild2
+     *            L'index du second noeud fils
+     */
+    private void updateProvidedInterfaces(final Component cluster,
+            final int idxChild1, final int idxChild2)
+    {
+        final Component child1 = this.nodes.get(idxChild1)
+                .getComponent();
+        final Component child2 = this.nodes.get(idxChild2)
+                .getComponent();
+
+        for (final Interface proI : child1.getProvidedInterfaces())
+        {
+            final Iterator<Dendogram.Node> itNodes = this.nodes.iterator();
+            boolean required = false;
+
+            while (itNodes.hasNext() && (required == false))
+            {
+                final Component compo = itNodes.next().getComponent();
+
+                if ((compo != child1) && (compo != child2))
+                {
+                    if (compo.requiresInterface(proI))
+                    {
+                        cluster.addProvidedInterface(proI);
+                        required = true;
+                    }
+                }
+            }
+        }
+
+        for (final Interface proI : child2.getProvidedInterfaces())
+        {
+            final Iterator<Dendogram.Node> itNodes = this.nodes.iterator();
+            boolean required = false;
+
+            while (itNodes.hasNext() && (required == false))
+            {
+                final Component compo = itNodes.next().getComponent();
+
+                if ((compo != child1) && (compo != child2))
+                {
+                    if (compo.requiresInterface(proI))
+                    {
+                        cluster.addProvidedInterface(proI);
+                        required = true;
+                    }
+                }
+            }
         }
     }
 
