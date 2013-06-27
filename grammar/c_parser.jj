@@ -58,6 +58,42 @@ public class CParser
 
 PARSER_END(CParser)
 
+SKIP : 
+{
+	 " "
+	| "\t"
+	| "\n"
+	| "\r"
+	| <"//" (~["\n","\r"])* ("\n" | "\r" | "\r\n")>
+	| <"/*" (~["*"])* "*" ("*" | ~["*","/"] (~["*"])* "*")* "/">
+	| "#" : PREPROCESSOR_OUTPUT
+	
+}
+
+<PREPROCESSOR_OUTPUT> SKIP:
+{
+	"\n" : DEFAULT
+}
+
+<PREPROCESSOR_OUTPUT> MORE:
+{
+	"\\\n"
+ | "\\\r\n"
+ | < ~[] >
+}
+
+TOKEN : 
+{
+ 	<INTEGER_LITERAL: <DECIMAL_LITERAL> (["l","L"])? | <HEX_LITERAL> (["l","L"])? | <OCTAL_LITERAL> (["l","L"])?>
+	| <#DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])*>
+	| <#HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+>
+	| <#OCTAL_LITERAL: "0" (["0"-"7"])*>
+	| <FLOATING_POINT_LITERAL: (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])? | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])? | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])? | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]>
+	| <#EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+>
+	| <CHARACTER_LITERAL: "\'" (~["\'","\\","\n","\r"] | "\\" (["n","t","b","r","f","\\","\'","\""] | ["0"-"7"] (["0"-"7"])? | ["0"-"3"] ["0"-"7"] ["0"-"7"])) "\'">
+	| <STRING_LITERAL: "\"" ( ~["\"","\\","\n","\r"] | "\\" ( ["n","t","b","r","f","\\","\'","\""] | ["0"-"7"] (["0"-"7"])?  | ["0"-"3"] ["0"-"7"] ["0"-"7"] | ( ["\n","\r"] | "\r\n")))* "\"">
+}
+
 TOKEN: /* Keywords */
 {
       <AUTO: "auto">
@@ -106,207 +142,351 @@ TOKEN: /* Keywords */
 	| <THREAD_LOCAL: "_Thread_local">
 }
 
-TOKEN:
+TOKEN : 
 {
-      <NON_DIGIT: ["_","a"-"z", "A"-"Z"]>
-	| <DIGIT: ["0"-"9"]>
-	| <HEXADECIMAL_DIGIT: ["0"-"9", "a"-"z", "A"-"Z"]>
-	| <HEXADECIMAL_PREFIX: "0x" | "0X">
-	| <NON_ZERO_DIGIT: ["1"-"9"]>
-	| <OCTAL_DIGIT: ["0"-"7"]>
-	| <UNSIGNED_SUFFIX: ["u", "U"] >
-	| <LONG_SUFFIX: ["l", "L"]>
-	| <LONG_LONG_SUFFIX: "ll" | "LL">
-	| <FLOATING_SUFFIX: ["f", "l", "F", "L"]>
-	| <SIGN: ["+", "-"]>
-	| <SIMPLE_ESCAPE_SEQUENCE: "">
-	| <ENCODING_PREFIX: "u8" | "u" | "U" | "L">
-	| <CHARACTER_LITERAL: (~["\'","\\","\n","\r"] | "\\" (["n","t","b","r","f","\\","\'","\""] | ["0"-"7"] (["0"-"7"])? | ["0"-"3"] ["0"-"7"] ["0"-"7"]))>
+	<IDENTIFIER: <LETTER> (<LETTER> | <DIGIT>)*>
+	| <#LETTER: ["$","A"-"Z","_","a"-"z"]>
+	| <#DIGIT: ["0"-"9"]>
 }
 
-/************************************ Identifiers ************************************/
+/************************************ External definitions ************************************/
 
-void identifier() : {}
-{            
-	identifierNonDigit() ( identifierNonDigit() | <DIGIT> )*
+void translationUnit() : {}
+{
+	( externalDeclaration() )+
 }
 
-void identifierNonDigit() : {}
-{            
-	<NON_DIGIT> | 
-	universalCharacterName()
+void externalDeclaration() : {}
+{
+	LOOKAHEAD(functionDefinition()) functionDefinition() |
+	declaration()
 }
 
-void universalCharacterName() : {}
-{            
-	"\\u" hexQuad() | 
-	"\\U" hexQuad() hexQuad()
+void functionDefinition() : {}
+{
+	declarationSpecifiers() declarator() [ declarationList() ] compoundStatement()
 }
 
-void hexQuad() : {}
-{            
-	<HEXADECIMAL_DIGIT> <HEXADECIMAL_DIGIT> <HEXADECIMAL_DIGIT> <HEXADECIMAL_DIGIT>
+void declarationList() : {}
+{
+	( declaration() )+
 }
 
-void constant() : {}
-{            
-	integerConstant() |
-	floatingConstant() |
-	enumerationConstant() |
-	characterConstant()
+/************************************ Statements ************************************/
+
+void statement() : {}
+{
+	LOOKAHEAD(2) labeledStatement() |
+	compoundStatement() |
+	expressionStatement() |
+	selectionStatement() |
+	iterationStatement() |
+	jumpStatement()
 }
 
-void integerConstant() : {}
-{            
-	decimalConstant() [ integerSuffix() ] |
-	octalConstant() [ integerSuffix() ] |
-	hexadecimalConstant() [ integerSuffix() ]
+void labeledStatement() : {}
+{
+	<IDENTIFIER> ":" statement() |
+	<CASE> constantExpression() ":" statement() |
+	<DFLT> ":" statement()
 }
 
-void decimalConstant() : {}
-{            
-	<NON_ZERO_DIGIT> ( <DIGIT> )*
+void compoundStatement() : {}
+{
+	"{" [ blockItemList() ] "}"
 }
 
-void octalConstant() : {}
-{            
-	"0" ( <OCTAL_DIGIT> )*
+void blockItemList() : {}
+{
+	( blockItem() )+
 }
 
-void hexadecimalConstant() : {}
-{            
-	<HEXADECIMAL_PREFIX> ( <HEXADECIMAL_DIGIT> )+
+void blockItem() : {}
+{
+	LOOKAHEAD(3) declaration() |
+	statement()
 }
 
-void integerSuffix() : {}
-{            
-	<UNSIGNED_SUFFIX> [ <LONG_SUFFIX> ] |
-	<UNSIGNED_SUFFIX> <LONG_LONG_SUFFIX> |
-	<LONG_SUFFIX> [ <UNSIGNED_SUFFIX> ] |
-	<LONG_LONG_SUFFIX> [ <UNSIGNED_SUFFIX> ]
+void expressionStatement() : {}
+{
+	[ expression() ] ";"
 }
 
-void floatingConstant() : {}
-{            
-	decimalFloatingConstant() |
-	hexadecimalFloatingConstant()
+void selectionStatement() : {}
+{
+	LOOKAHEAD(3) <IF> "(" expression() ")" statement() |
+	<IF> "(" expression() ")" statement() <ELSE> statement() |
+	<SWITCH> "(" expression() ")" statement()
 }
 
-void decimalFloatingConstant() : {}
-{            
-	fractionalConstant() [ exponentPart() ] [ <FLOATING_SUFFIX> ] |
-	digitSequence() exponentPart() [ <FLOATING_SUFFIX> ]
+void iterationStatement() : {}
+{
+	<WHILE> "(" expression() ")" statement() |
+	<DO> statement() <WHILE> "(" expression() ")" ";" |
+	LOOKAHEAD(3) <FOR> "(" [ expression() ] ";" [ expression() ] ";" [ expression() ] ")" statement() |
+	<FOR> "(" declaration() [ expression() ] ";" [ expression() ] ")" statement()
 }
 
-void hexadecimalFloatingConstant() : {}
-{            
-	<HEXADECIMAL_PREFIX> hexadecimalFractionalConstant()
-		binaryExponentPart() [ <FLOATING_SUFFIX> ] |
-	<HEXADECIMAL_PREFIX> hexadecimalDigitSequence()
-		binaryExponentPart() [ <FLOATING_SUFFIX> ]
+void jumpStatement() : {}
+{
+	<GOTO> <IDENTIFIER> ";" |
+	<CONTINUE> ";" |
+	<BREAK> ";" |
+	<RETURN> [ expression() ] ";"
 }
 
-void fractionalConstant() : {}
-{            
-	[ digitSequence() ] "." digitSequence() |
-	digitSequence() "."
+/************************************ Declarations ************************************/
+
+void declaration() : {}
+{
+	declarationSpecifiers() [ initDeclaratorList() ] ";" |
+	staticAssertDeclaration()
 }
 
-void exponentPart() : {}
-{            
-	"e" [ <SIGN> ] digitSequence() |
-	"E" [ <SIGN> ] digitSequence()
+void declarationSpecifiers() : {}
+{
+	storageClassSpecifier() [ LOOKAHEAD(declarationSpecifiers()) declarationSpecifiers() ] |
+	LOOKAHEAD(2) typeSpecifier() [ LOOKAHEAD(declarationSpecifiers()) declarationSpecifiers() ] |
+	typeQualifier() [ LOOKAHEAD(declarationSpecifiers()) declarationSpecifiers() ] |
+	functionSpecifier() [ LOOKAHEAD(declarationSpecifiers()) declarationSpecifiers() ] |
+	alignmentSpecifier() [ LOOKAHEAD(declarationSpecifiers()) declarationSpecifiers() ]
 }
 
-void digitSequence() : {}
-{            
-	( <DIGIT> )+
+void initDeclaratorList() : {}
+{
+	initDeclarator() ( "," initDeclarator() )*
 }
 
-void hexadecimalFractionalConstant() : {}
-{            
-	[ hexadecimalDigitSequence() ] "." hexadecimalDigitSequence() |
-	hexadecimalDigitSequence() "."
+void initDeclarator() : {}
+{
+	declarator() [ "=" initializer() ]
 }
 
-void binaryExponentPart() : {}
-{            
-	"P" [ <SIGN> ] digitSequence() |
-	"p" [ <SIGN> ] digitSequence()
+void storageClassSpecifier() : {}
+{
+	<TYPEDEF> |
+	<EXTERN> |
+	<STATIC> |
+	<THREAD_LOCAL> |
+	<AUTO> |
+	<REGISTER>
 }
 
-void hexadecimalDigitSequence() : {}
-{            
-	( <HEXADECIMAL_DIGIT> )+
+void typeSpecifier() : {}
+{
+	<VOID> |
+	<CHAR> |
+	<SHORT> |
+	<INT> |
+	<LONG> |
+	<FLOAT> |
+	<DOUBLE> |
+	<SIGNED> |
+	<UNSIGNED> |
+	<BOOL> |
+	<COMPLEX> |
+	atomicTypeSpecifier() |
+	structOrUnionSpecifier() |
+	enumSpecifier() |
+	typedefName()
 }
 
-void enumerationConstant() : {}
-{            
-	identifier()
+void structOrUnionSpecifier() : {}
+{
+	LOOKAHEAD(3) structOrUnion() [ <IDENTIFIER> ] "{" structDeclarationList() "}" |
+	structOrUnion() <IDENTIFIER>
 }
 
-void characterConstant() : {}
-{            
-	"'" cCharSequence() "'" |
-	"L'" cCharSequence() "'" |
-	"u'" cCharSequence() "'" |
-	"U'" cCharSequence() "'"
+void structOrUnion() : {}
+{
+	<STRUCT>  |
+	<UNION>
 }
 
-void cCharSequence() : {}
-{            
-	( cChar() )+
+void structDeclarationList() : {}
+{
+	( structDeclaration() )+
 }
 
-void cChar() : {}
-{            
-	<CHARACTER_LITERAL> |
-	escapeSequence()
+void structDeclaration() : {}
+{
+	specifierQualifierList() [ structDeclaratorList() ] ";" |
+	staticAssertDeclaration()
 }
 
-void escapeSequence() : {}
-{            
-	<SIMPLE_ESCAPE_SEQUENCE> |
-	octalEscapeSequence() |
-	hexadecimalEscapeSequence() |
-	universalCharacterName()
+void specifierQualifierList() : {}
+{
+	LOOKAHEAD(2) typeSpecifier() [ LOOKAHEAD(2) specifierQualifierList() ] |
+	typeQualifier() [ LOOKAHEAD(2) specifierQualifierList() ]
 }
 
-void octalEscapeSequence() : {}
-{            
-	"\\" <OCTAL_DIGIT> |
-	"\\" <OCTAL_DIGIT> <OCTAL_DIGIT> |
-	"\\" <OCTAL_DIGIT> <OCTAL_DIGIT> <OCTAL_DIGIT>
+void structDeclaratorList() : {}
+{
+	structDeclarator() ( "," structDeclarator() )*
 }
 
-void hexadecimalEscapeSequence() : {}
-{            
-	"\\x" ( <HEXADECIMAL_DIGIT> )+
+void structDeclarator() : {}
+{
+	LOOKAHEAD(3) declarator() |
+	[ declarator() ] ":" constantExpression()
 }
 
-void stringLiteral() : {}
-{            
-	[ <ENCODING_PREFIX> ] "\"" [ sCharSequence() ] "\""
+void enumSpecifier() : {}
+{
+	<ENUM> [ LOOKAHEAD(2) <IDENTIFIER> ] [ "{" enumeratorList() [ "," ] "}" ]
 }
 
-void sCharSequence() : {}
-{            
-	( sChar() )+
+void enumeratorList() : {}
+{
+	enumerator() ( LOOKAHEAD(2) "," enumerator() )*
 }
 
-void sChar() : {}
-{            
-	<CHARACTER_LITERAL> |
-	escapeSequence()
+void enumerator() : {}
+{
+	<IDENTIFIER> [ "=" constantExpression() ]
+}
+
+void atomicTypeSpecifier() : {}
+{
+	<ATOMIC> "(" typeName() ")"
+}
+
+void typeQualifier() : {}
+{
+	<CONST> |
+	<RESTRICT> |
+	<VOLATILE> |
+	<ATOMIC>
+}
+
+void functionSpecifier() : {}
+{
+	<INLINE> |
+	<NORETURN>
+}
+
+void alignmentSpecifier() : {}
+{
+	LOOKAHEAD(3) <ALIGNAS> "(" typeName() ")" |
+	<ALIGNAS> "(" constantExpression() ")"
+}
+
+void declarator() : {}
+{
+	[ pointer() ] directDeclarator()
+}
+
+void directDeclarator() : {}
+{
+	( <IDENTIFIER> | "(" declarator() ")" ) ( LOOKAHEAD(3) "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
+		 LOOKAHEAD(2) "[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
+		 LOOKAHEAD(3) "[" typeQualifierList()  <STATIC> assignmentExpression() "]" |
+ 		 "[" [ typeQualifierList() ] "*" "]" |
+ 		 LOOKAHEAD(3) "(" parameterTypeList() ")" |
+ 		 "(" [ identifierList() ] ")" )*
+}
+
+void pointer() : {}
+{
+	LOOKAHEAD(3) "*" [ typeQualifierList() ] |
+	[ typeQualifierList() ] "*" pointer()
+}
+
+void typeQualifierList() : {}
+{
+	( typeQualifier() )+
+}
+
+void parameterTypeList() : {}
+{
+	LOOKAHEAD(3) parameterList() |
+	parameterList() "," "..."
+}
+
+void parameterList() : {}
+{
+	parameterDeclaration() ( LOOKAHEAD(2) "," parameterDeclaration() )*
+}
+
+void parameterDeclaration() : {}
+{
+	LOOKAHEAD(3) declarationSpecifiers() declarator() |
+	declarationSpecifiers() [ abstractDeclarator() ]
+}
+
+void identifierList() : {}
+{
+	<IDENTIFIER> ( "," <IDENTIFIER> )*
+}
+
+void typeName() : {}
+{
+	specifierQualifierList() [ abstractDeclarator() ]
+}
+
+void abstractDeclarator() : {}
+{
+	LOOKAHEAD(3) pointer() |
+	[ pointer() ] directAbstractDeclarator()
+}
+
+void directAbstractDeclarator() : {}
+{
+	LOOKAHEAD(3) "(" abstractDeclarator() ")" ( LOOKAHEAD(3) "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
+		LOOKAHEAD(2) "[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
+		LOOKAHEAD(2) "[" typeQualifierList() <STATIC> assignmentExpression() "]" |
+		"[" "*" "]" |
+		"(" [ parameterTypeList() ] ")" )* |
+	( LOOKAHEAD(2) "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
+		LOOKAHEAD(2) "[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
+		LOOKAHEAD(2) "[" typeQualifierList() <STATIC> assignmentExpression() "]" |
+		"[" "*" "]" |
+		"(" [ parameterTypeList() ] ")" )+
+}
+
+void typedefName() : {}
+{
+	<IDENTIFIER>
+}
+
+void initializer() : {}
+{
+	assignmentExpression() |
+	"{" initializerList() [ "," ] "}"
+}
+
+void initializerList() : {}
+{
+	[ designation() ] initializer() ( LOOKAHEAD(2) "," [ designation() ] initializer() )*
+}
+
+void designation() : {}
+{
+	designatorList() "="
+}
+
+void designatorList() : {}
+{
+	( designator() )+
+}
+
+void designator() : {}
+{
+	"[" constantExpression() "]" |
+	"." <IDENTIFIER>
+}
+
+void staticAssertDeclaration() : {}
+{
+	<STATIC_ASSERT> "(" constantExpression() "," <STRING_LITERAL> ")" ";"
 }
 
 /************************************ Expressions ************************************/
 
 void pimaryExpression() : {}
 {            
-	identifier() | 
+	<IDENTIFIER> | 
 	constant() | 
-	stringLiteral() | 
 	"(" expression() ")" | 
 	genericSelection() 
 }
@@ -329,12 +509,12 @@ void genericAssociation() : {}
 
 void postfixExpression() : {}
 {
-	( pimaryExpression() |
-	"(" typeName() ")" "{" initializerList() "}" |
+	( LOOKAHEAD(3) pimaryExpression() |
+	LOOKAHEAD(3) "(" typeName() ")" "{" initializerList() "}" |
 	"(" typeName() ")" "{" initializerList() "," "}" ) ( "[" expression() "]" |
 		"(" [ argumentExpressionList() ] ")" |
-		"." identifier() |
-		"->" identifier() |
+		"." <IDENTIFIER> |
+		"->" <IDENTIFIER> |
 		"++" |
 		"--" )*
 }
@@ -350,7 +530,7 @@ void unaryExpression() : {}
 	"++" unaryExpression() |
 	"--" unaryExpression() |
 	unaryOperator() castExpression() |
-	<SIZEOF> unaryExpression() |
+	LOOKAHEAD(3) <SIZEOF> unaryExpression() |
 	<SIZEOF> "(" typeName() ")" |
 	<ALIGNOF> "(" typeName() ")"
 }
@@ -367,7 +547,7 @@ void unaryOperator() : {}
 
 void castExpression() : {}
 {
-	unaryExpression() |
+	LOOKAHEAD(3) unaryExpression() |
 	"(" typeName() ")" castExpression()
 }
 
@@ -423,13 +603,13 @@ void logicalOrExpression() : {}
 
 void conditionalExpression() : {}
 {
-	logicalOrExpression() |
+	LOOKAHEAD(3) logicalOrExpression() |
 	logicalOrExpression() "?" expression()  ":" conditionalExpression()
 }
 
 void assignmentExpression() : {}
 {
-	conditionalExpression() |
+	LOOKAHEAD(3) conditionalExpression() |
 	unaryExpression() assignmentOperator() assignmentExpression()
 }
 
@@ -458,339 +638,12 @@ void constantExpression() : {}
 	conditionalExpression()
 }
 
-/************************************ Declarations ************************************/
+/************************************ Identifiers ************************************/
 
-void declaration() : {}
+void constant() : {}
 {
-	declarationSpecifiers() [ initDeclaratorList() ] ";" |
-	staticAssertDeclaration()
-}
-
-void declarationSpecifiers() : {}
-{
-	storageClassSpecifier() [ declarationSpecifiers() ] |
-	typeSpecifier() [ declarationSpecifiers() ] |
-	typeQualifier() [ declarationSpecifiers() ] |
-	functionSpecifier() [ declarationSpecifiers() ] |
-	alignmentSpecifier() [ declarationSpecifiers() ]
-}
-
-void initDeclaratorList() : {}
-{
-	initDeclarator() ( "," initDeclarator() )*
-}
-
-void initDeclarator() : {}
-{
-	declarator() |
-	declarator() "=" initializer()
-}
-
-void storageClassSpecifier() : {}
-{
-	<TYPEDEF> |
-	<EXTERN> |
-	<STATIC> |
-	<THREAD_LOCAL> |
-	<AUTO> |
-	<REGISTER>
-}
-
-void typeSpecifier() : {}
-{
-	<VOID> |
-	<CHAR> |
-	<SHORT> |
-	<INT> |
-	<LONG> |
-	<FLOAT> |
-	<DOUBLE> |
-	<SIGNED> |
-	<UNSIGNED> |
-	<BOOL> |
-	<COMPLEX> |
-	atomicTypeSpecifier() |
-	structOrUnionSpecifier() |
-	enumSpecifier() |
-	typedefName()
-}
-
-void structOrUnionSpecifier() : {}
-{
-	structOrUnion() [ identifier() ] "{" structDeclarationList() "}" |
-	structOrUnion() identifier()
-}
-
-void structOrUnion() : {}
-{
-	<STRUCT>  |
-	<UNION>
-}
-
-void structDeclarationList() : {}
-{
-	( structDeclaration() )+
-}
-
-void structDeclaration() : {}
-{
-	specifierQualifierList() [ structDeclaratorList() ] ";" |
-	staticAssertDeclaration()
-}
-
-void specifierQualifierList() : {}
-{
-	typeSpecifier() [ specifierQualifierList() ] |
-	typeQualifier() [ specifierQualifierList() ]
-}
-
-void structDeclaratorList() : {}
-{
-	structDeclarator() ( "," structDeclarator() )*
-}
-
-void structDeclarator() : {}
-{
-	declarator() |
-	[ declarator() ] ":" constantExpression()
-}
-
-void enumSpecifier() : {}
-{
-	<ENUM> [ identifier() ] "{" enumeratorList() "}" |
-	<ENUM> [ identifier() ] "{" enumeratorList() "," "}" |
-	<ENUM> identifier()
-}
-
-void enumeratorList() : {}
-{
-	enumerator() ( "," enumerator() )*
-}
-
-void enumerator() : {}
-{
-	enumerationConstant() |
-	enumerationConstant() "=" constantExpression()
-}
-
-void atomicTypeSpecifier() : {}
-{
-	<ATOMIC> "(" typeName() ")"
-}
-
-void typeQualifier() : {}
-{
-	<CONST> |
-	<RESTRICT> |
-	<VOLATILE> |
-	<ATOMIC>
-}
-
-void functionSpecifier() : {}
-{
-	<INLINE> |
-	<NORETURN>
-}
-
-void alignmentSpecifier() : {}
-{
-	<ALIGNAS> "(" typeName() ")" |
-	<ALIGNAS> "(" constantExpression() ")"
-}
-
-void declarator() : {}
-{
-	[ pointer() ] directDeclarator()
-}
-
-void directDeclarator() : {}
-{
-	( identifier() | "(" declarator() ")" ) ( "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
-		 "[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
-		 "[" typeQualifierList()  <STATIC> assignmentExpression() "]" |
- 		 "[" [ typeQualifierList() ] "*" "]" |
- 		 "(" parameterTypeList() ")" |
- 		 "(" [ identifierList() ] ")" )*
-}
-
-void pointer() : {}
-{
-	"*" [ typeQualifierList() ] |
-	[ typeQualifierList() ] "*" pointer()
-}
-
-void typeQualifierList() : {}
-{
-	( typeQualifier() )+
-}
-
-void parameterTypeList() : {}
-{
-	parameterList() |
-	parameterList() "," "..."
-}
-
-void parameterList() : {}
-{
-	parameterDeclaration() ( "," parameterDeclaration() )*
-}
-
-void parameterDeclaration() : {}
-{
-	declarationSpecifiers() declarator() |
-	declarationSpecifiers() [ abstractDeclarator() ]
-}
-
-void identifierList() : {}
-{
-	identifier() ( "," identifier() )*
-}
-
-void typeName() : {}
-{
-	specifierQualifierList() [ abstractDeclarator() ]
-}
-
-void abstractDeclarator() : {}
-{
-	pointer() |
-	[ pointer() ] directAbstractDeclarator()
-}
-
-void directAbstractDeclarator() : {}
-{
-	"(" abstractDeclarator() ")" ( "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
-		"[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
-		"[" typeQualifierList() <STATIC> assignmentExpression() "]" |
-		"[" "*" "]" |
-		"(" [ parameterTypeList() ] ")" )* |
-	( "[" [ typeQualifierList() ] [ assignmentExpression() ] "]" |
-		"[" <STATIC> [ typeQualifierList() ] assignmentExpression() "]" |
-		"[" typeQualifierList() <STATIC> assignmentExpression() "]" |
-		"[" "*" "]" |
-		"(" [ parameterTypeList() ] ")" )+
-}
-
-void typedefName() : {}
-{
-	identifier()
-}
-
-void initializer() : {}
-{
-	assignmentExpression() |
-	"{" initializerList() "}" |
-	"{" initializerList() "," "}"
-}
-
-void initializerList() : {}
-{
-	[ designation() ] initializer() ( "," [ designation() ] initializer() )*
-}
-
-void designation() : {}
-{
-	designatorList() "="
-}
-
-void designatorList() : {}
-{
-	( designator() )+
-}
-
-void designator() : {}
-{
-	"[" constantExpression() "]" |
-	"." identifier()
-}
-
-void staticAssertDeclaration() : {}
-{
-	<STATIC_ASSERT> "(" constantExpression() "," stringLiteral() ")" ";"
-}
-
-/************************************ Statements ************************************/
-
-void statement() : {}
-{
-	labeledStatement() |
-	compoundStatement() |
-	expressionStatement() |
-	selectionStatement() |
-	iterationStatement() |
-	jumpStatement()
-}
-
-void labeledStatement() : {}
-{
-	identifier()":" statement() |
-	<CASE> constantExpression() ":" statement() |
-	<DFLT> ":" statement()
-}
-
-void compoundStatement() : {}
-{
-	"{" [ blockItemList() ] "}"
-}
-
-void blockItemList() : {}
-{
-	( blockItem() )+
-}
-
-void blockItem() : {}
-{
-	declaration() |
-	statement()
-}
-
-void expressionStatement() : {}
-{
-	[ expression() ] ";"
-}
-
-void selectionStatement() : {}
-{
-	<IF> "(" expression() ")" statement() |
-	<IF> "(" expression() ")" statement() <ELSE> statement() |
-	<SWITCH> "(" expression() ")" statement()
-}
-
-void iterationStatement() : {}
-{
-	<WHILE> "(" expression() ")" statement() |
-	<DO> statement() <WHILE> "(" expression() ")" |
-	<FOR> "(" [ expression() ] ";" [ expression() ] ";" [ expression() ] ")" statement() |
-	<FOR> "(" declaration() [ expression() ] ";" [ expression() ] ")" statement()
-}
-
-void jumpStatement() : {}
-{
-	<GOTO> identifier() ";" |
-	<CONTINUE> ";" |
-	<BREAK> ";" |
-	<RETURN> [ expression() ] ";"
-}
-
-/************************************ External definitions ************************************/
-
-void translationUnit() : {}
-{
-	( externalDeclaration() )+
-}
-
-void externalDeclaration() : {}
-{
-	functionDefinition() |
-	declaration()
-}
-
-void functionDefinition() : {}
-{
-	declarationSpecifiers() declarator() [ declarationList() ] compoundStatement()
-}
-
-void declarationList() : {}
-{
-	( declaration() )+
+	<INTEGER_LITERAL> |
+	<FLOATING_POINT_LITERAL> |
+	<CHARACTER_LITERAL> |
+	<STRING_LITERAL>
 }
