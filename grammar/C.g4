@@ -29,6 +29,16 @@
 /** C 2011 grammar built from the C11 Spec */
 grammar C;
 
+
+@header
+{
+	package fr.univ_nantes.alma.archtool.parsing;
+	import fr.univ_nantes.alma.archtool.sourceModel.*;
+}
+
+
+/************************************ Expressions ************************************/
+
 primaryExpression
     : Identifier
     | Constant
@@ -174,16 +184,15 @@ constantExpression
     : conditionalExpression
     ;
 
+
+/************************************ Declarations ************************************/
+
 declaration
     : declarationSpecifiers initDeclaratorList? ';'
     | staticAssertDeclaration
     ;
 
 declarationSpecifiers
-    : declarationSpecifier+
-    ;
-
-declarationSpecifiers2
     : declarationSpecifier+
     ;
 
@@ -214,7 +223,7 @@ storageClassSpecifier
     | 'register'
     ;
 
-typeSpecifier
+typeSpecifier 
     : ('void'
     | 'char'
     | 'short'
@@ -312,24 +321,24 @@ functionSpecifier
     | '__declspec' '(' Identifier ')'
     ;
 
-alignmentSpecifier
+alignmentSpecifier 
     : '_Alignas' '(' typeName ')'
     | '_Alignas' '(' constantExpression ')'
     ;
 
-declarator
-    : pointer? directDeclarator gccDeclaratorExtension*
+declarator returns [String name]
+    : pointer? directDeclarator gccDeclaratorExtension* {$name = $directDeclarator.name;}
     ;
 
-directDeclarator
-    : Identifier
-    | '(' declarator ')'
-    | directDeclarator '[' typeQualifierList? assignmentExpression? ']'
-    | directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
-    | directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
-    | directDeclarator '[' typeQualifierList? '*' ']'
-    | directDeclarator '(' parameterTypeList ')'
-    | directDeclarator '(' identifierList? ')'
+directDeclarator returns [String name]
+    : Identifier {$name = $Identifier.text;}
+    | '(' declarator ')' {$name = $declarator.name;}
+    | d=directDeclarator '[' typeQualifierList? assignmentExpression? ']' {$name = $d.name;}
+    | d=directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']' {$name = $d.name;}
+    | d=directDeclarator '[' typeQualifierList 'static' assignmentExpression ']' {$name = $d.name;}
+    | d=directDeclarator '[' typeQualifierList? '*' ']' {$name = $d.name;}
+    | d=directDeclarator '(' parameterTypeList ')' {$name = $d.name;}
+    | d=directDeclarator '(' identifierList? ')' {$name = $d.name;}
     ;
 
 gccDeclaratorExtension
@@ -382,7 +391,7 @@ parameterList
 
 parameterDeclaration
     : declarationSpecifiers declarator
-    | declarationSpecifiers2 abstractDeclarator?
+    | declarationSpecifiers abstractDeclarator?
     ;
 
 identifierList
@@ -446,6 +455,9 @@ staticAssertDeclaration
     : '_Static_assert' '(' constantExpression ',' StringLiteral+ ')' ';'
     ;
 
+
+/************************************ Statements ************************************/
+
 statement
     : labeledStatement
     | compoundStatement
@@ -500,6 +512,9 @@ jumpStatement
     | 'goto' unaryExpression ';' // GCC extension
     ;
 
+
+/************************************ External definitions ************************************/
+
 compilationUnit
     : translationUnit? EOF
     ;
@@ -515,8 +530,8 @@ externalDeclaration
     | ';' // stray ;
     ;
 
-functionDefinition
-    : declarationSpecifiers? declarator declarationList? compoundStatement
+functionDefinition returns [Function result]
+    : declarationSpecifiers? declarator declarationList? compoundStatement {System.out.println($declarator.name);}
     ;
 
 declarationList
@@ -524,109 +539,11 @@ declarationList
     | declarationList declaration
     ;
 
-Auto : 'auto';
-Break : 'break';
-Case : 'case';
-Char : 'char';
-Const : 'const';
-Continue : 'continue';
-Default : 'default';
-Do : 'do';
-Double : 'double';
-Else : 'else';
-Enum : 'enum';
-Extern : 'extern';
-Float : 'float';
-For : 'for';
-Goto : 'goto';
-If : 'if';
-Inline : 'inline';
-Int : 'int';
-Long : 'long';
-Register : 'register';
-Restrict : 'restrict';
-Return : 'return';
-Short : 'short';
-Signed : 'signed';
-Sizeof : 'sizeof';
-Static : 'static';
-Struct : 'struct';
-Switch : 'switch';
-Typedef : 'typedef';
-Union : 'union';
-Unsigned : 'unsigned';
-Void : 'void';
-Volatile : 'volatile';
-While : 'while';
 
-Alignas : '_Alignas';
-Alignof : '_Alignof';
-Atomic : '_Atomic';
-Bool : '_Bool';
-Complex : '_Complex';
-Generic : '_Generic';
-Imaginary : '_Imaginary';
-Noreturn : '_Noreturn';
-StaticAssert : '_Static_assert';
-ThreadLocal : '_Thread_local';
-
-LeftParen : '(';
-RightParen : ')';
-LeftBracket : '[';
-RightBracket : ']';
-LeftBrace : '{';
-RightBrace : '}';
-
-Less : '<';
-LessEqual : '<=';
-Greater : '>';
-GreaterEqual : '>=';
-LeftShift : '<<';
-RightShift : '>>';
-
-Plus : '+';
-PlusPlus : '++';
-Minus : '-';
-MinusMinus : '--';
-Star : '*';
-Div : '/';
-Mod : '%';
-
-And : '&';
-Or : '|';
-AndAnd : '&&';
-OrOr : '||';
-Caret : '^';
-Not : '!';
-Tilde : '~';
-
-Question : '?';
-Colon : ':';
-Semi : ';';
-Comma : ',';
-
-Assign : '=';
-// '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='
-StarAssign : '*=';
-DivAssign : '/=';
-ModAssign : '%=';
-PlusAssign : '+=';
-MinusAssign : '-=';
-LeftShiftAssign : '<<=';
-RightShiftAssign : '>>=';
-AndAssign : '&=';
-XorAssign : '^=';
-OrAssign : '|=';
-
-Equal : '==';
-NotEqual : '!=';
-
-Arrow : '->';
-Dot : '.';
-Ellipsis : '...';
+/************************************ Identifiers ************************************/
 
 Identifier
-    : IdentifierNondigit {}
+    : IdentifierNondigit
         ( IdentifierNondigit
         | Digit
         )*
@@ -646,7 +563,7 @@ Nondigit
 
 fragment
 Digit
-    : [0-9] {System.out.println("Roger est beau !!!");}
+    : [0-9]
     ;
 
 fragment
