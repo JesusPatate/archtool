@@ -476,9 +476,9 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
                     // Types used in the body
 
-                    final Set<Type> typesFct = fct2.getUsedTypes();
+                    final Map<Type, Integer> typesFct = fct2.getUsedTypes();
 
-                    if (typesFct.contains(t))
+                    if (typesFct.containsKey(t))
                     {
                         compo2.addRequiredInterface(interfaceType);
                         nbUsers++;
