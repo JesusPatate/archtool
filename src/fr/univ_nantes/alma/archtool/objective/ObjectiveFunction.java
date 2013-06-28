@@ -1,5 +1,7 @@
 package fr.univ_nantes.alma.archtool.objective;
 
+import java.util.Set;
+
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 
@@ -8,17 +10,37 @@ public class ObjectiveFunction
     /**
      * Poids de l'autonomie des composants
      */
-    static final double WEIGHT_INDE_COMP = 1.0;
+    static final double WEIGHT_COMP_INDE = 1.0;
 
     /**
      * Poids de la spécificité des composants
      */
-    static final double WEIGHT_SPECI_COMP = 1.0;
+    static final double WEIGHT_COMP_SPECI = 1.0;
+
+    /**
+     * Poids de la cohésion interne des interfaces fournies pour le calcul de la
+     * spécificité des composants
+     */
+    static final double WEIGHT_COMP_SPECI_1 = 1.0;
+
+    /**
+     * Poids de la cohésion des interfaces fournies pour le calcul de la
+     * spécificité des composants
+     */
+    static final double WEIGHT_COMP_SPECI_2 = 1.0;
 
     /**
      * Poids de la composabilité des composants
      */
-    static final double WEIGHT_COMPO_COMP = 1.0;
+    static final double WEIGHT_COMP_COMPO = 1.0;
+
+    /**
+     * Poids du nombre d'interfaces requises pour le calcul de la composabilité
+     * des composants
+     */
+    static final double WEIGHT_COMPO_ITFS_REQ = 1.0;
+
+    static final Cohesion cohesion = new Cohesion();
 
     /**
      * Applique la fonction objectif à un composant.
@@ -43,13 +65,13 @@ public class ObjectiveFunction
     {
         double result = 0.0;
 
-        result = ObjectiveFunction.WEIGHT_COMPO_COMP * this.composability(comp);
-        result += ObjectiveFunction.WEIGHT_INDE_COMP * this.independence(comp);
-        result += ObjectiveFunction.WEIGHT_SPECI_COMP * this.specificity(comp);
+        result = ObjectiveFunction.WEIGHT_COMP_COMPO * this.composability(comp);
+        result += ObjectiveFunction.WEIGHT_COMP_INDE * this.independence(comp);
+        result += ObjectiveFunction.WEIGHT_COMP_SPECI * this.specificity(comp);
 
-        result /= ObjectiveFunction.WEIGHT_COMPO_COMP
-                + ObjectiveFunction.WEIGHT_INDE_COMP
-                + ObjectiveFunction.WEIGHT_SPECI_COMP;
+        result /= ObjectiveFunction.WEIGHT_COMP_COMPO
+                + ObjectiveFunction.WEIGHT_COMP_INDE
+                + ObjectiveFunction.WEIGHT_COMP_SPECI;
 
         return result;
     }
@@ -68,22 +90,21 @@ public class ObjectiveFunction
     {
         double result = 0.0;
 
+        final Set<Interface> proInterfaces = comp.getProvidedInterfaces();
         final double nbReqInterfaces = comp.getRequiredInterfaces().size();
-        final double nbProInterfaces = comp.getProvidedInterfaces().size();
 
         double sumCohesion = 0.0;
         double avgCohesion = 0.0;
 
-        Cohesion cohesion = new Cohesion();
-        
-        for (final Interface itf : comp.getProvidedInterfaces())
+        for (final Interface itf : proInterfaces)
         {
-            sumCohesion += cohesion.internalCohesion(itf);
+            sumCohesion += ObjectiveFunction.cohesion.internalCohesion(itf);
         }
 
-        avgCohesion = sumCohesion / nbProInterfaces;
+        avgCohesion = sumCohesion / proInterfaces.size();
 
-        result = (avgCohesion / 1 + nbReqInterfaces);
+        result = avgCohesion
+                - (ObjectiveFunction.WEIGHT_COMPO_ITFS_REQ * nbReqInterfaces);
 
         return result;
     }
@@ -102,8 +123,8 @@ public class ObjectiveFunction
     private double independence(final Component comp)
     {
         double result = 0.0;
-        
-        result = 1 / 1 + comp.getRequiredInterfaces().size(); 
+
+        result = 1 / (1 + comp.getRequiredInterfaces().size());
 
         return result;
     }
@@ -117,9 +138,42 @@ public class ObjectiveFunction
     private double specificity(final Component comp)
     {
         double result = 0.0;
+        double sum = 0.0;
+
+        // Internal cohesion of the provided interfaces
+
+        final Set<Interface> proInterfaces = comp.getProvidedInterfaces();
+        final double nbProInterfaces = proInterfaces.size();
+
+        for (final Interface itf : comp.getProvidedInterfaces())
+        {
+            sum += ObjectiveFunction.cohesion.internalCohesion(itf);
+        }
+
+        result += ObjectiveFunction.WEIGHT_COMP_SPECI_1
+                * (sum / nbProInterfaces);
+
+        // Cohesion of the provided interfaces
+
+        final Object[] itfs = proInterfaces.toArray();
+
+        sum = 0.0;
+
+        for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
+        {
+            for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
+            {
+                sum += ObjectiveFunction.cohesion.internalCohesion(comp);
+            }
+        }
+
+        final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
+
+        result += ObjectiveFunction.WEIGHT_COMP_SPECI_2 * (sum / nbPairs);
+
+        result /= ObjectiveFunction.WEIGHT_COMP_SPECI_1
+                + ObjectiveFunction.WEIGHT_COMP_SPECI_2;
 
         return result;
     }
-
-    
 }

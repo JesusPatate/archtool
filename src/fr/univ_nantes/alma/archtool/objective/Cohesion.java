@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import fr.univ_nantes.alma.archtool.architectureModel.Cohesionable;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
@@ -13,43 +14,94 @@ import fr.univ_nantes.alma.archtool.sourceModel.ProgramGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
-class Cohesion
+public class Cohesion
 {
     /**
      * Bonus accordé pour la mesure de la cohésion lorsque deux éléments
      * appartiennent au même fichier.
      */
-    static final double BONUS_SAME_FILE = 0.5;
+    static final double BONUS_SAME_FILE = 1.5;
     
     /**
-     * Évalue la cohésion interne d'une interface.
-     * 
-     * @param itf
-     *            L'interface à évaluer
+     * Évalue la cohésion entre 2 interfaces.
      */
-    public double internalCohesion(final Interface itf)
+    public double cohesionInterfaces(Interface itf1, Interface itf2)
+    {
+        double result = 0.0;
+        
+        Set<Function> functions1 = itf1.getFunctions();
+        Set<Function> functions2 = itf2.getFunctions();
+        
+        Set<Variable> variables1 = itf1.getVariables();
+        Set<Variable> variables2 = itf2.getVariables();
+        
+        Set<Type> types1 = itf1.getTypes();
+        Set<Type> types2 = itf2.getTypes();
+        
+        for(Function fct1 : functions1)
+        {
+            
+            for(Function fct2 : functions2)
+            {
+                result += cohesion(fct1, fct2);
+            }
+            
+            for(Variable var2 : variables2)
+            {
+                result += cohesion(fct1, var2);
+            }
+            
+            for(Type t2 : types2)
+            {
+                result += cohesion(fct1, t2);
+            }
+        }
+        
+        for(Function fct2 : functions2)
+        {
+            for(Variable var1 : variables1)
+            {
+                result += cohesion(fct2, var1);
+            }
+            
+            for(Type t1 : types1)
+            {
+                result += cohesion(fct2, t1);
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Évalue la cohésion interne d'un élément architectural.
+     * 
+     * @param element
+     *            L'élément architectural à évaluer
+     */
+    public double internalCohesion(final Cohesionable element)
     {
         double result = 0.0;
 
-        int nbFcts = itf.getFunctions().size();
-        int nbVars = itf.getVariables().size();
-        int nbTypes = itf.getTypes().size();
+        int nbFcts = element.getFunctions().size();
+        int nbVars = element.getVariables().size();
+        int nbTypes = element.getTypes().size();
 
         if (nbFcts > 0)
         {
             if (nbFcts > 1)
             {
-                result += internalCohesionFct(itf);
+                result += internalCohesionFct(element);
             }
 
             else if (nbVars > 1)
             {
-                result += internalCohesionFctVar(itf);
+                result += internalCohesionFctVar(element);
             }
 
             else if (nbTypes > 1)
             {
-                result += internalCohesionFctType(itf);
+                result += internalCohesionFctType(element);
             }
             
             else
@@ -60,25 +112,20 @@ class Cohesion
 
         return result;
     }
-
+    
     /**
-     * Évalue la cohésion des fonctions d'une interface.
+     * Évalue la cohésion des fonctions d'un élément architectural.
      * 
-     * <p>
-     * La cohésion interne d'une interface est évaluée sur la cohésion moyenne
-     * de ses services.
-     * </p>
-     * 
-     * @param itf
-     *            L'interface à évaluer
+     * @param element
+     *            L'élément architectural à évaluer
      */
-    private double internalCohesionFct(final Interface itf)
+    private double internalCohesionFct(final Cohesionable element)
     {
         double result = 0.0;
         double sum = 0.0;
-        double nbFunctions = itf.getFunctions().size();
+        double nbFunctions = element.getFunctions().size();
 
-        final Object[] functions = itf.getFunctions().toArray();
+        final Object[] functions = element.getFunctions().toArray();
 
         for (int idx1 = 0 ; idx1 < (nbFunctions - 1) ; ++idx1)
         {
@@ -97,25 +144,26 @@ class Cohesion
     }
 
     /**
-     * Évalue la cohésion entre une fonction et une variable d'une interface.
+     * Évalue la cohésion entre une fonction et une variable d'un élément
+     * architectural.
      * 
-     * @param itf
-     *            L'interface à évaluer
+     * @param element
+     *            L'élément architectural à évaluer
      */
-    private double internalCohesionFctVar(Interface itf)
+    private double internalCohesionFctVar(final Cohesionable element)
     {
         double result = 0.0;
         double sum = 0.0;
 
-        for (Function fct : itf.getFunctions())
+        for (Function fct : element.getFunctions())
         {
-            for (Variable var : itf.getVariables())
+            for (Variable var : element.getVariables())
             {
                 sum += this.cohesion(fct, var);
             }
         }
 
-        double nbPairs = itf.getFunctions().size() * itf.getVariables().size();
+        double nbPairs = element.getFunctions().size() * element.getVariables().size();
 
         result = 100 * sum / nbPairs;
 
@@ -123,25 +171,26 @@ class Cohesion
     }
 
     /**
-     * Évalue la cohésion entre une fonction et un type d'une interface.
+     * Évalue la cohésion entre une fonction et un type d'un élément
+     * architectural.
      * 
-     * @param itf
-     *            L'interface à évaluer
+     * @param element
+     *            L'élément architectural à évaluer
      */
-    private double internalCohesionFctType(Interface itf)
+    private double internalCohesionFctType(Cohesionable element)
     {
         double result = 0.0;
         double sum = 0.0;
 
-        for (Function fct : itf.getFunctions())
+        for (Function fct : element.getFunctions())
         {
-            for (Type type : itf.getTypes())
+            for (Type type : element.getTypes())
             {
                 sum += this.cohesion(fct, type);
             }
         }
 
-        double nbPairs = itf.getFunctions().size() * itf.getTypes().size();
+        double nbPairs = element.getFunctions().size() * element.getTypes().size();
 
         result = 100 * sum / nbPairs;
 
@@ -167,7 +216,7 @@ class Cohesion
      * @param f2
      *            La seconde fonction à évaluer
      */
-    private double cohesion(final Function f1, final Function f2)
+    public double cohesion(final Function f1, final Function f2)
     {
         double result = 0.0;
 
