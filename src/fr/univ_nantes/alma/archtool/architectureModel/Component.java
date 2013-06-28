@@ -7,7 +7,7 @@ import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
-public class Component
+public class Component implements Cohesionable
 {
     private final Set<Interface> requiredInterfaces = new HashSet<Interface>();
 
@@ -19,6 +19,7 @@ public class Component
 
     private final Set<Type> types = new HashSet<Type>();
 
+    @Override
     public Set<Function> getFunctions()
     {
         return new HashSet<Function>(this.functions);
@@ -38,7 +39,8 @@ public class Component
     {
         return this.functions.addAll(fcts);
     }
-    
+
+    @Override
     public Set<Variable> getVariables()
     {
         return new HashSet<Variable>(this.variables);
@@ -59,6 +61,7 @@ public class Component
         return this.variables.addAll(vars);
     }
 
+    @Override
     public Set<Type> getTypes()
     {
         return new HashSet<Type>(this.types);
