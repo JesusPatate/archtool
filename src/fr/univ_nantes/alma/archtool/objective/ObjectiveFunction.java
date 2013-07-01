@@ -18,16 +18,10 @@ public class ObjectiveFunction
     static final double WEIGHT_COMP_SPECI = 1.0;
 
     /**
-     * Poids de la cohésion interne des interfaces fournies pour le calcul de la
+     * Poids du nombre d'interfaces fournies pour le calcul de la
      * spécificité des composants
      */
-    static final double WEIGHT_COMP_SPECI_1 = 1.0;
-
-    /**
-     * Poids de la cohésion des interfaces fournies pour le calcul de la
-     * spécificité des composants
-     */
-    static final double WEIGHT_COMP_SPECI_2 = 1.0;
+    static final double WEIGHT_SPECI_ITFS_PRO = 1.0;
 
     /**
      * Poids de la composabilité des composants
@@ -41,6 +35,8 @@ public class ObjectiveFunction
     static final double WEIGHT_COMPO_ITFS_REQ = 1.0;
 
     static final Cohesion cohesion = new Cohesion();
+    
+    static final Coupling coupling = new Coupling();
 
     /**
      * Applique la fonction objectif à un composant.
@@ -140,7 +136,7 @@ public class ObjectiveFunction
         double result = 0.0;
         double sum = 0.0;
 
-        // Internal cohesion of the provided interfaces
+        // Provided interfaces internal cohesion
 
         final Set<Interface> proInterfaces = comp.getProvidedInterfaces();
         final double nbProInterfaces = proInterfaces.size();
@@ -150,29 +146,39 @@ public class ObjectiveFunction
             sum += ObjectiveFunction.cohesion.internalCohesion(itf);
         }
 
-        result += ObjectiveFunction.WEIGHT_COMP_SPECI_1
-                * (sum / nbProInterfaces);
+        result += sum / nbProInterfaces;
 
-        // Cohesion of the provided interfaces
+        // Provided interfaces cohesion
 
-        final Object[] itfs = proInterfaces.toArray();
+        final Interface[] itfs = new Interface[proInterfaces.size()];
+        proInterfaces.toArray(itfs);
 
         sum = 0.0;
 
-        for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
+        for (int idx1 = 0; idx1 < (itfs.length - 1); ++idx1)
         {
-            for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
+            for (int idx2 = idx1 + 1; idx2 < itfs.length; ++idx2)
             {
-                sum += ObjectiveFunction.cohesion.internalCohesion(comp);
+                sum += ObjectiveFunction.cohesion.cohesionInterfaces(
+                        itfs[idx1], itfs[idx2]);
             }
         }
 
         final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
 
-        result += ObjectiveFunction.WEIGHT_COMP_SPECI_2 * (sum / nbPairs);
+        result += sum / nbPairs;
 
-        result /= ObjectiveFunction.WEIGHT_COMP_SPECI_1
-                + ObjectiveFunction.WEIGHT_COMP_SPECI_2;
+        // Component internal cohesion
+
+        result += ObjectiveFunction.cohesion.internalCohesion(comp);
+
+        // Component internal coupling
+        
+        result += coupling.coupling(comp);
+        
+        // Number of provided interfaces
+        
+        result -= WEIGHT_SPECI_ITFS_PRO * nbProInterfaces;
 
         return result;
     }

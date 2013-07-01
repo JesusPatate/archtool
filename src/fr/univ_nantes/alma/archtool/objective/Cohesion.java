@@ -319,7 +319,7 @@ public class Cohesion
 
         for (LocalVariable arg : args)
         {
-            if (arg.getType().equals(type))
+            if (arg.ofType(type))
             {
                 ++nbUsesOfType;
             }
@@ -433,7 +433,7 @@ public class Cohesion
             for (LocalVariable var2 : localVars2.keySet())
             {
                 if ((var1.getName().compareTo(var2.getName()) == 0)
-                        && (var1.getType().equals(var2.getType())))
+                        && (var1.ofType(var2.getType())))
                 {
                     ++nbCommon;
                 }
@@ -559,7 +559,7 @@ public class Cohesion
             for (LocalVariable var2 : args2)
             {
                 if ((var1.getName().compareTo(var2.getName()) == 0)
-                        && (var1.getType().equals(var2.getType())))
+                        && (var1.ofType(var2.getType())))
                 {
                     ++nbCommon;
                 }
