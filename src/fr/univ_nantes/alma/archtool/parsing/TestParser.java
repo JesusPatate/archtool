@@ -15,5 +15,9 @@ public class TestParser
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         CParser parser = new CParser(tokens);
         parser.compilationUnit();
-    }
+        
+        /*DeclarationSpecifier ds = new TypedefSpecifier();
+        DeclarationSpecifier ds2 = new TypedefNameSpecifier();
+        System.out.println(ds.merge(ds2));*/
+    } 
 }
