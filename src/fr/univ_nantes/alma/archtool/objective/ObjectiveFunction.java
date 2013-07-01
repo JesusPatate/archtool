@@ -2,6 +2,7 @@ package fr.univ_nantes.alma.archtool.objective;
 
 import java.util.Set;
 
+import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 
@@ -18,8 +19,8 @@ public class ObjectiveFunction
     static final double WEIGHT_COMP_SPECI = 1.0;
 
     /**
-     * Poids du nombre d'interfaces fournies pour le calcul de la
-     * spécificité des composants
+     * Poids du nombre d'interfaces fournies pour le calcul de la spécificité
+     * des composants
      */
     static final double WEIGHT_SPECI_ITFS_PRO = 1.0;
 
@@ -35,7 +36,7 @@ public class ObjectiveFunction
     static final double WEIGHT_COMPO_ITFS_REQ = 1.0;
 
     static final Cohesion cohesion = new Cohesion();
-    
+
     static final Coupling coupling = new Coupling();
 
     /**
@@ -46,9 +47,9 @@ public class ObjectiveFunction
      * 
      * @return Le résultat de la fonction objectif
      */
-    public double evaluate(final Component component)
+    public double evaluate(final Architecture arch)
     {
-        return this.semantic(component);
+        return this.evaluateArchSemantic(arch);
     }
 
     /**
@@ -57,17 +58,25 @@ public class ObjectiveFunction
      * @param comp
      *            Le composant à évaluer
      */
-    private double semantic(final Component comp)
+    private double evaluateArchSemantic(final Architecture arch)
     {
         double result = 0.0;
 
-        result = ObjectiveFunction.WEIGHT_COMP_COMPO * this.composability(comp);
-        result += ObjectiveFunction.WEIGHT_COMP_INDE * this.independence(comp);
-        result += ObjectiveFunction.WEIGHT_COMP_SPECI * this.specificity(comp);
+        for (Component comp : arch.getComponents())
+        {
+            result = ObjectiveFunction.WEIGHT_COMP_COMPO
+                    * this.composability(comp);
+            
+            result += ObjectiveFunction.WEIGHT_COMP_INDE
+                    * this.independence(comp);
+            
+            result += ObjectiveFunction.WEIGHT_COMP_SPECI
+                    * this.specificity(comp);
 
-        result /= ObjectiveFunction.WEIGHT_COMP_COMPO
-                + ObjectiveFunction.WEIGHT_COMP_INDE
-                + ObjectiveFunction.WEIGHT_COMP_SPECI;
+            result /= ObjectiveFunction.WEIGHT_COMP_COMPO
+                    + ObjectiveFunction.WEIGHT_COMP_INDE
+                    + ObjectiveFunction.WEIGHT_COMP_SPECI;
+        }
 
         return result;
     }
@@ -155,9 +164,9 @@ public class ObjectiveFunction
 
         sum = 0.0;
 
-        for (int idx1 = 0; idx1 < (itfs.length - 1); ++idx1)
+        for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
         {
-            for (int idx2 = idx1 + 1; idx2 < itfs.length; ++idx2)
+            for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
             {
                 sum += ObjectiveFunction.cohesion.cohesionInterfaces(
                         itfs[idx1], itfs[idx2]);
@@ -173,11 +182,11 @@ public class ObjectiveFunction
         result += ObjectiveFunction.cohesion.internalCohesion(comp);
 
         // Component internal coupling
-        
+
         result += coupling.coupling(comp);
-        
+
         // Number of provided interfaces
-        
+
         result -= WEIGHT_SPECI_ITFS_PRO * nbProInterfaces;
 
         return result;

@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -16,7 +18,7 @@ import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
-public class Dendogram implements Iterable<Dendogram.Node>
+public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
 {
     /**
      * Un noeud du dendogramme.
@@ -26,9 +28,9 @@ public class Dendogram implements Iterable<Dendogram.Node>
      * noeud fils.
      * </p>
      */
-    public class Node
+    public class Node implements Cloneable
     {
-        private final Component component;
+        private Component component;
 
         private Node leftChild;
 
@@ -59,19 +61,32 @@ public class Dendogram implements Iterable<Dendogram.Node>
             return this.leftChild;
         }
 
-        public void setLeftChild(final Node child)
-        {
-            this.leftChild = child;
-        }
-
         public Node getRightChild()
         {
             return this.rightChild;
         }
 
-        public void setRightChild(final Node child)
+        @Override
+        public Object clone()
         {
-            this.rightChild = child;
+            Node node = null;
+
+            try
+            {
+                node = (Node) super.clone();
+
+                node.component = this.component;
+                node.leftChild = (Node) this.leftChild.clone();
+                node.leftChild = (Node) this.rightChild.clone();
+            }
+
+            catch (CloneNotSupportedException e)
+            {
+                throw new RuntimeException(
+                        "Dendogram.Node : clone not supported");
+            }
+
+            return node;
         }
     }
 
@@ -86,20 +101,75 @@ public class Dendogram implements Iterable<Dendogram.Node>
     }
 
     /**
-     * Retourne un noeud du dendogramme.
+     * Retourne un composant du dendogramme.
      * 
      * @param index
-     *            Index du noeud à retourner
+     *            Index du composant à retourner
      * 
-     * @return Le noeud à l'index passé en paramètre.
+     * @return Le composant à l'index passé en paramètre ou null si l'index
+     *         n'est pas valide.
      */
-    public Node getNode(final int index)
+    public Component getComponent(final int index)
     {
-        return nodes.get(index);
+        Component comp = null;
+
+        if (index < this.nodes.size())
+        {
+            comp = nodes.get(index).getComponent();
+        }
+
+        else
+        {
+            throw new RuntimeException("Clustering.getComponent(int) : "
+                    + "index passé(s) en paramètre(s) invalide(s).");
+        }
+
+        return comp;
     }
 
     /**
-     * Retourne la taille du niveau le plus haut du dendogramme.
+     * Génère une architecture à partir des composants du dendogramme.
+     */
+    public Architecture getArchitecture()
+    {
+        Architecture arch = new Architecture();
+
+        for (Node node : this.nodes)
+        {
+            Component comp = node.getComponent();
+            arch.addComponent(comp);
+        }
+
+        for (Component comp1 : arch.getComponents())
+        {
+            Set<Interface> proItfs = comp1.getProvidedInterfaces();
+            
+            for(Interface itf : proItfs)
+            {
+                for (Component comp2 : arch.getComponents())
+                {
+                    if(comp2.requiresInterface(itf))
+                    {
+                        Connector con = new Connector();
+                        
+                        arch.addConnection(comp1, con, itf);
+                        arch.addConnection(comp2, con, itf);
+                    }
+                }
+            }
+        }
+
+        return arch;
+    }
+
+    /**
+     * Retourne le nombre de composants du dendogramme.
+     * 
+     * <p>
+     * ATTENTION : ne revoit pas le nombre total de noeuds du dendogramme mais
+     * le nombre de noeuds qui n'ont pas de parent. Deux composants qui ont été
+     * regroupés ne forment plus qu'un seul noeud.
+     * </p>
      * 
      * @return Le nombre de noeuds du dendogramme qui n'ont pas de parent.
      */
@@ -109,10 +179,10 @@ public class Dendogram implements Iterable<Dendogram.Node>
     }
 
     /**
-     * Fusionne deux noeuds du dendogramme et retourne le nouveau noeud obtenu.
+     * Génère un nouveau composant en fusionnant deux composants existants
      * 
      * <p>
-     * ATTENTION : le nouveau noeud noeud n'est pas inséré dans le dendogramme.
+     * ATTENTION : le dendogramme n'est pas modifié. Pour
      * </p>
      * 
      * @param idxChild1
@@ -120,55 +190,46 @@ public class Dendogram implements Iterable<Dendogram.Node>
      * @param idxChild2
      *            Index du second noeud à regrouper
      * 
-     * @return Le noeud cluster généré
+     * @return Le noeud composant généré
      */
-    public Dendogram.Node clusterNodes(final int idxChild1, final int idxChild2)
+    public Dendogram clusterNodes(final int idxChild1, final int idxChild2)
     {
-        Node childNode1 = this.getNode(idxChild1);
-        Node childNode2 = this.getNode(idxChild2);
+        Dendogram dendo = (Dendogram) this.clone();
 
-        Component childComp1 = childNode1.getComponent();
-        Component childComp2 = childNode2.getComponent();
+        if (idxChild1 < dendo.nodes.size() && idxChild2 < dendo.nodes.size())
+        {
+            Node childNode1 = dendo.nodes.get(idxChild1);
+            Node childNode2 = dendo.nodes.get(idxChild2);
 
-        Component clusterComp = new Component();
+            Component childComp1 = childNode1.getComponent();
+            Component childComp2 = childNode2.getComponent();
 
-        clusterComp.addFunctions(childComp1.getFunctions());
-        clusterComp.addFunctions(childComp2.getFunctions());
-        clusterComp.addVariables(childComp1.getVariables());
-        clusterComp.addVariables(childComp2.getVariables());
-        clusterComp.addTypes(childComp1.getTypes());
-        clusterComp.addTypes(childComp2.getTypes());
+            Component clusterComp = new Component();
 
-        this.updateRequiredInterfaces(clusterComp, idxChild1, idxChild2);
-        this.updateProvidedInterfaces(clusterComp, idxChild1, idxChild2);
+            clusterComp.addFunctions(childComp1.getFunctions());
+            clusterComp.addFunctions(childComp2.getFunctions());
+            clusterComp.addVariables(childComp1.getVariables());
+            clusterComp.addVariables(childComp2.getVariables());
+            clusterComp.addTypes(childComp1.getTypes());
+            clusterComp.addTypes(childComp2.getTypes());
 
-        Node clusterNode = new Dendogram.Node(clusterComp, childNode1,
-                childNode2);
+            dendo.updateRequiredInterfaces(clusterComp, idxChild1, idxChild2);
+            dendo.updateProvidedInterfaces(clusterComp, idxChild1, idxChild2);
 
-        return clusterNode;
-    }
+            Node clusterNode = new Node(clusterComp, childNode1, childNode2);
 
-    /**
-     * Insert un nouveau noeud cluster.
-     * 
-     * <p>
-     * </p>
-     * 
-     * @param cluster
-     * @param idxChild1
-     * @param idxChild2
-     * @return
-     */
-    public int insertClusterNode(final Dendogram.Node clusterNode)
-    {
-        Node childNode1 = clusterNode.getLeftChild();
-        Node childNode2 = clusterNode.getRightChild();
+            dendo.nodes.remove(childNode1);
+            dendo.nodes.remove(childNode2);
+            dendo.nodes.add(clusterNode);
+        }
 
-        this.nodes.remove(childNode1);
-        this.nodes.remove(childNode2);
-        this.nodes.add(clusterNode);
+        else
+        {
+            throw new RuntimeException("Clustering.clusterNodes(int, int) : "
+                    + "index passé(s) en paramètre(s) invalide(s).");
+        }
 
-        return this.size() - 1;
+        return dendo;
     }
 
     /**
@@ -256,7 +317,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
     {
         // At this time, a node is a function, a variable or a type
 
-        for (int idxNode = 0; idxNode < this.nodes.size(); ++idxNode)
+        for (int idxNode = 0 ; idxNode < this.nodes.size() ; ++idxNode)
         {
             final Component comp = this.nodes.get(idxNode)
                     .getComponent();
@@ -314,7 +375,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
                 int nbCallers = 0;
 
-                for (int idx = 0; idx < this.nodes.size(); ++idx)
+                for (int idx = 0 ; idx < this.nodes.size() ; ++idx)
                 {
                     if (idx != idxNode)
                     {
@@ -385,7 +446,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
         int nbAccessors = 0;
 
-        for (int idx = 0; idx < this.nodes.size(); ++idx)
+        for (int idx = 0 ; idx < this.nodes.size() ; ++idx)
         {
             final Component compo2 = this.nodes.get(idx).getComponent();
 
@@ -443,7 +504,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
         int nbUsers = 0;
 
-        for (int idx = 0; idx < this.nodes.size(); ++idx)
+        for (int idx = 0 ; idx < this.nodes.size() ; ++idx)
         {
             if (idx != idxNode)
             {
@@ -614,5 +675,30 @@ public class Dendogram implements Iterable<Dendogram.Node>
     public Iterator<Node> iterator()
     {
         return nodes.iterator();
+    }
+
+    @Override
+    public Object clone()
+    {
+        Dendogram dendogram = null;
+
+        try
+        {
+            dendogram = (Dendogram) super.clone();
+
+            dendogram.nodes = new ArrayList<Dendogram.Node>();
+
+            for (Node node : this.nodes)
+            {
+                dendogram.nodes.add((Node) node.clone());
+            }
+        }
+
+        catch (CloneNotSupportedException e)
+        {
+            throw new RuntimeException("Dendogram : clone not supported");
+        }
+
+        return dendogram;
     }
 }

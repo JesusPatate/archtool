@@ -55,38 +55,38 @@ public class Clustering
     {
         double bestScore = 0.0;
         Pair<Integer, Integer> bestPair = null;
-        Component bestComponent = null;
+        Dendogram bestDendo = null;
 
         while (this.dendogram.size() > 1)
         {
-            Dendogram.Node clusterNode = null;
+            Dendogram dendo = null;
 
-            for (int idx1 = 0; idx1 < (this.dendogram.size() - 1); ++idx1)
+            for (int i = 0 ; i < (this.dendogram.size() - 1) ; ++i)
             {
-                for (int idx2 = idx1 + 1; idx2 < this.dendogram.size(); ++idx2)
+                for (int j = i + 1 ; j < this.dendogram.size() ; ++j)
                 {
-                    clusterNode = this.dendogram.clusterNodes(idx1, idx2);
-                    
-                    final Component comp = clusterNode.getComponent();
-                    final double score = this.objectiveFct.evaluate(comp);
+                    dendo = this.dendogram.clusterNodes(i, j);
+
+                    final double score = this.objectiveFct.evaluate(
+                            dendo.getArchitecture());
 
                     if (score > bestScore)
                     {
                         bestScore = score;
-                        bestPair = new Pair<Integer, Integer>(idx1, idx2);
-                        bestComponent = comp;
+                        bestPair = new Pair<Integer, Integer>(i, j);
+                        bestDendo = dendo;
                     }
                 }
             }
 
-            if (bestPair != null && bestComponent != null)
+            if (bestPair != null && bestDendo != null)
             {
-                this.dendogram.insertClusterNode(clusterNode);
+                this.dendogram = bestDendo;
             }
 
             bestScore = 0.0;
             bestPair = null;
-            bestComponent = null;
+            bestDendo = null;
         }
     }
 
