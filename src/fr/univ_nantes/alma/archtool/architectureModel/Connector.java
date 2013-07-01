@@ -9,7 +9,6 @@ import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
 public class Connector implements Cohesionable
 {
-
     @Override
     public Set<Function> getFunctions()
     {

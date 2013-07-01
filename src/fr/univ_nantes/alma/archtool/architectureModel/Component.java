@@ -7,7 +7,7 @@ import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
-public class Component implements Cohesionable
+public class Component implements Cohesionable, Cloneable
 {
     private final Set<Interface> requiredInterfaces = new HashSet<Interface>();
 
