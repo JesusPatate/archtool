@@ -116,4 +116,30 @@ public class Component implements Cohesionable, Cloneable
     {
         return this.providedInterfaces.remove(i);
     }
+    
+    @Override
+    public String toString()
+    {
+        String str = "Composant (";
+        
+        for(Function fct : this.functions)
+        {
+            str += fct + ", ";
+        }
+        
+        for(Variable var: this.variables)
+        {
+            str += var + ", ";
+        }
+        
+        for(Type t: this.types)
+        {
+            str += t + ", ";
+        }
+        
+        str = str.substring(0, str.lastIndexOf(","));
+        str += ")";
+        
+        return str;
+    }
 }

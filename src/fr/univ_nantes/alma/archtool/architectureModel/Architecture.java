@@ -5,11 +5,11 @@ import java.util.Set;
 
 public class Architecture
 {
-    private Set<Component> components;
+    private Set<Component> components = new HashSet<Component>();
     
-    private Set<Connector> connectors;
+    private Set<Connector> connectors = new HashSet<Connector>();
     
-    private Configuration configuration;
+    private Configuration configuration = new Configuration();
     
     public Set<Component> getComponents()
     {
@@ -44,5 +44,25 @@ public class Architecture
         }
         
         return this.configuration.addConnection(comp, con, itf);
+    }
+    
+    @Override
+    public String toString()
+    {
+        String str = "Architecture [\n";
+        
+        for(Component comp : this.components)
+        {
+            str += comp + "\n";
+        }
+        
+        for(Connector con : this.connectors)
+        {
+            str += con + "\n";
+        }
+        
+        str +=  "]";
+        
+        return str;
     }
 }

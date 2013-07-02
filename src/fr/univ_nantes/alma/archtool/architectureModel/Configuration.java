@@ -3,9 +3,13 @@ package fr.univ_nantes.alma.archtool.architectureModel;
 import java.util.HashSet;
 import java.util.Set;
 
+import fr.univ_nantes.alma.archtool.sourceModel.Function;
+import fr.univ_nantes.alma.archtool.sourceModel.Type;
+import fr.univ_nantes.alma.archtool.sourceModel.Variable;
+
 public class Configuration
 {
-    private Set<Connection> connections;
+    private Set<Connection> connections = new HashSet<Connection>();
     
     public boolean addConnection(Component comp, Connector con, Interface itf)
     {
