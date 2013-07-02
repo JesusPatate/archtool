@@ -1,10 +1,6 @@
 package fr.univ_nantes.alma.archtool.clustering;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.utils.Pair;
@@ -17,7 +13,7 @@ public class Clustering
     private Dendogram dendogram;
 
     private ObjectiveFunction objectiveFct;
-
+    
     public Clustering(ObjectiveFunction objFct)
     {
         this.objectiveFct = objFct;
@@ -31,14 +27,14 @@ public class Clustering
      * 
      * @return Un ensemble de composants générés par l'algorithme.
      */
-    public Set<Component> process(final SourceCode sourceCode)
+    public Architecture process(final SourceCode sourceCode)
     {
-        final HashSet<Component> components = new HashSet<Component>();
-
         this.dendogram = new Dendogram(sourceCode);
         this.buildDendogram();
-
-        return components;
+        
+        Architecture arch = this.phase2();
+        
+        return arch;
     }
 
     /**
@@ -55,12 +51,12 @@ public class Clustering
     {
         double bestScore = 0.0;
         Pair<Integer, Integer> bestPair = null;
+
+        Dendogram dendo = null;
         Dendogram bestDendo = null;
 
         while (this.dendogram.size() > 1)
         {
-            Dendogram dendo = null;
-
             for (int i = 0 ; i < (this.dendogram.size() - 1) ; ++i)
             {
                 for (int j = i + 1 ; j < this.dendogram.size() ; ++j)
@@ -88,13 +84,56 @@ public class Clustering
             bestPair = null;
             bestDendo = null;
         }
+        
+        return;
     }
 
     /**
      * Phase 2 : identification des composants à partir du dendogramme.
      */
-    private void phase2()
+    private Architecture phase2()
     {
-        throw new NotImplementedException();
+        Architecture result = null;
+        
+        Dendogram dendo = null;
+        Architecture arch1 = null;
+        Architecture arch2 = null;
+
+        int idx = 0;
+
+        while (idx < this.dendogram.size())
+        {
+            dendo = this.dendogram.splitNode(idx);
+
+            if(dendo!= null)
+            {
+                arch1 = this.dendogram.getArchitecture();
+                arch2 = dendo.getArchitecture();
+    
+                double score1 = objectiveFct.evaluate(arch1);
+                double score2 = objectiveFct.evaluate(arch2);
+    
+                // Best architecture when the node is splitted
+                if (score2 > score1)
+                {
+                    this.dendogram = dendo;
+                    result = arch2;
+                }
+    
+                // Otherwise try to split the next node
+                else
+                {
+                    ++idx;
+                    result = arch1;
+                }
+            }
+            
+            else
+            {
+                ++idx;
+            }
+        }
+
+        return arch1;
     }
 }

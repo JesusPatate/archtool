@@ -76,8 +76,12 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
                 node = (Node) super.clone();
 
                 node.component = this.component;
-                node.leftChild = (Node) this.leftChild.clone();
-                node.leftChild = (Node) this.rightChild.clone();
+                
+                if(this.leftChild != null && this.rightChild != null)
+                {
+                    node.leftChild = (Node) this.leftChild.clone();
+                    node.leftChild = (Node) this.rightChild.clone();
+                }
             }
 
             catch (CloneNotSupportedException e)
@@ -95,6 +99,22 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      */
     private List<Node> nodes = new ArrayList<Node>();
 
+    /**
+     * Architecture correspondant au dendogramme.
+     */
+    private Architecture architecture = null; 
+    
+    /**
+     * Initialise un nouveau dendogramme à partir d'un modèle de code source.
+     * 
+     * <p>
+     * Les feuilles du nouveaux dendogrammes correspondent aux différentes
+     * fonctions, variables globales et définitions de type de modèle de code
+     * source.
+     * </p>
+     * 
+     * @param sourceCode
+     */
     public Dendogram(SourceCode sourceCode)
     {
         this.init(sourceCode);
@@ -132,31 +152,47 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      */
     public Architecture getArchitecture()
     {
-        Architecture arch = new Architecture();
-
-        for (Node node : this.nodes)
+        Architecture arch = null;
+        
+        if(this.architecture != null)
         {
-            Component comp = node.getComponent();
-            arch.addComponent(comp);
-        }
-
-        for (Component comp1 : arch.getComponents())
-        {
-            Set<Interface> proItfs = comp1.getProvidedInterfaces();
+            System.out.println("DBG : calcul de l'architecture évité :D");
             
-            for(Interface itf : proItfs)
+            arch = this.architecture;
+        }
+        
+        else
+        {
+            System.out.println("DBG : calcul de l'architecture");
+            
+            arch = new Architecture();
+    
+            for (Node node : this.nodes)
             {
-                for (Component comp2 : arch.getComponents())
+                Component comp = node.getComponent();
+                arch.addComponent(comp);
+            }
+    
+            for (Component comp1 : arch.getComponents())
+            {
+                Set<Interface> proItfs = comp1.getProvidedInterfaces();
+    
+                for (Interface itf : proItfs)
                 {
-                    if(comp2.requiresInterface(itf))
+                    for (Component comp2 : arch.getComponents())
                     {
-                        Connector con = new Connector();
-                        
-                        arch.addConnection(comp1, con, itf);
-                        arch.addConnection(comp2, con, itf);
+                        if (comp2.requiresInterface(itf))
+                        {
+                            Connector con = new Connector();
+    
+                            arch.addConnection(comp1, con, itf);
+                            arch.addConnection(comp2, con, itf);
+                        }
                     }
                 }
             }
+            
+            this.architecture = arch;
         }
 
         return arch;
@@ -227,6 +263,48 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
         {
             throw new RuntimeException("Clustering.clusterNodes(int, int) : "
                     + "index passé(s) en paramètre(s) invalide(s).");
+        }
+
+        return dendo;
+    }
+
+    /**
+     * Crée un nouveau dendogramme dans lequel un noeud a été remplacé par ses
+     * fils.
+     * 
+     * <p>
+     * Les fils d'un noeud à l'index <em>i</em> seront insérés aux index
+     * <em>i</em> et <em>i</em> + 1.
+     * </p>
+     * 
+     * @param index
+     *            L'index du noeud à séparer
+     */
+    public Dendogram splitNode(final int index)
+    {
+        Dendogram dendo = null;
+
+        if (index < this.nodes.size())
+        {
+            Node node = this.nodes.get(index);
+
+            if (node.getLeftChild() != null && node.getRightChild() != null)
+            {
+                Node leftChild = node.getLeftChild();
+                Node rightChild = node.getRightChild();
+
+                dendo = (Dendogram) this.clone();
+
+                dendo.nodes.remove(index);
+                dendo.nodes.add(index, leftChild);
+                dendo.nodes.add((index + 1), rightChild);
+            }
+        }
+
+        else
+        {
+            throw new RuntimeException("Clustering.splitNode(int) : "
+                    + "index passé en paramètre invalide.");
         }
 
         return dendo;
@@ -692,6 +770,8 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
             {
                 dendogram.nodes.add((Node) node.clone());
             }
+            
+            dendogram.architecture = null;
         }
 
         catch (CloneNotSupportedException e)
