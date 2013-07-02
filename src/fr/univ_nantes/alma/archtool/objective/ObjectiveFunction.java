@@ -53,10 +53,10 @@ public class ObjectiveFunction
     }
 
     /**
-     * Évalue la validité sémantique d'un composant.
+     * Évalue la validité sémantique d'une architecture.
      * 
      * @param comp
-     *            Le composant à évaluer
+     *            L'architecture à évaluer
      */
     private double evaluateArchSemantic(final Architecture arch)
     {
@@ -64,19 +64,25 @@ public class ObjectiveFunction
 
         for (Component comp : arch.getComponents())
         {
-            result = ObjectiveFunction.WEIGHT_COMP_COMPO
+            double subresult = 0.0;
+            
+            subresult = ObjectiveFunction.WEIGHT_COMP_COMPO
                     * this.composability(comp);
             
-            result += ObjectiveFunction.WEIGHT_COMP_INDE
+            subresult += ObjectiveFunction.WEIGHT_COMP_INDE
                     * this.independence(comp);
             
-            result += ObjectiveFunction.WEIGHT_COMP_SPECI
+            subresult += ObjectiveFunction.WEIGHT_COMP_SPECI
                     * this.specificity(comp);
 
-            result /= ObjectiveFunction.WEIGHT_COMP_COMPO
+            subresult /= ObjectiveFunction.WEIGHT_COMP_COMPO
                     + ObjectiveFunction.WEIGHT_COMP_INDE
                     + ObjectiveFunction.WEIGHT_COMP_SPECI;
+            
+            result += subresult;
         }
+        
+        result /= arch.getComponents().size();
 
         return result;
     }
@@ -98,18 +104,21 @@ public class ObjectiveFunction
         final Set<Interface> proInterfaces = comp.getProvidedInterfaces();
         final double nbReqInterfaces = comp.getRequiredInterfaces().size();
 
-        double sumCohesion = 0.0;
-        double avgCohesion = 0.0;
-
-        for (final Interface itf : proInterfaces)
+        if(proInterfaces.size() > 0)
         {
-            sumCohesion += ObjectiveFunction.cohesion.internalCohesion(itf);
+            double sumCohesion = 0.0;
+            double avgCohesion = 0.0;
+            
+            for (final Interface itf : proInterfaces)
+            {
+                sumCohesion += ObjectiveFunction.cohesion.internalCohesion(itf);
+            }
+            
+            avgCohesion = sumCohesion / proInterfaces.size();
+    
+            result = avgCohesion
+                    - (ObjectiveFunction.WEIGHT_COMPO_ITFS_REQ * nbReqInterfaces);
         }
-
-        avgCohesion = sumCohesion / proInterfaces.size();
-
-        result = avgCohesion
-                - (ObjectiveFunction.WEIGHT_COMPO_ITFS_REQ * nbReqInterfaces);
 
         return result;
     }
@@ -129,7 +138,7 @@ public class ObjectiveFunction
     {
         double result = 0.0;
 
-        result = 1 / (1 + comp.getRequiredInterfaces().size());
+        result = 1.0 / (1 + comp.getRequiredInterfaces().size());
 
         return result;
     }
@@ -150,32 +159,38 @@ public class ObjectiveFunction
         final Set<Interface> proInterfaces = comp.getProvidedInterfaces();
         final double nbProInterfaces = proInterfaces.size();
 
-        for (final Interface itf : comp.getProvidedInterfaces())
+        if(nbProInterfaces > 0)
         {
-            sum += ObjectiveFunction.cohesion.internalCohesion(itf);
+            for (final Interface itf : comp.getProvidedInterfaces())
+            {
+                sum += ObjectiveFunction.cohesion.internalCohesion(itf);
+            }
+    
+            result += sum / nbProInterfaces;
         }
-
-        result += sum / nbProInterfaces;
 
         // Provided interfaces cohesion
 
-        final Interface[] itfs = new Interface[proInterfaces.size()];
-        proInterfaces.toArray(itfs);
-
-        sum = 0.0;
-
-        for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
+        if(nbProInterfaces > 1)
         {
-            for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
+            final Interface[] itfs = new Interface[proInterfaces.size()];
+            proInterfaces.toArray(itfs);
+    
+            sum = 0.0;
+    
+            for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
             {
-                sum += ObjectiveFunction.cohesion.cohesionInterfaces(
-                        itfs[idx1], itfs[idx2]);
+                for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
+                {
+                    sum += ObjectiveFunction.cohesion.cohesionInterfaces(
+                            itfs[idx1], itfs[idx2]);
+                }
             }
+    
+            final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
+    
+            result += sum / nbPairs;
         }
-
-        final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
-
-        result += sum / nbPairs;
 
         // Component internal cohesion
 
