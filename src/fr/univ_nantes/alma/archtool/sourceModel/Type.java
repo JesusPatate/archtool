@@ -2,11 +2,11 @@ package fr.univ_nantes.alma.archtool.sourceModel;
 
 public abstract class Type
 {
-    private String name;
+    private final String name;
 
-    private File sourceFile;
+    private final File sourceFile;
 
-    public Type(String name, File sourceFile)
+    public Type(final String name, final File sourceFile)
     {
         this.name = name;
         this.sourceFile = sourceFile;

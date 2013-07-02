@@ -2,7 +2,7 @@ package fr.univ_nantes.alma.archtool.sourceModel;
 
 public class ComplexType extends Type
 {
-    public ComplexType(String name, File sourceFile)
+    public ComplexType(final String name, final File sourceFile)
     {
         super(name, sourceFile);
     }

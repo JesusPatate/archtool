@@ -2,11 +2,11 @@ package fr.univ_nantes.alma.archtool.sourceModel;
 
 public abstract class Variable
 {
-    private String name;
+    private final String name;
 
-    private Type type;
+    private final Type type;
 
-    public Variable(String name, Type type)
+    public Variable(final String name, final Type type)
     {
         this.name = name;
         this.type = type;
