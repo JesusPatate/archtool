@@ -2,11 +2,11 @@ package fr.univ_nantes.alma.archtool.sourceModel;
 
 public class File
 {
-    private String name;
+    private final String name;
 
-    private Folder folder;
+    private final Folder folder;
 
-    public File(String name, Folder folder)
+    public File(final String name, final Folder folder)
     {
         this.name = name;
         this.folder = folder;

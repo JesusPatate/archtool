@@ -5,14 +5,19 @@ import java.util.Set;
 
 public class Call
 {
-    private Function function;
+    private final Function function;
 
-    private Set<Variable> parameters;
+    private final Set<Variable> parameters = new HashSet<Variable>();
 
-    public Call(Function function, Set<Variable> parameters)
+    public Call(final Function function)
     {
         this.function = function;
-        this.parameters = parameters;
+    }
+
+    public Call(final Function function, final Set<Variable> parameters)
+    {
+        this.function = function;
+        this.parameters.addAll(parameters);
     }
 
     public Function getFunction()

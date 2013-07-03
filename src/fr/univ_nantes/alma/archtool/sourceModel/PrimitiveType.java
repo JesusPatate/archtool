@@ -2,7 +2,7 @@ package fr.univ_nantes.alma.archtool.sourceModel;
 
 public class PrimitiveType extends Type
 {
-    private PrimitiveType(String name)
+    private PrimitiveType(final String name)
     {
         super(name, null);
     }
@@ -56,7 +56,7 @@ public class PrimitiveType extends Type
     {
         return new PrimitiveType("double");
     }
-    
+
     public static PrimitiveType voidType()
     {
         return new PrimitiveType("void");

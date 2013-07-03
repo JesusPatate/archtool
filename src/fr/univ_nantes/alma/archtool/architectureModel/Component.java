@@ -7,7 +7,7 @@ import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
-public class Component implements Cohesionable
+public class Component implements Cohesionable, Cloneable
 {
     private final Set<Interface> requiredInterfaces = new HashSet<Interface>();
 
@@ -115,5 +115,31 @@ public class Component implements Cohesionable
     public boolean removeProvidedInterface(final Interface i)
     {
         return this.providedInterfaces.remove(i);
+    }
+    
+    @Override
+    public String toString()
+    {
+        String str = "Composant (";
+        
+        for(Function fct : this.functions)
+        {
+            str += fct + ", ";
+        }
+        
+        for(Variable var: this.variables)
+        {
+            str += var + ", ";
+        }
+        
+        for(Type t: this.types)
+        {
+            str += t + ", ";
+        }
+        
+        str = str.substring(0, str.lastIndexOf(","));
+        str += ")";
+        
+        return str;
     }
 }

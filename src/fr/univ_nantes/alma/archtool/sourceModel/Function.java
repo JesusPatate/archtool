@@ -8,33 +8,48 @@ import java.util.Set;
  * Classe du modèle de code source représentant une fonction.
  * 
  * <p>
- *     Une fonction est composée de
- *     <ul>
- *         <li>son nom,</li>
- *         <li>son type de retour,</li>
- *         <li>l'ensemble de ses arguments,</li>
- *         <li>le fichier dans lequel elle est définie,
- *         <li>son corps (bloc de code)</li>
- *     </ul>
+ * Une fonction est composée de
+ * <ul>
+ * <li>son nom,</li>
+ * <li>son type de retour,</li>
+ * <li>l'ensemble de ses arguments,</li>
+ * <li>le fichier dans lequel elle est définie,
+ * <li>son corps (bloc de code)</li>
+ * </ul>
  * </p>
  */
 public class Function
 {
-    private String name;
+    private final String name;
 
-    private Type returnType;
+    private final Set<LocalVariable> arguments = new HashSet<LocalVariable>();
 
-    private Set<LocalVariable> arguments;
+    private final Type returnType;
 
-    private File sourceFile;
+    private final File sourceFile;
 
-    private Block body;
+    private final Block body;
 
-    public Function(String name, Set<LocalVariable> arguments, Type returnType,
-            File sourceFile, Block body)
+    /**
+     * Constructeur pour les fonctions dont on ne connait pas la définition.
+     * 
+     * @param name
+     * @param sourceFile
+     */
+    public Function(final String name)
     {
         this.name = name;
-        this.arguments = arguments;
+        this.returnType = null;
+        this.sourceFile = null;
+        this.body = null;
+    }
+
+    public Function(final String name, final Set<LocalVariable> arguments,
+            final Type returnType,
+            final File sourceFile, final Block body)
+    {
+        this.name = name;
+        this.arguments.addAll(arguments);
         this.returnType = returnType;
         this.sourceFile = sourceFile;
         this.body = body;
@@ -49,7 +64,7 @@ public class Function
     }
 
     /**
-     * Retourne la liste des arguments de la fonction. 
+     * Retourne la liste des arguments de la fonction.
      */
     public Set<LocalVariable> getArguments()
     {
@@ -73,12 +88,12 @@ public class Function
     }
 
     /**
-     * Renvoie l'ensemble des variables globales au programme
-     * utilisées par la fonction.
+     * Renvoie l'ensemble des variables globales au programme utilisées par la
+     * fonction.
      * 
      * @return Une map ayant pour clés les variables globales au programme
-     * accédées dans le corps de la fonction et pour valeurs leur nombre
-     * d'accès.
+     *         accédées dans le corps de la fonction et pour valeurs leur nombre
+     *         d'accès.
      */
     public Map<ProgramGlobalVariable, Integer> getProgramGlobals()
     {
@@ -86,12 +101,12 @@ public class Function
     }
 
     /**
-     * Renvoie l'ensemble des variables globales au fichier
-     * utilisées par la fonction.
+     * Renvoie l'ensemble des variables globales au fichier utilisées par la
+     * fonction.
      * 
      * @return Une map ayant pour clés les variables globales au fichier
-     * accédées dans le corps de la fonction et pour valeurs leur nombre
-     * d'accès.
+     *         accédées dans le corps de la fonction et pour valeurs leur nombre
+     *         d'accès.
      */
     public Map<FileGlobalVariable, Integer> getFileGlobals()
     {
@@ -105,8 +120,8 @@ public class Function
      * Les arguments ne sont pas considérés comme des variables locales.
      * </p>
      * 
-     * @return Une map ayant pour clés les variables locales utilisées
-     * dans le corps de la fonction et pour valeurs leur nombre d'utilisations.
+     * @return Une map ayant pour clés les variables locales utilisées dans le
+     *         corps de la fonction et pour valeurs leur nombre d'utilisations.
      */
     public Map<LocalVariable, Integer> getLocals()
     {
@@ -116,18 +131,18 @@ public class Function
     /**
      * Renvoie l'ensemble des appels réalisés dans la fonction.
      * 
-     * @return Un set contenant les appels réalisés dans le corps
-     * de la fonction.
+     * @return Un set contenant les appels réalisés dans le corps de la
+     *         fonction.
      */
     public Set<Call> getCalls()
     {
         return this.body.getCalls();
     }
-    
-    public boolean calls(Function fct)
+
+    public boolean calls(final Function fct)
     {
         boolean called = false;
-        
+
         for (final Call call : this.getCalls())
         {
             if (call.getFunction().equals(fct))
@@ -135,23 +150,28 @@ public class Function
                 called = true;
             }
         }
-        
+
         return called;
     }
-    
+
     /**
      * Renvoie l'ensemble des types utilisés par la fonction.
      * 
      * <p>
-     * Les types utilisés peuvent être primitifs ou complexes.
-     * Les arguments ne sont pas pris en compte.
+     * Les types utilisés peuvent être primitifs ou complexes. Les arguments ne
+     * sont pas pris en compte.
      * </p>
      * 
-     * @return Un set contenant les types utilisés dans le corps
-     * de la fonction.
+     * @return Un set contenant les types utilisés dans le corps de la fonction.
      */
     public Map<Type, Integer> getUsedTypes()
     {
         return this.body.getUsedTypes();
+    }
+    
+    @Override
+    public String toString()
+    {
+        return "Function " + this.name; 
     }
 }

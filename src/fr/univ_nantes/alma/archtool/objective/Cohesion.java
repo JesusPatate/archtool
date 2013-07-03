@@ -127,12 +127,12 @@ public class Cohesion
 
         final Object[] functions = element.getFunctions().toArray();
 
-        for (int idx1 = 0 ; idx1 < (nbFunctions - 1) ; ++idx1)
+        for (int i = 0 ; i < (nbFunctions - 2) ; ++i)
         {
-            for (final int idx2 = idx1 + 1 ; idx2 < nbFunctions ; ++idx1)
+            for (final int j = (i + 1) ; j < (nbFunctions - 1) ; ++i)
             {
-                final Function f1 = (Function) functions[idx1];
-                final Function f2 = (Function) functions[idx2];
+                final Function f1 = (Function) functions[i];
+                final Function f2 = (Function) functions[j];
 
                 sum += this.cohesion(f1, f2);
             }
@@ -319,7 +319,7 @@ public class Cohesion
 
         for (LocalVariable arg : args)
         {
-            if (arg.getType().equals(type))
+            if (arg.ofType(type))
             {
                 ++nbUsesOfType;
             }
@@ -433,7 +433,7 @@ public class Cohesion
             for (LocalVariable var2 : localVars2.keySet())
             {
                 if ((var1.getName().compareTo(var2.getName()) == 0)
-                        && (var1.getType().equals(var2.getType())))
+                        && (var1.ofType(var2.getType())))
                 {
                     ++nbCommon;
                 }
@@ -559,7 +559,7 @@ public class Cohesion
             for (LocalVariable var2 : args2)
             {
                 if ((var1.getName().compareTo(var2.getName()) == 0)
-                        && (var1.getType().equals(var2.getType())))
+                        && (var1.ofType(var2.getType())))
                 {
                     ++nbCommon;
                 }

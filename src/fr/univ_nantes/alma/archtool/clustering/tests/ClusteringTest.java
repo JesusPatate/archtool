@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.clustering.Clustering;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.Block;
@@ -30,6 +31,7 @@ public class ClusteringTest
     private static SourceCode sourceCode;
     
     private Clustering clustering;
+    private Architecture arch;
 
     @BeforeClass
     public static void setUpBeforeClass()
@@ -53,11 +55,8 @@ public class ClusteringTest
     @Before
     public void setUp() throws Exception
     {
-        System.out.println(ClusteringTest.sourceCode);
-        System.out.println(ClusteringTest.obj);
-        
         this.clustering = new Clustering(ClusteringTest.obj);
-        this.clustering.process(ClusteringTest.sourceCode);
+        this.arch = this.clustering.process(ClusteringTest.sourceCode);
     }
 
     @After
@@ -69,6 +68,8 @@ public class ClusteringTest
     @Test
     public void test()
     {
+        System.out.println(obj.evaluate(arch));
+        System.out.println(arch);
     }
 
     /**
