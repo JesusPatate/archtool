@@ -92,6 +92,11 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
 
             return node;
         }
+        
+        public String toString()
+        {
+            return "Node -> " + this.component;
+        }
     }
 
     /**
@@ -156,15 +161,11 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
         
         if(this.architecture != null)
         {
-            System.out.println("DBG : calcul de l'architecture évité :D");
-            
             arch = this.architecture;
         }
         
         else
         {
-            System.out.println("DBG : calcul de l'architecture");
-            
             arch = new Architecture();
     
             for (Node node : this.nodes)
@@ -192,7 +193,7 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
                 }
             }
             
-            this.architecture = arch;
+            // this.architecture = arch;
         }
 
         return arch;
@@ -231,12 +232,12 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
     public Dendogram clusterNodes(final int idxChild1, final int idxChild2)
     {
         Dendogram dendo = (Dendogram) this.clone();
-
+        
         if (idxChild1 < dendo.nodes.size() && idxChild2 < dendo.nodes.size())
         {
             Node childNode1 = dendo.nodes.get(idxChild1);
             Node childNode2 = dendo.nodes.get(idxChild2);
-
+            
             Component childComp1 = childNode1.getComponent();
             Component childComp2 = childNode2.getComponent();
 
@@ -667,7 +668,7 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
                 .getComponent();
         final Component child2 = this.nodes.get(idxChild2)
                 .getComponent();
-
+        
         for (final Interface reqI : child1.getRequiredInterfaces())
         {
             if (child2.providesInterface(reqI) == false)
@@ -678,7 +679,7 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
 
         for (final Interface reqI : child2.getRequiredInterfaces())
         {
-            if (child1.providesInterface(reqI))
+            if (child1.providesInterface(reqI) == false)
             {
                 cluster.addRequiredInterface(reqI);
             }

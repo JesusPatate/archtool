@@ -65,7 +65,7 @@ public class Clustering
 
                     final double score = this.objectiveFct.evaluate(
                             dendo.getArchitecture());
-
+                    
                     if (score > bestScore)
                     {
                         bestScore = score;
@@ -112,7 +112,7 @@ public class Clustering
     
                 double score1 = objectiveFct.evaluate(arch1);
                 double score2 = objectiveFct.evaluate(arch2);
-    
+                
                 // Best architecture when the node is splitted
                 if (score2 > score1)
                 {
@@ -134,6 +134,6 @@ public class Clustering
             }
         }
 
-        return arch1;
+        return result;
     }
 }

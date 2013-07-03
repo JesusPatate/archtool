@@ -19,6 +19,11 @@ public class Coupling
      * 
      * @param element
      *            L'élément architectural à évaluer
+     * 
+     * @see #coupling(Function, Function)
+     * @see #coupling(Function, Variable)
+     * @see #coupling(Function, Type)
+     * @see #coupling(Variable, Type)
      */
     public int coupling(Cohesionable element)
     {
@@ -54,10 +59,10 @@ public class Coupling
                 }
             }
         }
-        
-        for(Variable var : variables)
+
+        for (Variable var : variables)
         {
-            for(Type type : types)
+            for (Type type : types)
             {
                 result += coupling(var, type);
             }
@@ -70,30 +75,29 @@ public class Coupling
      * Mesure le couplage d'une fonction par rapport à une autre.
      * 
      * <p>
-     * Mesure le couplage de <em>from</em> par rapport à <em>to</em>. Le
-     * couplage d'une fonction <em>f1</em> par rapport à une autre fonction
+     * Le couplage d'une fonction <em>f1</em> par rapport à une autre fonction
      * <em>f2</em> est égal au nombre d'appels à <em>f2</em> par <em>f1</em>.
      * </p>
      * 
-     * @param from
+     * @param f1
      *            Une fonction d'un modèle de code source
-     * @param to
+     * @param f2
      *            Une fonction d'un modèle de code source
      */
-    private int coupling(Function from, Function to)
+    private int coupling(Function f1, Function f2)
     {
         int result = 0;
 
-        if ((from != null) && (to != null) && (from.equals(to) == false))
+        if ((f1 != null) && (f2 != null) && (f1.equals(f2) == false))
         {
-            Set<Call> calls = from.getCalls();
+            Set<Call> calls = f1.getCalls();
             Function fctCalled = null;
 
             for (Call call1 : calls)
             {
                 fctCalled = call1.getFunction();
 
-                if (fctCalled.equals(to))
+                if (fctCalled.equals(f2))
                 {
                     ++result;
                 }
