@@ -21,4 +21,10 @@ public abstract class Type
     {
         return this.sourceFile;
     }
+    
+    @Override
+    public String toString()
+    {
+        return "Type " + this.name;
+    }
 }
