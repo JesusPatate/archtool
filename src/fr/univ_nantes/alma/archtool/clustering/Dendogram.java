@@ -193,7 +193,7 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
                 }
             }
             
-            // this.architecture = arch;
+            this.architecture = arch;
         }
 
         return arch;

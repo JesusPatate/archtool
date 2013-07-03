@@ -27,14 +27,14 @@ public class Clustering
      * 
      * @return Un ensemble de composants générés par l'algorithme.
      */
-    public Architecture process(final SourceCode sourceCode)
+    public Pair<Architecture,Double> process(final SourceCode sourceCode)
     {
         this.dendogram = new Dendogram(sourceCode);
         this.buildDendogram();
         
-        Architecture arch = this.phase2();
+        Pair<Architecture,Double> result = this.phase2();
         
-        return arch;
+        return result;
     }
 
     /**
@@ -91,9 +91,10 @@ public class Clustering
     /**
      * Phase 2 : identification des composants à partir du dendogramme.
      */
-    private Architecture phase2()
+    private Pair<Architecture,Double> phase2()
     {
-        Architecture result = null;
+        Architecture resultArch = null;
+        Double resultScore = null;
         
         Dendogram dendo = null;
         Architecture arch1 = null;
@@ -117,14 +118,16 @@ public class Clustering
                 if (score2 > score1)
                 {
                     this.dendogram = dendo;
-                    result = arch2;
+                    resultArch = arch2;
+                    resultScore = score2;
                 }
     
                 // Otherwise try to split the next node
                 else
                 {
                     ++idx;
-                    result = arch1;
+                    resultArch = arch1;
+                    resultScore = score1;
                 }
             }
             
@@ -134,6 +137,6 @@ public class Clustering
             }
         }
 
-        return result;
+        return new Pair<Architecture,Double>(resultArch, resultScore) ;
     }
 }
