@@ -54,7 +54,13 @@ public class Connector implements Cohesionable
             str += t + ", ";
         }
         
-        str = str.substring(0, str.lastIndexOf(","));
+        int idx = str.lastIndexOf(",");
+        
+        if(idx > 0)
+        {
+            str = str.substring(0, idx);
+        }
+        
         str += ")";
         
         return str;

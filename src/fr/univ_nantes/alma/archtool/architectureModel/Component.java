@@ -120,7 +120,7 @@ public class Component implements Cohesionable, Cloneable
     @Override
     public String toString()
     {
-        String str = "Composant (";
+        String str = "Composant ([";
         
         for(Function fct : this.functions)
         {
@@ -137,8 +137,48 @@ public class Component implements Cohesionable, Cloneable
             str += t + ", ";
         }
         
-        str = str.substring(0, str.lastIndexOf(","));
-        str += ")";
+        int idx = str.lastIndexOf(",");
+        
+        if(idx > 0)
+        {
+            str = str.substring(0, idx);
+        }
+        
+        str += "] Interfaces fournies : [";
+        
+        for(Interface proI : this.providedInterfaces)
+        {
+            str += proI + ", ";
+        }
+        
+        if(this.providedInterfaces.size() > 0)
+        {
+            idx = str.lastIndexOf(",");
+            
+            if(idx > 0)
+            {
+                str = str.substring(0, idx);
+            }
+        }
+        
+        str += "] Interfaces requises : [";
+        
+        for(Interface reqI : this.requiredInterfaces)
+        {
+            str += reqI + ", ";
+        }
+        
+        if(this.requiredInterfaces.size() > 0)
+        {
+            idx = str.lastIndexOf(",");
+            
+            if(idx > 0)
+            {
+                str = str.substring(0, idx);
+            }
+        }
+        
+        str += "])";
         
         return str;
     }
