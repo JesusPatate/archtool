@@ -6,4 +6,9 @@ public class ComplexType extends Type
     {
         super(name, sourceFile);
     }
+
+    public static Type anonymousType()
+    {
+        return new ComplexType("anonymous", null);
+    }
 }

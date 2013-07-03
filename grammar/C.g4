@@ -34,6 +34,7 @@ grammar C;
 {
 package fr.univ_nantes.alma.archtool.parsing;
 import fr.univ_nantes.alma.archtool.sourceModel.*;
+import fr.univ_nantes.alma.archtool.parsing.specifier.*;
 }
 
 
@@ -188,17 +189,18 @@ constantExpression
 /************************************ Declarations ************************************/
 
 declaration
-    : ds=declarationSpecifiers initDeclaratorList? ';' {/*System.out.println($ds.text);*/}
+    : ds=declarationSpecifiers initDeclaratorList? ';'
     | staticAssertDeclaration
     ;
 
-declarationSpecifiers returns [DeclarationSpecifier specifier, String name, boolean isStatic]
-    : ds=declarationSpecifier+ {$specifier = $ds.specifier; $name = $ds.name; $isStatic = $ds.isStatic;}
+declarationSpecifiers returns [DeclarationSpecifier specifier = new NullSpecifier(), String name = null, boolean isStatic = false]
+    : declarationSpecifier+
     ;
 
-declarationSpecifier returns [DeclarationSpecifier specifier  = new NullSpecifier(), boolean isStatic = false]
-    : scs=storageClassSpecifier {$specifier = $scs.specifier; $isStatic = $scs.isStatic;}
-    | ts=typeSpecifier {$specifier = $ts.specifier;}
+declarationSpecifier
+    : storageClassSpecifier
+    | ts=typeSpecifier {$declarationSpecifiers::specifier = $declarationSpecifiers::specifier.merge($ts.specifier); 
+    					if($ts.name != null) $declarationSpecifiers::name = $ts.name;}
     | typeQualifier
     | functionSpecifier
     | alignmentSpecifier
@@ -214,16 +216,16 @@ initDeclarator
     | declarator '=' initializer
     ;
 
-storageClassSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier(), boolean isStatic = false]
-    : 'typedef' {$specifier = new TypedefSpecifier();}
+storageClassSpecifier
+    : 'typedef' {$declarationSpecifiers::specifier.merge(new TypedefSpecifier());}
     | 'extern'
-    | 'static' {$isStatic = true;}
+    | 'static' {$declarationSpecifiers::isStatic = true;}
     | '_Thread_local'
     | 'auto'
     | 'register'
     ;
 
-typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier()]
+typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier(), String name = null]
     : ('void' {$specifier = new VoidSpecifier();}
     | 'char' {$specifier = new CharSpecifier();}
     | 'short' {$specifier = new ShortSpecifier();}
@@ -240,15 +242,15 @@ typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier()]
     | '__m128i')
     | '__extension__' '(' ('__m128' | '__m128d' | '__m128i') ')'
     | atomicTypeSpecifier
-    | sous=structOrUnionSpecifier {$specifier = $sous.specifier;}
-    | es=enumSpecifier {$specifier = $es.specifier;}
-    | tn=typedefName {$specifier = new TypedefNameSpecifier($tn.text);}
+    | structOrUnionSpecifier
+    | enumSpecifier
+    | typedefName
     | '__typeof__' '(' constantExpression ')' // GCC extension
     ;
 
-structOrUnionSpecifier returns [StructOrUnionSpecifier specifier]
-    : structOrUnion i=Identifier? '{' structDeclarationList '}' {$specifier = new StructOrUnionSpecifier($i.text);}
-    | structOrUnion i=Identifier {$specifier = new StructOrUnionSpecifier($i.text);}
+structOrUnionSpecifier
+    : structOrUnion i=Identifier? '{' structDeclarationList '}' {$typeSpecifier::specifier = new StructOrUnionSpecifier($i.text);}
+    | structOrUnion i=Identifier {$typeSpecifier::specifier = new StructOrUnionSpecifier($i.text);}
     ;
 
 structOrUnion
@@ -281,10 +283,10 @@ structDeclarator
     | declarator? ':' constantExpression
     ;
 
-enumSpecifier returns [EnumSpecifier specifier]
-    : 'enum' i=Identifier? '{' enumeratorList '}' {$specifier = new EnumSpecifier($i.text);}
-    | 'enum' i=Identifier? '{' enumeratorList ',' '}' {$specifier = new EnumSpecifier($i.text);}
-    | 'enum' i=Identifier {$specifier = new EnumSpecifier($i.text);}
+enumSpecifier
+    : 'enum' i=Identifier? '{' enumeratorList '}' {$typeSpecifier::specifier = new EnumSpecifier($i.text);}
+    | 'enum' i=Identifier? '{' enumeratorList ',' '}' {$typeSpecifier::specifier = new EnumSpecifier($i.text);}
+    | 'enum' i=Identifier {$typeSpecifier::specifier = new EnumSpecifier($i.text);}
     ;
 
 enumeratorList
@@ -337,7 +339,7 @@ directDeclarator returns [String name]
     | dd=directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']' {$name = $dd.name;}
     | dd=directDeclarator '[' typeQualifierList 'static' assignmentExpression ']' {$name = $dd.name;}
     | dd=directDeclarator '[' typeQualifierList? '*' ']' {$name = $dd.name;}
-    | dd=directDeclarator '(' ptl=parameterTypeList ')' {$name = $dd.name; System.out.println($ptl.text);}
+    | dd=directDeclarator '(' ptl=parameterTypeList ')' {$name = $dd.name; /*System.out.println($ptl.text);*/}
     | dd=directDeclarator '(' identifierList? ')' {$name = $dd.name;}
     ;
 
@@ -379,7 +381,7 @@ typeQualifierList
     | typeQualifierList typeQualifier
     ;
 
-parameterTypeList
+parameterTypeList returns [Set<LocalVariable> arguments = new HashSet<LocalVariable>]
     : parameterList
     | parameterList ',' '...'
     ;
@@ -390,8 +392,8 @@ parameterList
     ;
 
 parameterDeclaration
-    : declarationSpecifiers declarator
-    | declarationSpecifiers abstractDeclarator?
+    : ds=declarationSpecifiers d=declarator {}
+    | ds=declarationSpecifiers abstractDeclarator?
     ;
 
 identifierList
@@ -423,7 +425,7 @@ directAbstractDeclarator
     ;
 
 typedefName
-    : Identifier
+    : i=Identifier {$typeSpecifier::specifier = new TypedefNameSpecifier($i.text); $typeSpecifier::name = $i.text;}
     ;
 
 initializer
@@ -531,7 +533,7 @@ externalDeclaration
     ;
 
 functionDefinition returns [Function result]
-    : declarationSpecifiers? d=declarator declarationList? compoundStatement {System.out.println($d.name);}
+    : declarationSpecifiers? d=declarator declarationList? compoundStatement {/*System.out.println($d.name);*/}
     ;
 
 declarationList

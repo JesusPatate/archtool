@@ -6,6 +6,10 @@ import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
+import fr.univ_nantes.alma.archtool.parsing.specifier.DeclarationSpecifier;
+import fr.univ_nantes.alma.archtool.parsing.specifier.TypedefNameSpecifier;
+import fr.univ_nantes.alma.archtool.parsing.specifier.TypedefSpecifier;
+
 public class TestParser
 {
     public static void main(String[] args) throws IOException
@@ -15,9 +19,5 @@ public class TestParser
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         CParser parser = new CParser(tokens);
         parser.compilationUnit();
-        
-        /*DeclarationSpecifier ds = new TypedefSpecifier();
-        DeclarationSpecifier ds2 = new TypedefNameSpecifier();
-        System.out.println(ds.merge(ds2));*/
     } 
 }
