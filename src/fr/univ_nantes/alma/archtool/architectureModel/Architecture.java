@@ -49,20 +49,22 @@ public class Architecture
     @Override
     public String toString()
     {
-        String str = "Architecture [\n";
+        StringBuffer buf = new StringBuffer("Architecture [\n");
         
         for(Component comp : this.components)
         {
-            str += comp + "\n";
+            buf.append(comp);
+            buf.append("\n");
         }
         
         for(Connector con : this.connectors)
         {
-            str += con + "\n";
+            buf.append(con);
+            buf.append("\n");
         }
         
-        str +=  "]";
+        buf.append("]");
         
-        return str;
+        return buf.toString();
     }
 }

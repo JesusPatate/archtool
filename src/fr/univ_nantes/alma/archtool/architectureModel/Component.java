@@ -120,66 +120,71 @@ public class Component implements Cohesionable, Cloneable
     @Override
     public String toString()
     {
-        String str = "Composant ([";
+        StringBuffer buf = new StringBuffer("Composant ([");
         
         for(Function fct : this.functions)
         {
-            str += fct + ", ";
+            buf.append(fct);
+            buf.append(", ");
         }
         
         for(Variable var: this.variables)
         {
-            str += var + ", ";
+            buf.append(var);
+            buf.append(", ");
         }
         
-        for(Type t: this.types)
+        for(Type type: this.types)
         {
-            str += t + ", ";
+            buf.append(type);
+            buf.append(", ");
         }
         
-        int idx = str.lastIndexOf(",");
+        int idx = buf.lastIndexOf(",");
         
         if(idx > 0)
         {
-            str = str.substring(0, idx);
+            buf.delete(idx, buf.length());
         }
         
-        str += "] Interfaces fournies : [";
+        buf.append("] Interfaces fournies : [");
         
         for(Interface proI : this.providedInterfaces)
         {
-            str += proI + ", ";
+            buf.append(proI);
+            buf.append(", ");
         }
         
         if(this.providedInterfaces.size() > 0)
         {
-            idx = str.lastIndexOf(",");
+            idx = buf.lastIndexOf(",");
             
             if(idx > 0)
             {
-                str = str.substring(0, idx);
+                buf.delete(idx, buf.length());
             }
         }
         
-        str += "] Interfaces requises : [";
+        buf.append("] Interfaces requises : [");
         
         for(Interface reqI : this.requiredInterfaces)
         {
-            str += reqI + ", ";
+            buf.append(reqI);
+            buf.append(", ");
         }
         
         if(this.requiredInterfaces.size() > 0)
         {
-            idx = str.lastIndexOf(",");
+            idx = buf.lastIndexOf(",");
             
             if(idx > 0)
             {
-                str = str.substring(0, idx);
+                buf.delete(idx, buf.length());
             }
         }
         
-        str += "])";
+        buf.append("])");
         
-        return str;
+        return buf.toString();
     }
 }

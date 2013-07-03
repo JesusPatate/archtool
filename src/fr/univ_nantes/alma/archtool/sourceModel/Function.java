@@ -172,6 +172,6 @@ public class Function
     @Override
     public String toString()
     {
-        return "Function " + this.name; 
+        return String.format("Function : %s", this.name);
     }
 }
