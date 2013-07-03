@@ -1,1 +1,8 @@
 - Définir architecture de l'appli
+
+
+- Analyse du code source :
+	+ Récupération des déclarations externes
+		1 - Récupération des déclarations de type et de fonction -> declaration
+		2 - Récupération des définitions de fonction -> functionDefinition
+

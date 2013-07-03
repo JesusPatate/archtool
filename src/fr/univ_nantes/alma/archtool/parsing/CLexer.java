@@ -2,6 +2,7 @@
 
 package fr.univ_nantes.alma.archtool.parsing;
 import fr.univ_nantes.alma.archtool.sourceModel.*;
+import fr.univ_nantes.alma.archtool.parsing.specifier.*;
 
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
