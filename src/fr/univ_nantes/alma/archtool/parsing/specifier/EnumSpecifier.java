@@ -1,14 +1,15 @@
 package fr.univ_nantes.alma.archtool.parsing.specifier;
 
+import java.util.Map;
 import java.util.Set;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 
 
 public class EnumSpecifier extends StructuredSpecifier
 {  
-    public EnumSpecifier(String name, Set<ComplexType> types)
+    public EnumSpecifier(String name, Map<String, ComplexType> complextypes)
     {
-        super(name, types);
+        super(name, complextypes);
     }
     
     @Override

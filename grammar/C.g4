@@ -32,9 +32,45 @@ grammar C;
 
 @header
 {
-package fr.univ_nantes.alma.archtool.parsing;
-import fr.univ_nantes.alma.archtool.sourceModel.*;
-import fr.univ_nantes.alma.archtool.parsing.specifier.*;
+	package fr.univ_nantes.alma.archtool.parsing;
+	
+	import java.util.Map;
+	import java.util.HashMap;
+	import java.util.HashSet;
+	import java.util.Set;
+	import fr.univ_nantes.alma.archtool.sourceModel.*;
+	import fr.univ_nantes.alma.archtool.parsing.specifier.*;
+}
+
+@parser::members
+{
+	private String currentPath;
+	private Map<String, Function> functions = new HashMap<String, Function>();
+	private Map<String, ComplexType> complexTypes = new HashMap<String, ComplexType>();
+	private Map<String, Variable> globalVariables = new HashMap<String, Variable>();
+	
+	private void addComplexType(String name)
+	{
+		if(name != null)
+		{
+			this.complexTypes.put(name, new ComplexType(name, null));
+		}
+	}
+	
+	private void declareTypedef(boolean isTypedef, String name, List<String> names)
+	{
+		if(isTypedef)
+		{
+			if(names.isEmpty())
+			{
+				addComplexType(name);
+			}
+			else
+			{
+				addComplexType(names.get(0));
+			}
+		}
+	}
 }
 
 
@@ -186,14 +222,15 @@ constantExpression
     ;
 
 
-/************************************ Declarations ************************************/
+/************************************ DECLARATIONS ************************************/
 
-declaration
-    : ds=declarationSpecifiers initDeclaratorList? ';'
+declaration returns [List<String> names = new ArrayList<String>(), Type type = null, boolean isStatic, boolean isFunction]
+    : ds=declarationSpecifiers idl=initDeclaratorList? ';'  {declareTypedef($ds.isTypedef, $ds.name, $names); $isStatic = $ds.isStatic;
+    														if(!$ds.isTypedef) $type = $ds.specifier.getType();}
     | staticAssertDeclaration
     ;
 
-declarationSpecifiers returns [DeclarationSpecifier specifier = new NullSpecifier(), String name = null, boolean isStatic = false]
+declarationSpecifiers returns [DeclarationSpecifier specifier = new NullSpecifier(), String name = null, boolean isStatic = false, boolean isTypedef = false]
     : declarationSpecifier+
     ;
 
@@ -206,18 +243,18 @@ declarationSpecifier
     | alignmentSpecifier
     ;
 
-initDeclaratorList
+initDeclaratorList 
     : initDeclarator
     | initDeclaratorList ',' initDeclarator
     ;
 
 initDeclarator
-    : declarator
-    | declarator '=' initializer
+    : d=declarator {$declaration::names.add($d.name); $declaration::isFunction = $d.isFunction;}
+    | d=declarator '=' initializer {$declaration::names.add($d.name);} //PRENDRE EN COMPTE LES VALEURS D'INITIALISATION QUI PEUVENT ETRE DES VARIABLES
     ;
 
 storageClassSpecifier
-    : 'typedef' {$declarationSpecifiers::specifier.merge(new TypedefSpecifier());}
+    : 'typedef' {$declarationSpecifiers::isTypedef = true;}
     | 'extern'
     | 'static' {$declarationSpecifiers::isStatic = true;}
     | '_Thread_local'
@@ -249,8 +286,8 @@ typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier(), Str
     ;
 
 structOrUnionSpecifier
-    : structOrUnion i=Identifier? '{' structDeclarationList '}' {$typeSpecifier::specifier = new StructOrUnionSpecifier($i.text);}
-    | structOrUnion i=Identifier {$typeSpecifier::specifier = new StructOrUnionSpecifier($i.text);}
+    : structOrUnion i=Identifier? '{' structDeclarationList '}' {this.addComplexType($i.text); $typeSpecifier::specifier = new StructOrUnionSpecifier($i.text, this.complexTypes);}
+    | structOrUnion i=Identifier {$typeSpecifier::specifier = new StructOrUnionSpecifier($i.text, this.complexTypes);}
     ;
 
 structOrUnion
@@ -284,9 +321,9 @@ structDeclarator
     ;
 
 enumSpecifier
-    : 'enum' i=Identifier? '{' enumeratorList '}' {$typeSpecifier::specifier = new EnumSpecifier($i.text);}
-    | 'enum' i=Identifier? '{' enumeratorList ',' '}' {$typeSpecifier::specifier = new EnumSpecifier($i.text);}
-    | 'enum' i=Identifier {$typeSpecifier::specifier = new EnumSpecifier($i.text);}
+    : 'enum' i=Identifier? '{' enumeratorList '}' {this.addComplexType($i.text); $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);}
+    | 'enum' i=Identifier? '{' enumeratorList ',' '}' {this.addComplexType($i.text); $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);}
+    | 'enum' i=Identifier {$typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);}
     ;
 
 enumeratorList
@@ -328,19 +365,19 @@ alignmentSpecifier
     | '_Alignas' '(' constantExpression ')'
     ;
 
-declarator returns [String name]
-    : pointer? dd=directDeclarator gccDeclaratorExtension* {$name = $dd.name;}
+declarator returns [String name, Set<LocalVariable> arguments, boolean isFunction]
+    : pointer? dd=directDeclarator gccDeclaratorExtension* {$name = $dd.name; $arguments = $dd.arguments; $isFunction = $dd.isFunction;}
     ;
 
-directDeclarator returns [String name]
+directDeclarator returns [String name, Set<LocalVariable> arguments, boolean isFunction = false]
     : i=Identifier {$name = $i.text;}
     | '(' d=declarator ')' {$name = $d.name;}
     | dd=directDeclarator '[' typeQualifierList? assignmentExpression? ']' {$name = $dd.name;}
     | dd=directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']' {$name = $dd.name;}
     | dd=directDeclarator '[' typeQualifierList 'static' assignmentExpression ']' {$name = $dd.name;}
     | dd=directDeclarator '[' typeQualifierList? '*' ']' {$name = $dd.name;}
-    | dd=directDeclarator '(' ptl=parameterTypeList ')' {$name = $dd.name; /*System.out.println($ptl.text);*/}
-    | dd=directDeclarator '(' identifierList? ')' {$name = $dd.name;}
+    | dd=directDeclarator '(' ptl=parameterTypeList ')' {$name = $dd.name; $arguments = $ptl.arguments; $isFunction = true;}
+    | dd=directDeclarator '(' identifierList? ')' {$name = $dd.name; $isFunction = true;}
     ;
 
 gccDeclaratorExtension
@@ -381,7 +418,7 @@ typeQualifierList
     | typeQualifierList typeQualifier
     ;
 
-parameterTypeList returns [Set<LocalVariable> arguments = new HashSet<LocalVariable>]
+parameterTypeList returns [Set<LocalVariable> arguments = new HashSet<LocalVariable>()]
     : parameterList
     | parameterList ',' '...'
     ;
@@ -392,7 +429,7 @@ parameterList
     ;
 
 parameterDeclaration
-    : ds=declarationSpecifiers d=declarator {}
+    : ds=declarationSpecifiers d=declarator {$parameterTypeList::arguments.add(new LocalVariable($d.name, $ds.specifier.getType()));}
     | ds=declarationSpecifiers abstractDeclarator?
     ;
 
@@ -425,7 +462,7 @@ directAbstractDeclarator
     ;
 
 typedefName
-    : i=Identifier {$typeSpecifier::specifier = new TypedefNameSpecifier($i.text); $typeSpecifier::name = $i.text;}
+    : i=Identifier {$typeSpecifier::specifier = new TypedefNameSpecifier($i.text, this.complexTypes); $typeSpecifier::name = $i.text;}
     ;
 
 initializer
@@ -528,12 +565,12 @@ translationUnit
 
 externalDeclaration
     : functionDefinition
-    | declaration
+    | d=declaration {System.out.println($d.text);}
     | ';' // stray ;
     ;
 
 functionDefinition returns [Function result]
-    : declarationSpecifiers? d=declarator declarationList? compoundStatement {/*System.out.println($d.name);*/}
+    : ds=declarationSpecifiers? d=declarator declarationList? compoundStatement {/*System.out.println($d.name + ": " + $d.arguments);*/} //AJOUTER FONCTION DANS LA TABLE
     ;
 
 declarationList
@@ -555,7 +592,6 @@ fragment
 IdentifierNondigit
     : Nondigit
     | UniversalCharacterName
-    //| // other implementation-defined characters...
     ;
 
 fragment
@@ -582,7 +618,6 @@ HexQuad
 Constant
     : IntegerConstant
     | FloatingConstant
-    //| EnumerationConstant
     | CharacterConstant
     ;
 

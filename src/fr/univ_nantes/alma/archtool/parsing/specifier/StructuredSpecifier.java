@@ -1,7 +1,6 @@
 package fr.univ_nantes.alma.archtool.parsing.specifier;
 
-import java.util.Iterator;
-import java.util.Set;
+import java.util.Map;
 
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
@@ -9,12 +8,12 @@ import fr.univ_nantes.alma.archtool.sourceModel.Type;
 public abstract class StructuredSpecifier extends DeclarationSpecifier
 {
     protected String name;
-    protected Set<ComplexType> types;
+    protected Map<String, ComplexType> complextypes;
     
-    public StructuredSpecifier(String name, Set<ComplexType> types)
+    public StructuredSpecifier(String name, Map<String, ComplexType> complextypes)
     {
         this.name = name;
-        this.types = types;
+        this.complextypes = complextypes;
     }
     
     @Override
@@ -26,12 +25,15 @@ public abstract class StructuredSpecifier extends DeclarationSpecifier
         {
             type = ComplexType.anonymousType();
         }
+        else if(this.complextypes.containsKey(name))
+        {
+            type = this.complextypes.get(name);
+        }
+        
+        // We don't know the declaration of the type
         else
         {
-            ComplexType newType = new ComplexType(this.name, null);
-            Iterator<ComplexType> it = this.types.iterator();
-            
-            while()
+            type = ComplexType.anonymousType();
         }
         
         return type;

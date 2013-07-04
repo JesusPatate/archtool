@@ -11,11 +11,6 @@ public abstract class DeclarationSpecifier
         return this;
     }
     
-    protected DeclarationSpecifier mergeWithTypedef(TypedefSpecifier specifier)
-    {
-        return specifier;
-    }
-    
     protected DeclarationSpecifier mergeWithVoid(VoidSpecifier specifier)
     {
         return specifier;
