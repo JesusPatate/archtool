@@ -1,10 +1,12 @@
 package fr.univ_nantes.alma.archtool.coa;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Interface;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
@@ -23,17 +25,94 @@ public class COAInterfaces
     private Map<Interface, Set<Variable>> itfToVars = new HashMap<Interface, Set<Variable>>();
     
     private Map<Interface, Set<Type>> itfToTypes = new HashMap<Interface, Set<Type>>();
+
     
     /**
-     * Ajoute une fonction à une interface.
+     * Retourne l'ensemble des fonctions d'une interface.
+     */
+    public Set<Function> getInterfaceFunctions(Interface itf)
+    {
+        return this.itfToFcts.get(itf);
+    }
+    
+    /**
+     * Retourne l'ensemble des variables d'une interface.
+     */
+    public Set<Variable> getInterfaceVariables(Interface itf)
+    {
+        return this.itfToVars.get(itf);
+    }
+    
+    /**
+     * Retourne l'ensemble des types d'une interface.
+     */
+    public Set<Type> getInterfaceTypes(Interface itf)
+    {
+        return this.itfToTypes.get(itf);
+    }
+    
+    /**
+     * Ajoute une nouvelle interface.
+     */
+    public boolean newInterface(Interface itf)
+    {
+       boolean done = false;
+       
+       if(this.itfToFcts.containsKey(itf) == false)
+       {
+           this.itfToFcts.put(itf, new HashSet<Function>());
+           this.itfToVars.put(itf, new HashSet<Variable>());
+           this.itfToTypes.put(itf, new HashSet<Type>());
+           
+           done = true;
+       }
+       
+       return done;
+    }
+
+    /**
+     * Supprime une interface du COA.
+     * 
+     * <p>
+     * Une interface peut être supprimé uniquement s'il est vide.
+     * </p>
+     * 
+     * @param itf
+     *            L'interface à supprimer
+     */
+    public boolean removeInterface(Interface itf)
+    {
+        boolean done = false;
+
+        if (this.knows(itf))
+        {
+            if (this.itfToFcts.get(itf).isEmpty()
+                    && this.itfToVars.get(itf).isEmpty()
+                    && this.itfToTypes.get(itf).isEmpty())
+            {
+                this.itfToFcts.remove(itf);
+                this.itfToVars.remove(itf);
+                this.itfToTypes.remove(itf);
+
+                done = true;
+            }
+        }
+
+        return done;
+    }
+    
+    /**
+     * Ajoute une fonction à un interface.
      */
     public boolean addFunction(Function fct, Interface itf)
     {
         boolean done = false;
         
-        if (this.fctToItf.containsKey(fct) == false)
+        Set<Function> itfFcts = this.itfToFcts.get(itf);
+        
+        if (itfFcts.contains(fct) == false)
         {
-            Set<Function> itfFcts = this.itfToFcts.get(itf);
+            itfFcts.add(fct);
             this.itfToFcts.put(itf, itfFcts);
             this.fctToItf.put(fct, itf);
             
@@ -98,9 +177,11 @@ public class COAInterfaces
     {
         boolean done = false;
         
-        if (this.varToItf.containsKey(var) == false)
+        Set<Variable> itfVars = this.itfToVars.get(itf);
+        
+        if (itfVars.contains(var) == false)
         {
-            Set<Variable> itfVars = this.itfToVars.get(itf);
+            itfVars.add(var);
             this.itfToVars.put(itf, itfVars);
             this.varToItf.put(var, itf);
             
@@ -168,8 +249,9 @@ public class COAInterfaces
         if ( this.typeToItf.get(t).contains(itf) == false)
         {
             Set<Type> itfTypes = this.itfToTypes.get(itf);
+            itfTypes.add(t);
+            
             this.itfToTypes.put(itf, itfTypes);
-           
             this.typeToItf.get(t).add(itf);
             
             done = true;
@@ -225,5 +307,13 @@ public class COAInterfaces
         }
         
         return done;
+    }
+    
+    /**
+     * Teste si une interface est répertoriée par le COA.
+     */
+    public boolean knows(final Interface itf)
+    {
+        return this.itfToFcts.containsKey(itf);
     }
 }

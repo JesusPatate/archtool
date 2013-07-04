@@ -1,11 +1,13 @@
 package fr.univ_nantes.alma.archtool.coa;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
-import fr.univ_nantes.alma.archtool.architectureModel.Interface;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
@@ -23,6 +25,81 @@ public class COAConnectors
     private Map<Connector, Set<Variable>> conToVars = new HashMap<Connector, Set<Variable>>();
     
     private Map<Connector, Set<Type>> conToTypes = new HashMap<Connector, Set<Type>>();
+
+    
+    /**
+     * Retourne l'ensemble des fonctions d'un connecteur.
+     */
+    public Set<Function> getConnectorFunctions(Connector con)
+    {
+        return this.conToFcts.get(con);
+    }
+    
+    /**
+     * Retourne l'ensemble des variables d'un connecteur.
+     */
+    public Set<Variable> getConnectorVariables(Connector con)
+    {
+        return this.conToVars.get(con);
+    }
+    
+    /**
+     * Retourne l'ensemble des types d'un connecteur.
+     */
+    public Set<Type> getConnectorTypes(Connector con)
+    {
+        return this.conToTypes.get(con);
+    }
+    
+    /**
+     * Ajoute un nouveau connecteur.
+     */
+    public boolean newConnector(Connector con)
+    {
+       boolean done = false;
+       
+       if(this.conToFcts.containsKey(con) == false)
+       {
+           this.conToFcts.put(con, new HashSet<Function>());
+           this.conToVars.put(con, new HashSet<Variable>());
+           this.conToTypes.put(con, new HashSet<Type>());
+           
+           done = true;
+       }
+       
+       return done;
+    }
+
+    /**
+     * Supprime un connecteur du COA.
+     * 
+     * <p>
+     * Un connecteur peut être supprimé uniquement s'il est vide.
+     * </p>
+     * 
+     * @param con
+     *            Le connecteur à supprimer
+     */
+    public boolean removeConnector(Connector con)
+    {
+        boolean done = false;
+
+        if (this.knows(con))
+        {
+            if (this.conToFcts.get(con).isEmpty()
+                    && this.conToVars.get(con).isEmpty()
+                    && this.conToTypes.get(con).isEmpty())
+            {
+                this.conToFcts.remove(con);
+                this.conToVars.remove(con);
+                this.conToTypes.remove(con);
+
+                done = true;
+            }
+        }
+
+        return done;
+    }
     
     /**
      * Ajoute une fonction à un connecteur.
@@ -31,9 +108,11 @@ public class COAConnectors
     {
         boolean done = false;
         
-        if (this.fctToCon.containsKey(fct) == false)
+        Set<Function> conFcts = this.conToFcts.get(con);
+        
+        if (conFcts.contains(fct) == false)
         {
-            Set<Function> conFcts = this.conToFcts.get(con);
+            conFcts.add(fct);
             this.conToFcts.put(con, conFcts);
             this.fctToCon.put(fct, con);
             
@@ -98,9 +177,11 @@ public class COAConnectors
     {
         boolean done = false;
         
+        Set<Variable> conVars = this.conToVars.get(con);
+        
         if (this.varToCon.containsKey(var) == false)
         {
-            Set<Variable> conVars = this.conToVars.get(con);
+            conVars.add(var);
             this.conToVars.put(con, conVars);
             this.varToCon.put(var, con);
             
@@ -164,10 +245,12 @@ public class COAConnectors
     public boolean addType(Type t, Connector con)
     {
         boolean done = false;
+
+        Set<Type> conTypes = this.conToTypes.get(con);
         
         if (this.typeToCon.containsKey(t) == false)
         {
-            Set<Type> conTypes = this.conToTypes.get(con);
+            conTypes.add(t);
             this.conToTypes.put(con, conTypes);
             this.typeToCon.put(t, con);
             
@@ -223,5 +306,13 @@ public class COAConnectors
         }
         
         return done;
+    }
+    
+    /**
+     * Teste si un connecteur est répertorié par le COA.
+     */
+    public boolean knows(final Connector con)
+    {
+        return this.conToFcts.containsKey(con);
     }
 }
