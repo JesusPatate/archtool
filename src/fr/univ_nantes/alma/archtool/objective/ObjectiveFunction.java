@@ -61,7 +61,7 @@ public class ObjectiveFunction
     private double evaluateArchSemantic(final Architecture arch)
     {
         double result = 0.0;
-
+        
         for (Component comp : arch.getComponents())
         {
             double subresult = 0.0;

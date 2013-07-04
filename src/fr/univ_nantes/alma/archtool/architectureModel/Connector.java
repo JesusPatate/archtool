@@ -37,26 +37,35 @@ public class Connector implements Cohesionable
     @Override
     public String toString()
     {
-        String str = "Connecteur (";
+        StringBuffer buf = new StringBuffer("Connecteur (");
         
         for(Function fct : this.functions)
         {
-            str += fct + ", ";
+            buf.append(fct);
+            buf.append(", ");
         }
         
         for(Variable var: this.variables)
         {
-            str += var + ", ";
+            buf.append(var);
+            buf.append(", ");
         }
         
-        for(Type t: this.types)
+        for(Type type: this.types)
         {
-            str += t + ", ";
+            buf.append(type);
+            buf.append(", ");
         }
         
-        str = str.substring(0, str.lastIndexOf(","));
-        str += ")";
+        int idx = buf.lastIndexOf(",");
         
-        return str;
+        if(idx > 0)
+        {
+            buf.delete(idx, buf.length());
+        }
+        
+        buf.append(")");
+        
+        return buf.toString();
     }
 }

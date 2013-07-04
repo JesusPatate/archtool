@@ -26,4 +26,10 @@ public abstract class Variable
     {
         return t.equals(this.type);
     }
+    
+    @Override
+    public String toString()
+    {
+        return String.format("Variable : %s", this.name);
+    }
 }

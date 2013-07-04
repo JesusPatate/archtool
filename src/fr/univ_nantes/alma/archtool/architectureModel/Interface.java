@@ -92,4 +92,39 @@ public class Interface implements Cohesionable
         
         return res;
     }
+    
+    @Override
+    public String toString()
+    {
+        StringBuffer buf = new StringBuffer("Interface (");
+        
+        for(Function fct : this.functions)
+        {
+            buf.append(fct);
+            buf.append(", ");
+        }
+        
+        for(Variable var: this.variables)
+        {
+            buf.append(var);
+            buf.append(", ");
+        }
+        
+        for(Type type: this.types)
+        {
+            buf.append(type);
+            buf.append(", ");
+        }
+        
+        int idx = buf.lastIndexOf(",");
+        
+        if(idx > 0)
+        {
+            buf.delete(idx, buf.length());
+        }
+        
+        buf.append(")");
+        
+        return buf.toString();
+    }
 }
