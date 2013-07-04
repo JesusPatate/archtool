@@ -1,6 +1,7 @@
 package fr.univ_nantes.alma.archtool.clustering;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
+import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.utils.Pair;
@@ -54,7 +55,10 @@ public class Clustering
 
         Dendogram dendo = null;
         Dendogram bestDendo = null;
-
+        
+        Architecture arch = null;
+        COA coa = null;
+        
         while (this.dendogram.size() > 1)
         {
             for (int i = 0 ; i < (this.dendogram.size() - 1) ; ++i)
@@ -62,9 +66,11 @@ public class Clustering
                 for (int j = i + 1 ; j < this.dendogram.size() ; ++j)
                 {
                     dendo = this.dendogram.clusterNodes(i, j);
-
-                    final double score = this.objectiveFct.evaluate(
-                            dendo.getArchitecture());
+                    
+                    arch = dendo.getArchitecture();
+                    coa = dendo.getCOA();
+                    
+                    final double score = this.objectiveFct.evaluate(arch, coa);
                     
                     if (score > bestScore)
                     {
