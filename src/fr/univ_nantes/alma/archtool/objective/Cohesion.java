@@ -4,8 +4,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.architectureModel.Cohesionable;
+import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
+import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -21,118 +23,318 @@ public class Cohesion
      * appartiennent au même fichier.
      */
     static final double BONUS_SAME_FILE = 1.5;
-    
+
+    /**
+     * Valeur maximale de cohésion entre 2 fonctions.
+     */
+    static final double MAX_COHESION_FCT_FCT = 6.0;
+
+    private final COA coa;
+
+    public Cohesion(final COA coa)
+    {
+        this.coa = coa;
+    }
+
     /**
      * Évalue la cohésion entre 2 interfaces.
      */
-    public double cohesionInterfaces(Interface itf1, Interface itf2)
+    public double interfacesCohesion(Interface itf1, Interface itf2)
     {
         double result = 0.0;
+
+        Set<Function> functions1 = this.coa.getInterfaceFunctions(itf1);
+        Set<Function> functions2 = this.coa.getInterfaceFunctions(itf2);
+
+        Set<Variable> variables1 = this.coa.getInterfaceVariables(itf1);
+        Set<Variable> variables2 = this.coa.getInterfaceVariables(itf2);
+
+        Set<Type> types1 = this.coa.getInterfaceTypes(itf1);
+        Set<Type> types2 = this.coa.getInterfaceTypes(itf2);
+
+        int nbPairs = 0;
         
-        Set<Function> functions1 = itf1.getFunctions();
-        Set<Function> functions2 = itf2.getFunctions();
-        
-        Set<Variable> variables1 = itf1.getVariables();
-        Set<Variable> variables2 = itf2.getVariables();
-        
-        Set<Type> types1 = itf1.getTypes();
-        Set<Type> types2 = itf2.getTypes();
-        
-        for(Function fct1 : functions1)
+        for (Function fct1 : functions1)
         {
-            
-            for(Function fct2 : functions2)
+            for (Function fct2 : functions2)
             {
                 result += cohesion(fct1, fct2);
+                ++nbPairs;
             }
-            
-            for(Variable var2 : variables2)
+
+            for (Variable var2 : variables2)
             {
                 result += cohesion(fct1, var2);
+                ++nbPairs;
             }
-            
-            for(Type t2 : types2)
+
+            for (Type t2 : types2)
             {
                 result += cohesion(fct1, t2);
+                ++nbPairs;
+            }
+        }
+
+        for (Function fct2 : functions2)
+        {
+            for (Variable var1 : variables1)
+            {
+                result += cohesion(fct2, var1);
+                ++nbPairs;
+            }
+
+            for (Type t1 : types1)
+            {
+                result += cohesion(fct2, t1);
+                ++nbPairs;
             }
         }
         
-        for(Function fct2 : functions2)
-        {
-            for(Variable var1 : variables1)
-            {
-                result += cohesion(fct2, var1);
-            }
-            
-            for(Type t1 : types1)
-            {
-                result += cohesion(fct2, t1);
-            }
-        }
+        result /= nbPairs;
         
         return result;
     }
-    
+
     /**
-     * Évalue la cohésion interne d'un élément architectural.
+     * Évalue la cohésion interne d'un composant.
      * 
-     * @param element
-     *            L'élément architectural à évaluer
+     * @param comp
+     *            Le composant à évaluer
+     *            
+     * @return Un double entre 0.0 et 1.0    
      */
-    public double internalCohesion(final Cohesionable element)
+    public double componentInternalCohesion(final Component comp)
     {
         double result = 0.0;
 
-        int nbFcts = element.getFunctions().size();
-        int nbVars = element.getVariables().size();
-        int nbTypes = element.getTypes().size();
+        int nbFcts = this.coa.getComponentFunctions(comp).size();
+        int nbVars = this.coa.getComponentVariables(comp).size();
+        int nbTypes = this.coa.getComponentTypes(comp).size();
 
-        if (nbFcts > 0)
+        if (nbFcts + nbVars + nbTypes > 1)
         {
-            if (nbFcts > 1)
+            if (nbFcts > 0)
             {
-                result += internalCohesionFct(element);
+                int n = 0;
+
+                if (nbFcts > 1)
+                {
+                    result += internalCohesionCompFct(comp);
+                    ++n;
+                }
+
+                if (nbVars > 0)
+                {
+                    result += internalCohesionCompFctVar(comp);
+                    ++n;
+                }
+
+                if (nbTypes > 0)
+                {
+                    result += internalCohesionCompFctType(comp);
+                    ++n;
+                }
+
+                result /= n;
             }
 
-            else if (nbVars > 1)
+            else if (nbVars > 0 && nbTypes > 0)
             {
-                result += internalCohesionFctVar(element);
+                result += internalCohesionCompVarType(comp);
             }
+        }
 
-            else if (nbTypes > 1)
-            {
-                result += internalCohesionFctType(element);
-            }
-            
-            else
-            {
-                result = 1.0;
-            }
+        else
+        {
+            result = 1.0;
         }
 
         return result;
     }
-    
+
     /**
-     * Évalue la cohésion des fonctions d'un élément architectural.
+     * Évalue la cohésion interne d'une interface.
      * 
-     * @param element
-     *            L'élément architectural à évaluer
+     * @param itf
+     *            L'interface à évaluer
+     *            
+     * @return Un double entre 0.0 et 1.0            
      */
-    private double internalCohesionFct(final Cohesionable element)
+    public double interfaceInternalCohesion(final Interface itf)
+    {
+        double result = 0.0;
+
+        int nbFcts = this.coa.getInterfaceFunctions(itf).size();
+        int nbVars = this.coa.getInterfaceVariables(itf).size();
+        int nbTypes = this.coa.getInterfaceTypes(itf).size();
+
+        if (nbFcts + nbVars + nbTypes > 1)
+        {
+            if (nbFcts > 0)
+            {
+                int n = 0;
+
+                if (nbFcts > 1)
+                {
+                    result += internalCohesionItfFct(itf);
+                    ++n;
+                }
+
+                if (nbVars > 0)
+                {
+                    result += internalCohesionItfFctVar(itf);
+                    ++n;
+                }
+
+                if (nbTypes > 0)
+                {
+                    result += internalCohesionItfFctType(itf);
+                    ++n;
+                }
+
+                result /= n;
+            }
+
+            else if (nbVars > 0 && nbTypes > 0)
+            {
+                result += internalCohesionItfVarType(itf);
+            }
+        }
+
+        else
+        {
+            result = 1.0;
+        }
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion interne d'un connecteur.
+     * 
+     * @param con
+     *            Le connecteur à évaluer
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    public double connectorInternalCohesion(final Connector con)
+    {
+        double result = 0.0;
+
+        int nbFcts = this.coa.getConnectorFunctions(con).size();
+        int nbVars = this.coa.getConnectorVariables(con).size();
+        int nbTypes = this.coa.getConnectorTypes(con).size();
+
+        if (nbFcts + nbVars + nbTypes > 1)
+        {
+            if (nbFcts > 0)
+            {
+                int n = 0;
+
+                if (nbFcts > 1)
+                {
+                    result += internalCohesionConFct(con);
+                    ++n;
+                }
+
+                if (nbVars > 0)
+                {
+                    result += internalCohesionConFctVar(con);
+                    ++n;
+                }
+
+                if (nbTypes > 0)
+                {
+                    result += internalCohesionConFctType(con);
+                    ++n;
+                }
+
+                result /= n;
+            }
+
+            else if (nbVars > 0 && nbTypes > 0)
+            {
+                result += internalCohesionConVarType(con);
+            }
+        }
+
+        else
+        {
+            result = 1.0;
+        }
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion moyenne des fonctions d'un composant.
+     * 
+     * @param comp
+     *            Le composant évalué
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionCompFct(final Component comp)
     {
         double result = 0.0;
         double sum = 0.0;
-        double nbFunctions = element.getFunctions().size();
 
-        final Object[] functions = element.getFunctions().toArray();
+        Set<Function> functions = this.coa.getComponentFunctions(comp);
+        int nbFunctions = functions.size();
+
+        if (nbFunctions > 0)
+        {
+
+            Function[] fctArray = new Function[nbFunctions];
+            this.coa.getComponentFunctions(comp).toArray(fctArray);
+
+            for (int i = 0 ; i < (nbFunctions - 1) ; ++i)
+            {
+                for (int j = (i + 1) ; j < nbFunctions ; ++j)
+                {
+                    final Function f1 = fctArray[i];
+                    final Function f2 = fctArray[j];
+
+                    sum += this.cohesion(f1, f2);
+                }
+            }
+
+            result = sum / (nbFunctions * (nbFunctions - 1) / 2);
+        }
+
+        else
+        {
+            result = 1.0;
+        }
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion moyenne des fonctions d'une interface.
+     * 
+     * @param itf
+     *            L'interface évaluée
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionItfFct(final Interface itf)
+    {
+        double result = 0.0;
+        double sum = 0.0;
+
+        Set<Function> functions = this.coa.getInterfaceFunctions(itf);
+        int nbFunctions = functions.size();
+
+        Function[] fctArray = new Function[nbFunctions];
+        this.coa.getInterfaceFunctions(itf).toArray(fctArray);
 
         for (int i = 0 ; i < (nbFunctions - 2) ; ++i)
         {
-            for (final int j = (i + 1) ; j < (nbFunctions - 1) ; ++i)
+            for (int j = (i + 1) ; j < (nbFunctions - 1) ; ++j)
             {
-                final Function f1 = (Function) functions[i];
-                final Function f2 = (Function) functions[j];
+                final Function f1 = fctArray[i];
+                final Function f2 = fctArray[j];
 
                 sum += this.cohesion(f1, f2);
             }
@@ -144,55 +346,348 @@ public class Cohesion
     }
 
     /**
-     * Évalue la cohésion entre une fonction et une variable d'un élément
-     * architectural.
+     * Évalue la cohésion moyenne des fonctions d'un connecteur.
      * 
-     * @param element
-     *            L'élément architectural à évaluer
+     * @param con
+     *            Le connecteur évalué
+     * 
+     * @return Un double entre 0.0 et 1.0
      */
-    private double internalCohesionFctVar(final Cohesionable element)
+    private double internalCohesionConFct(final Connector con)
     {
         double result = 0.0;
         double sum = 0.0;
 
-        for (Function fct : element.getFunctions())
+        Set<Function> functions = this.coa.getConnectorFunctions(con);
+        int nbFunctions = functions.size();
+
+        Function[] fctArray = new Function[nbFunctions];
+        this.coa.getConnectorFunctions(con).toArray(fctArray);
+
+        for (int i = 0 ; i < (nbFunctions - 2) ; ++i)
         {
-            for (Variable var : element.getVariables())
+            for (int j = (i + 1) ; j < (nbFunctions - 1) ; ++j)
             {
-                sum += this.cohesion(fct, var);
+                final Function f1 = fctArray[i];
+                final Function f2 = fctArray[j];
+
+                sum += this.cohesion(f1, f2);
             }
         }
 
-        double nbPairs = element.getFunctions().size() * element.getVariables().size();
-
-        result = 100 * sum / nbPairs;
+        result = sum / (nbFunctions * (nbFunctions - 1) / 2);
 
         return result;
     }
 
     /**
-     * Évalue la cohésion entre une fonction et un type d'un élément
-     * architectural.
+     * Évalue la cohésion moyenne entre les fonctions et les variables d'un
+     * composant.
      * 
-     * @param element
-     *            L'élément architectural à évaluer
+     * @param comp
+     *            Le composant évalué
+     * 
+     * @return Un double entre 0.0 et 1.0
      */
-    private double internalCohesionFctType(Cohesionable element)
+    private double internalCohesionCompFctVar(final Component comp)
     {
         double result = 0.0;
         double sum = 0.0;
 
-        for (Function fct : element.getFunctions())
+        Set<Function> compFcts = this.coa.getComponentFunctions(comp);
+        Set<Variable> compVars = this.coa.getComponentVariables(comp);
+
+        for (Function fct : compFcts)
         {
-            for (Type type : element.getTypes())
+            for (Variable var : compVars)
+            {
+                sum += this.cohesion(fct, var);
+            }
+        }
+
+        double nbPairs = compFcts.size() * compVars.size();
+
+        result = sum / nbPairs;
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion moyenne entre les fonctions et les variables d'une
+     * interface.
+     * 
+     * @param itf
+     *            L'interface évaluée
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionItfFctVar(final Interface itf)
+    {
+        double result = 0.0;
+        double sum = 0.0;
+
+        Set<Function> itfFcts = this.coa.getInterfaceFunctions(itf);
+        Set<Variable> itfVars = this.coa.getInterfaceVariables(itf);
+
+        for (Function fct : itfFcts)
+        {
+            for (Variable var : itfVars)
+            {
+                sum += this.cohesion(fct, var);
+            }
+        }
+
+        double nbPairs = itfFcts.size() * itfVars.size();
+
+        result = sum / nbPairs;
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion moyenne entre les fonctions et les variables d'un
+     * connecteur.
+     * 
+     * @param con
+     *            Le connecteur évalué
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionConFctVar(final Connector con)
+    {
+        double result = 0.0;
+        double sum = 0.0;
+
+        Set<Function> conFcts = this.coa.getConnectorFunctions(con);
+        Set<Variable> conVars = this.coa.getConnectorVariables(con);
+
+        for (Function fct : conFcts)
+        {
+            for (Variable var : conVars)
+            {
+                sum += this.cohesion(fct, var);
+            }
+        }
+
+        double nbPairs = conFcts.size() * conVars.size();
+
+        result = sum / nbPairs;
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion moyenne entre les fonctions et les types d'un
+     * composant.
+     * 
+     * @param comp
+     *            Le composant évalué
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionCompFctType(Component comp)
+    {
+        double result = 0.0;
+        double sum = 0.0;
+
+        Set<Function> compFcts = this.coa.getComponentFunctions(comp);
+        Set<Type> compTypes = this.coa.getComponentTypes(comp);
+
+        for (Function fct : compFcts)
+        {
+            for (Type type : compTypes)
             {
                 sum += this.cohesion(fct, type);
             }
         }
 
-        double nbPairs = element.getFunctions().size() * element.getTypes().size();
+        double nbPairs = compFcts.size() * compTypes.size();
 
-        result = 100 * sum / nbPairs;
+        result = sum / nbPairs;
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion moyenne entre les fonctions et les types d'une
+     * interface.
+     * 
+     * @param itf
+     *            L'interface évaluée
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionItfFctType(Interface itf)
+    {
+        double result = 0.0;
+        double sum = 0.0;
+
+        Set<Function> itfFcts = this.coa.getInterfaceFunctions(itf);
+        Set<Type> itfTypes = this.coa.getInterfaceTypes(itf);
+
+        for (Function fct : itfFcts)
+        {
+            for (Type type : itfTypes)
+            {
+                sum += this.cohesion(fct, type);
+            }
+        }
+
+        double nbPairs = itfFcts.size() * itfTypes.size();
+
+        result = sum / nbPairs;
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion moyenne entre les fonctions et les types d'un
+     * connecteur.
+     * 
+     * @param comp
+     *            Le connecteur évalué
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionConFctType(Connector con)
+    {
+        double result = 0.0;
+        double sum = 0.0;
+
+        Set<Function> conFcts = this.coa.getConnectorFunctions(con);
+        Set<Type> conTypes = this.coa.getConnectorTypes(con);
+
+        for (Function fct : conFcts)
+        {
+            for (Type type : conTypes)
+            {
+                sum += this.cohesion(fct, type);
+            }
+        }
+
+        double nbPairs = conFcts.size() * conTypes.size();
+
+        result = sum / nbPairs;
+
+        return result;
+    }
+
+    /**
+     * Evalue la cohésion moyenne entre les variables et les types d'un
+     * composant.
+     * 
+     * <p>
+     * Calcule le ration de paires (<em>v</em>,<em>t</em>) telles que la
+     * variable <em>v</em> est de type <em>t</em>.
+     * </p>
+     * 
+     * @param comp
+     *            Le composant évalué
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionCompVarType(Component comp)
+    {
+        double result = 0.0;
+        double sum = 0.0;
+
+        Set<Variable> compVars = this.coa.getComponentVariables(comp);
+        Set<Type> compTypes = this.coa.getComponentTypes(comp);
+
+        for (Variable var : compVars)
+        {
+            for (Type t : compTypes)
+            {
+                if (var.ofType(t))
+                {
+                    ++sum;
+                }
+            }
+        }
+
+        double nbPairs = compVars.size() * compTypes.size();
+
+        result = sum / nbPairs;
+
+        return result;
+    }
+
+    /**
+     * Evalue la cohésion moyenne entre les variables et les types d'une
+     * interface.
+     * 
+     * <p>
+     * Calcule le ration de paires (<em>v</em>,<em>t</em>) telles que la
+     * variable <em>v</em> est de type <em>t</em>.
+     * </p>
+     * 
+     * @param itf
+     *            L'interface évaluée
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionItfVarType(Interface itf)
+    {
+        double result = 0.0;
+        double sum = 0.0;
+
+        Set<Variable> compVars = this.coa.getInterfaceVariables(itf);
+        Set<Type> compTypes = this.coa.getInterfaceTypes(itf);
+
+        for (Variable var : compVars)
+        {
+            for (Type t : compTypes)
+            {
+                if (var.ofType(t))
+                {
+                    ++sum;
+                }
+            }
+        }
+
+        double nbPairs = compVars.size() * compTypes.size();
+
+        result = sum / nbPairs;
+
+        return result;
+    }
+
+    /**
+     * Evalue la cohésion moyenne entre les variables et les types d'un
+     * connecteur.
+     * 
+     * <p>
+     * Calcule le ration de paires (<em>v</em>,<em>t</em>) telles que la
+     * variable <em>v</em> est de type <em>t</em>.
+     * </p>
+     * 
+     * @param con
+     *            Le connecteur évalué
+     * 
+     * @return Un double entre 0.0 et 1.0
+     */
+    private double internalCohesionConVarType(Connector con)
+    {
+        double result = 0.0;
+        double sum = 0.0;
+
+        Set<Variable> compVars = this.coa.getConnectorVariables(con);
+        Set<Type> compTypes = this.coa.getConnectorTypes(con);
+
+        for (Variable var : compVars)
+        {
+            for (Type t : compTypes)
+            {
+                if (var.ofType(t))
+                {
+                    ++sum;
+                }
+            }
+        }
+
+        double nbPairs = compVars.size() * compTypes.size();
+
+        result = sum / nbPairs;
 
         return result;
     }
@@ -212,11 +707,13 @@ public class Cohesion
      * </p>
      * 
      * @param f1
-     *            La première fonction à évaluer
+     *            Une fonction d'un modèle de code source
      * @param f2
-     *            La seconde fonction à évaluer
+     *            Une autre fonction d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
      */
-    public double cohesion(final Function f1, final Function f2)
+    private double cohesion(final Function f1, final Function f2)
     {
         double result = 0.0;
 
@@ -232,6 +729,10 @@ public class Cohesion
             result *= BONUS_SAME_FILE;
         }
 
+        result /= MAX_COHESION_FCT_FCT;
+
+        result = (result > 1.0) ? 1.0 : result;
+
         return result;
     }
 
@@ -245,6 +746,13 @@ public class Cohesion
      * Si v à une portée limitée à un fichier, l'appartenance au même fichier
      * est aussi prise en compte.
      * </p>
+     * 
+     * @param fct
+     *            Une fonction d'un modèle de code source
+     * @param var
+     *            Une variable d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
      */
     private double cohesion(final Function fct, Variable var)
     {
@@ -292,6 +800,20 @@ public class Cohesion
 
     /**
      * Évalue la cohésion entre une fonction et un type.
+     * 
+     * <p>
+     * La cohésion entre une fonction <em>f</em> et un type <em>t</em> est égal
+     * au ratio du nombre d'utilisations de <em>t</em> par <em>f</em> sur le
+     * nombre total d'utilisations de l'ensemble des types utilisés par
+     * <em>f</em>.
+     * </p>
+     * 
+     * @param fct
+     *            Une fonction d'un modèle de code source
+     * @param type
+     *            Un type d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
      */
     private double cohesion(final Function fct, Type type)
     {
@@ -341,6 +863,13 @@ public class Cohesion
      * deux fonctions.
      * </p>
      * 
+     * @param f1
+     *            Une fonction d'un modèle de code source
+     * @param f2
+     *            Une autre fonction d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
+     * 
      * @see #cohesion(Function, Function)
      */
     private double cohesionPGVars(Function f1, Function f2)
@@ -361,8 +890,8 @@ public class Cohesion
         }
 
         nbPGVars = pgVars1.size() + pgVars2.size() - nbCommon;
-        
-        if(nbPGVars > 0)
+
+        if (nbPGVars > 0)
         {
             result = nbCommon / nbPGVars;
         }
@@ -378,6 +907,13 @@ public class Cohesion
      * sur le nombre total de variables globales à un fichier accédées dans les
      * deux fonctions.
      * </p>
+     * 
+     * @param f1
+     *            Une fonction d'un modèle de code source
+     * @param f2
+     *            Une autre fonction d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -399,8 +935,8 @@ public class Cohesion
         }
 
         nbFGVars = fgVars1.size() + fgVars2.size() - nbCommon;
-        
-        if(nbFGVars > 0)
+
+        if (nbFGVars > 0)
         {
             result = nbCommon / nbFGVars;
         }
@@ -416,6 +952,13 @@ public class Cohesion
      * sur le nombre total de variables locales utilisées dans les deux
      * fonctions.
      * </p>
+     * 
+     * @param f1
+     *            Une fonction d'un modèle de code source
+     * @param f2
+     *            Une autre fonction d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -441,8 +984,8 @@ public class Cohesion
         }
 
         nbLocalVars = localVars1.size() + localVars2.size() - nbCommon;
-        
-        if(nbLocalVars > 0)
+
+        if (nbLocalVars > 0)
         {
             result = nbCommon / nbLocalVars;
         }
@@ -457,6 +1000,13 @@ public class Cohesion
      * Calcule le ratio de types utilisés en commun dans les deux fonctions sur
      * le nombre total de types utilisés dans les deux fonctions.
      * </p>
+     * 
+     * @param f1
+     *            Une fonction d'un modèle de code source
+     * @param f2
+     *            Une autre fonction d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -478,8 +1028,8 @@ public class Cohesion
         }
 
         nbUsedTypes = usedTypes1.size() + usedTypes2.size() - nbCommon;
-        
-        if(nbUsedTypes > 0)
+
+        if (nbUsedTypes > 0)
         {
             result = nbCommon / nbUsedTypes;
         }
@@ -495,6 +1045,13 @@ public class Cohesion
      * le nombre total d'appels dans les deux fonctions. Les paramètres des
      * appels ne sont pas pris en compte.
      * </p>
+     * 
+     * @param f1
+     *            Une fonction d'un modèle de code source
+     * @param f2
+     *            Une autre fonction d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -526,8 +1083,8 @@ public class Cohesion
         }
 
         nbCalls = calls1.size() + calls2.size() - nbCommon;
-        
-        if(nbCalls > 0)
+
+        if (nbCalls > 0)
         {
             result = nbCommon / nbCalls;
         }
@@ -542,6 +1099,13 @@ public class Cohesion
      * Calcule le ratio d'arguments similaires entre les deux fonctions sur le
      * nombre total d'arguments des deux fonctions.
      * </p>
+     * 
+     * @param f1
+     *            Une fonction d'un modèle de code source
+     * @param f2
+     *            Une autre fonction d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -567,8 +1131,8 @@ public class Cohesion
         }
 
         nbArgs = args1.size() + args2.size() - nbCommon;
-        
-        if(nbArgs > 0)
+
+        if (nbArgs > 0)
         {
             result = nbCommon / nbArgs;
         }

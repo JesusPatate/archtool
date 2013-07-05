@@ -5,6 +5,7 @@ import java.util.Set;
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
+import fr.univ_nantes.alma.archtool.coa.COA;
 
 public class ObjectiveFunction
 {
@@ -34,11 +35,15 @@ public class ObjectiveFunction
      * des composants
      */
     static final double WEIGHT_COMPO_ITFS_REQ = 1.0;
-
-    static final Cohesion cohesion = new Cohesion();
-
-    static final Coupling coupling = new Coupling();
-
+    
+    private Architecture architecture;
+    
+    private COA coa;
+    
+    private Cohesion cohesion;
+    
+    private Coupling coupling;
+    
     /**
      * Applique la fonction objectif à un composant.
      * 
@@ -47,9 +52,15 @@ public class ObjectiveFunction
      * 
      * @return Le résultat de la fonction objectif
      */
-    public double evaluate(final Architecture arch)
+    public double evaluate(final Architecture arch, final COA coa)
     {
-        return this.evaluateArchSemantic(arch);
+        this.architecture = arch;
+        this.coa = coa;
+        
+        this.cohesion = new Cohesion(this.coa);
+        this.coupling = new Coupling(this.coa);
+        
+        return this.evaluateArchSemantic();
     }
 
     /**
@@ -58,11 +69,11 @@ public class ObjectiveFunction
      * @param comp
      *            L'architecture à évaluer
      */
-    private double evaluateArchSemantic(final Architecture arch)
+    private double evaluateArchSemantic()
     {
         double result = 0.0;
         
-        for (Component comp : arch.getComponents())
+        for (Component comp : this.architecture.getComponents())
         {
             double subresult = 0.0;
             
@@ -82,7 +93,7 @@ public class ObjectiveFunction
             result += subresult;
         }
         
-        result /= arch.getComponents().size();
+        result /= this.architecture.getComponents().size();
 
         return result;
     }
@@ -111,7 +122,7 @@ public class ObjectiveFunction
             
             for (final Interface itf : proInterfaces)
             {
-                sumCohesion += ObjectiveFunction.cohesion.internalCohesion(itf);
+                sumCohesion += this.cohesion.interfaceInternalCohesion(itf);
             }
             
             avgCohesion = sumCohesion / proInterfaces.size();
@@ -154,51 +165,56 @@ public class ObjectiveFunction
         double result = 0.0;
         double sum = 0.0;
 
-        // Provided interfaces internal cohesion
-
         final Set<Interface> proInterfaces = comp.getProvidedInterfaces();
         final double nbProInterfaces = proInterfaces.size();
 
         if(nbProInterfaces > 0)
         {
+            // Provided interfaces internal cohesion
+            
             for (final Interface itf : comp.getProvidedInterfaces())
             {
-                sum += ObjectiveFunction.cohesion.internalCohesion(itf);
+                sum += this.cohesion.interfaceInternalCohesion(itf);
             }
     
             result += sum / nbProInterfaces;
-        }
+            
+            // Provided interfaces cohesion
 
-        // Provided interfaces cohesion
-
-        if(nbProInterfaces > 1)
-        {
-            final Interface[] itfs = new Interface[proInterfaces.size()];
-            proInterfaces.toArray(itfs);
-    
-            sum = 0.0;
-    
-            for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
+            if(nbProInterfaces > 1)
             {
-                for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
+                final Interface[] itfs = new Interface[proInterfaces.size()];
+                proInterfaces.toArray(itfs);
+        
+                sum = 0.0;
+        
+                for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
                 {
-                    sum += ObjectiveFunction.cohesion.cohesionInterfaces(
-                            itfs[idx1], itfs[idx2]);
+                    for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
+                    {
+                        sum += this.cohesion.interfacesCohesion(
+                                itfs[idx1], itfs[idx2]);
+                    }
                 }
+        
+                final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
+        
+                result += sum / nbPairs;
             }
-    
-            final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
-    
-            result += sum / nbPairs;
+            
+            else
+            {
+                result += 1.0;
+            }
         }
 
         // Component internal cohesion
 
-        result += ObjectiveFunction.cohesion.internalCohesion(comp);
+        result += this.cohesion.componentInternalCohesion(comp);
 
         // Component internal coupling
 
-        result += coupling.coupling(comp);
+        result += coupling.componentCoupling(comp);
 
         // Number of provided interfaces
 

@@ -3,7 +3,10 @@ package fr.univ_nantes.alma.archtool.objective;
 import java.util.Map;
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.architectureModel.Cohesionable;
+import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
+import fr.univ_nantes.alma.archtool.architectureModel.Interface;
+import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -14,24 +17,145 @@ import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
 public class Coupling
 {
+    private final COA coa;
+    
+    public Coupling(COA coa)
+    {
+        this.coa = coa;
+    }
+    
     /**
-     * Évalue le couplage interne d'un élément architectural.
+     * Évalue le couplage interne d'un composant.
      * 
-     * @param element
-     *            L'élément architectural à évaluer
+     * @param comp
+     *            Le composant à évaluer
      * 
      * @see #coupling(Function, Function)
      * @see #coupling(Function, Variable)
      * @see #coupling(Function, Type)
      * @see #coupling(Variable, Type)
      */
-    public int coupling(Cohesionable element)
+    public int componentCoupling(Component comp)
     {
         int result = 0;
 
-        Set<Function> functions = element.getFunctions();
-        Set<Variable> variables = element.getVariables();
-        Set<Type> types = element.getTypes();
+        Set<Function> functions = this.coa.getComponentFunctions(comp);
+        Set<Variable> variables = this.coa.getComponentVariables(comp);
+        Set<Type> types = this.coa.getComponentTypes(comp);
+
+        if (functions.size() > 0)
+        {
+            for (Function fct1 : functions)
+            {
+                for (Function fct2 : functions)
+                {
+                    result += coupling(fct1, fct2);
+                }
+            }
+
+            for (Variable var : variables)
+            {
+                for (Function fct : functions)
+                {
+                    result += coupling(fct, var);
+                }
+            }
+
+            for (Type type : types)
+            {
+                for (Function fct : functions)
+                {
+                    result += coupling(fct, type);
+                }
+            }
+        }
+
+        for (Variable var : variables)
+        {
+            for (Type type : types)
+            {
+                result += coupling(var, type);
+            }
+        }
+
+        return result;
+    }
+    
+    /**
+     * Évalue le couplage interne d'une interface.
+     * 
+     * @param itf
+     *            L'interface à évaluer
+     * 
+     * @see #coupling(Function, Function)
+     * @see #coupling(Function, Variable)
+     * @see #coupling(Function, Type)
+     * @see #coupling(Variable, Type)
+     */
+    public int interfaceCoupling(Interface itf)
+    {
+        int result = 0;
+
+        Set<Function> functions = this.coa.getInterfaceFunctions(itf);
+        Set<Variable> variables = this.coa.getInterfaceVariables(itf);
+        Set<Type> types = this.coa.getInterfaceTypes(itf);
+
+        if (functions.size() > 0)
+        {
+            for (Function fct1 : functions)
+            {
+                for (Function fct2 : functions)
+                {
+                    result += coupling(fct1, fct2);
+                }
+            }
+
+            for (Variable var : variables)
+            {
+                for (Function fct : functions)
+                {
+                    result += coupling(fct, var);
+                }
+            }
+
+            for (Type type : types)
+            {
+                for (Function fct : functions)
+                {
+                    result += coupling(fct, type);
+                }
+            }
+        }
+
+        for (Variable var : variables)
+        {
+            for (Type type : types)
+            {
+                result += coupling(var, type);
+            }
+        }
+
+        return result;
+    }
+    
+    /**
+     * Évalue le couplage interne d'un connecteur.
+     * 
+     * @param con
+     *            Le connecteur à évaluer
+     * 
+     * @see #coupling(Function, Function)
+     * @see #coupling(Function, Variable)
+     * @see #coupling(Function, Type)
+     * @see #coupling(Variable, Type)
+     */
+    public int connectorCoupling(Connector con)
+    {
+        int result = 0;
+
+        Set<Function> functions = this.coa.getConnectorFunctions(con);
+        Set<Variable> variables = this.coa.getConnectorVariables(con);
+        Set<Type> types = this.coa.getConnectorTypes(con);
 
         if (functions.size() > 0)
         {

@@ -1,6 +1,7 @@
 package fr.univ_nantes.alma.archtool.clustering;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -8,8 +9,8 @@ import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
-import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
+import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.LocalVariable;
@@ -18,42 +19,99 @@ import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
-public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
+public class Dendogram implements Iterable<Dendogram.Node>
 {
     /**
      * Un noeud du dendogramme.
      * 
      * <p>
-     * Chaque noeud est composé d'un composant (la valeur du noeud) et de deux
-     * noeud fils.
+     * Chaque noeud est composé d'un ensemble de fonctions, variables et types,
+     * et de deux noeud fils.
      * </p>
      */
-    public class Node implements Cloneable
+    public class Node
     {
-        private Component component;
+        private Set<Function> functions = new HashSet<Function>();
+        private Set<Variable> variables = new HashSet<Variable>();
+        private Set<Type> types = new HashSet<Type>();
 
-        private Node leftChild;
+        private Node leftChild = null;
+        private Node rightChild = null;
 
-        private Node rightChild;
-
-        public Node(final Component component)
+        /**
+         * Construit un nouveau noeud vide.
+         */
+        public Node()
         {
-            this.component = component;
-            this.leftChild = null;
-            this.rightChild = null;
         }
 
-        public Node(final Component component, final Node leftChild,
-                final Node rightChild)
+        /**
+         * Construit un nouveau noeud parent.
+         * 
+         * <p>
+         * Le contenu des enfants est recopié dans le noeud parent.
+         * </p>
+         * 
+         * @param leftChild
+         *            Premier noeud fils
+         * @param rightChild
+         *            Second noeud fils
+         */
+        public Node(final Node leftChild, final Node rightChild)
         {
-            this.component = component;
+            this.functions.addAll(leftChild.getFunctions());
+            this.variables.addAll(leftChild.getVariables());
+            this.types.addAll(leftChild.getTypes());
+
+            this.functions.addAll(rightChild.getFunctions());
+            this.variables.addAll(rightChild.getVariables());
+            this.types.addAll(rightChild.getTypes());
+
             this.leftChild = leftChild;
             this.rightChild = rightChild;
         }
 
-        public Component getComponent()
+        /**
+         * Crée une copie d'un noeud.
+         */
+        public Node(final Node node)
         {
-            return this.component;
+            this.functions = new HashSet<Function>(node.functions);
+            this.variables = new HashSet<Variable>(node.variables);
+            this.types = new HashSet<Type>(node.types);
+
+            this.leftChild = node.leftChild;
+            this.rightChild = node.rightChild;
+        }
+
+        public Set<Function> getFunctions()
+        {
+            return new HashSet<Function>(this.functions);
+        }
+
+        public boolean addFunction(Function fct)
+        {
+            return this.functions.add(fct);
+        }
+
+        public Set<Variable> getVariables()
+        {
+            return new HashSet<Variable>(this.variables);
+        }
+
+        public boolean addVariable(Variable var)
+        {
+            return this.variables.add(var);
+        }
+
+        public Set<Type> getTypes()
+        {
+            return new HashSet<Type>(this.types);
+        }
+
+        public boolean addType(Type t)
+        {
+            return this.types.add(t);
         }
 
         public Node getLeftChild()
@@ -66,36 +124,34 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
             return this.rightChild;
         }
 
-        @Override
-        public Object clone()
-        {
-            Node node = null;
-
-            try
-            {
-                node = (Node) super.clone();
-
-                node.component = this.component;
-                
-                if(this.leftChild != null && this.rightChild != null)
-                {
-                    node.leftChild = (Node) this.leftChild.clone();
-                    node.leftChild = (Node) this.rightChild.clone();
-                }
-            }
-
-            catch (CloneNotSupportedException e)
-            {
-                throw new RuntimeException(
-                        "Dendogram.Node : clone not supported");
-            }
-
-            return node;
-        }
-        
         public String toString()
         {
-            return "Node -> " + this.component;
+            StringBuffer buf = new StringBuffer("Node [");
+
+            for (Function fct : this.functions)
+            {
+                buf.append(fct);
+                buf.append(", ");
+            }
+
+            for (Variable var : this.variables)
+            {
+                buf.append(var);
+                buf.append(", ");
+            }
+
+            for (Type t : this.types)
+            {
+                buf.append(t);
+                buf.append(", ");
+            }
+
+            int idx = buf.lastIndexOf(",");
+            buf.deleteCharAt(idx);
+
+            buf.append("]");
+
+            return buf.toString();
         }
     }
 
@@ -107,8 +163,12 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
     /**
      * Architecture correspondant au dendogramme.
      */
-    private Architecture architecture = null; 
-    
+    private Architecture architecture = null;
+
+    private final SourceCode sourceCode;
+
+    private final COA coa;
+
     /**
      * Initialise un nouveau dendogramme à partir d'un modèle de code source.
      * 
@@ -122,81 +182,21 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      */
     public Dendogram(SourceCode sourceCode)
     {
-        this.init(sourceCode);
+        this.sourceCode = sourceCode;
+        this.coa = new COA();
+        this.init();
     }
 
-    /**
-     * Retourne un composant du dendogramme.
-     * 
-     * @param index
-     *            Index du composant à retourner
-     * 
-     * @return Le composant à l'index passé en paramètre ou null si l'index
-     *         n'est pas valide.
-     */
-    public Component getComponent(final int index)
+    public Dendogram(Dendogram dendo)
     {
-        Component comp = null;
+        this.sourceCode = dendo.sourceCode;
+        this.coa = dendo.coa;
+        this.architecture = null;
 
-        if (index < this.nodes.size())
+        for (Node node : dendo.nodes)
         {
-            comp = nodes.get(index).getComponent();
+            this.nodes.add(new Node(node));
         }
-
-        else
-        {
-            throw new RuntimeException("Clustering.getComponent(int) : "
-                    + "index passé(s) en paramètre(s) invalide(s).");
-        }
-
-        return comp;
-    }
-
-    /**
-     * Génère une architecture à partir des composants du dendogramme.
-     */
-    public Architecture getArchitecture()
-    {
-        Architecture arch = null;
-        
-        if(this.architecture != null)
-        {
-            arch = this.architecture;
-        }
-        
-        else
-        {
-            arch = new Architecture();
-    
-            for (Node node : this.nodes)
-            {
-                Component comp = node.getComponent();
-                arch.addComponent(comp);
-            }
-    
-            for (Component comp1 : arch.getComponents())
-            {
-                Set<Interface> proItfs = comp1.getProvidedInterfaces();
-    
-                for (Interface itf : proItfs)
-                {
-                    for (Component comp2 : arch.getComponents())
-                    {
-                        if (comp2.requiresInterface(itf))
-                        {
-                            Connector con = new Connector();
-    
-                            arch.addConnection(comp1, con, itf);
-                            arch.addConnection(comp2, con, itf);
-                        }
-                    }
-                }
-            }
-            
-            this.architecture = arch;
-        }
-
-        return arch;
     }
 
     /**
@@ -214,50 +214,47 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
     {
         return this.nodes.size();
     }
-
+    
+    public Architecture getArchitecture()
+    {
+        if(this.architecture == null)
+        {
+            this.buildArchitecture();
+        }
+        
+        return this.architecture;
+    }
+    
+    public COA getCOA()
+    {
+        return this.coa;
+    }
+    
     /**
-     * Génère un nouveau composant en fusionnant deux composants existants
-     * 
-     * <p>
-     * ATTENTION : le dendogramme n'est pas modifié. Pour
-     * </p>
+     * Génère un nouveau dendogramme en fusionnant deux noeuds.
      * 
      * @param idxChild1
      *            Index du premier noeud à regrouper
      * @param idxChild2
      *            Index du second noeud à regrouper
      * 
-     * @return Le noeud composant généré
+     * @return Le nouveau dendogramme
      */
     public Dendogram clusterNodes(final int idxChild1, final int idxChild2)
     {
-        Dendogram dendo = (Dendogram) this.clone();
-        
-        if (idxChild1 < dendo.nodes.size() && idxChild2 < dendo.nodes.size())
+        Dendogram dendo = null;
+
+        if (idxChild1 < this.nodes.size() && idxChild2 < this.nodes.size())
         {
+            dendo = new Dendogram(this);
+
             Node childNode1 = dendo.nodes.get(idxChild1);
             Node childNode2 = dendo.nodes.get(idxChild2);
-            
-            Component childComp1 = childNode1.getComponent();
-            Component childComp2 = childNode2.getComponent();
-
-            Component clusterComp = new Component();
-
-            clusterComp.addFunctions(childComp1.getFunctions());
-            clusterComp.addFunctions(childComp2.getFunctions());
-            clusterComp.addVariables(childComp1.getVariables());
-            clusterComp.addVariables(childComp2.getVariables());
-            clusterComp.addTypes(childComp1.getTypes());
-            clusterComp.addTypes(childComp2.getTypes());
-
-            dendo.updateRequiredInterfaces(clusterComp, idxChild1, idxChild2);
-            dendo.updateProvidedInterfaces(clusterComp, idxChild1, idxChild2);
-
-            Node clusterNode = new Node(clusterComp, childNode1, childNode2);
+            Node cluster = new Node(childNode1, childNode2);
 
             dendo.nodes.remove(childNode1);
             dendo.nodes.remove(childNode2);
-            dendo.nodes.add(clusterNode);
+            dendo.nodes.add(idxChild1, cluster);
         }
 
         else
@@ -294,7 +291,7 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
                 Node leftChild = node.getLeftChild();
                 Node rightChild = node.getRightChild();
 
-                dendo = (Dendogram) this.clone();
+                dendo = new Dendogram(this);
 
                 dendo.nodes.remove(index);
                 dendo.nodes.add(index, leftChild);
@@ -312,7 +309,7 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
     }
 
     /**
-     * Crée les feuilles du dendogramme.
+     * Crée les feuilles d'un nouveau dendogramme.
      * 
      * <p>
      * Méthode appelée à la création du dendogramme.
@@ -322,13 +319,11 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      *            Le modèle de code source sur lequel doit être construit le
      *            dendogramme.
      */
-    private void init(SourceCode sourceCode)
+    private void init()
     {
-        this.extractFunctions(sourceCode);
-        this.extractVariables(sourceCode);
-        this.extractTypes(sourceCode);
-
-        this.processInterfaces();
+        this.extractFunctions();
+        this.extractVariables();
+        this.extractTypes();
     }
 
     /**
@@ -338,14 +333,13 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      * @param sourceCode
      *            Un modèle de code source
      */
-    private void extractFunctions(final SourceCode sourceCode)
+    private void extractFunctions()
     {
-        for (final Function fct : sourceCode.getFunctions())
+        for (final Function fct : this.sourceCode.getFunctions())
         {
-            final Component comp = new Component();
-            comp.addFunction(fct);
+            final Dendogram.Node node = new Node();
+            node.addFunction(fct);
 
-            final Dendogram.Node node = new Node(comp);
             this.nodes.add(node);
         }
     }
@@ -357,14 +351,21 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      * @param sourceCode
      *            Un modèle de code source
      */
-    private void extractVariables(final SourceCode sourceCode)
+    private void extractVariables()
     {
-        for (final Variable var : sourceCode.getFileGlobals())
+        for (final Variable var : this.sourceCode.getProgramGlobals())
         {
-            final Component comp = new Component();
-            comp.addVariable(var);
+            final Dendogram.Node node = new Node();
+            node.addVariable(var);
 
-            final Dendogram.Node node = new Node(comp);
+            this.nodes.add(node);
+        }
+
+        for (final Variable var : this.sourceCode.getFileGlobals())
+        {
+            final Dendogram.Node node = new Node();
+            node.addVariable(var);
+
             this.nodes.add(node);
         }
     }
@@ -376,54 +377,53 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      * @param sourceCode
      *            Un modèle de code source
      */
-    private void extractTypes(final SourceCode sourceCode)
+    private void extractTypes()
     {
-        for (final Type type : sourceCode.getTypes())
+        for (final Type t : this.sourceCode.getTypes())
         {
-            final Component comp = new Component();
-            comp.addType(type);
+            final Dendogram.Node node = new Node();
+            node.addType(t);
 
-            final Dendogram.Node node = new Node(comp);
             this.nodes.add(node);
         }
     }
 
     /**
-     * Fonction appelée à la création du dendogramme pour initialiser les
-     * interfaces des composants.
+     * ???
+     */
+    private void buildArchitecture()
+    {
+        this.architecture = new Architecture();
+
+        for (Node node : this.nodes)
+        {
+            Component comp = new Component();
+            this.architecture.addComponent(comp);
+
+            this.coa.addComponent(comp);
+            this.coa.addFunctions(node.getFunctions(), comp);
+            this.coa.addVariables(node.getVariables(), comp);
+            this.coa.addTypes(node.getTypes(), comp);
+        }
+
+        this.processInterfaces();
+    }
+
+    /**
+     * A COMPLETER
      */
     private void processInterfaces()
     {
-        // At this time, a node is a function, a variable or a type
-
-        for (int idxNode = 0 ; idxNode < this.nodes.size() ; ++idxNode)
+        for (Component comp : this.architecture.getComponents())
         {
-            final Component comp = this.nodes.get(idxNode)
-                    .getComponent();
-
-            // Function
-            if (comp.getFunctions().isEmpty() == false)
-            {
-                this.processInterfacesFct(idxNode);
-            }
-
-            // Variable
-            if (comp.getVariables().isEmpty() == false)
-            {
-                this.processInterfacesVar(idxNode);
-            }
-
-            // type
-            if (comp.getTypes().isEmpty() == false)
-            {
-                this.processInterfacesType(idxNode);
-            }
+            this.processInterfacesFct(comp);
+            this.processInterfacesVar(comp);
+            this.processInterfacesType(comp);
         }
     }
 
     /**
-     * Fonction appelée à la création du dendogramme pour initialiser les
-     * interfaces liées à la fonction d'un composant
+     * A COMPLETER
      * 
      * <p>
      * Recherche les appels à la fonction fournie par un composant. Une
@@ -433,74 +433,53 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      * </p>
      * 
      * @param idxNode
-     *            Index du noeud du dendogramme dont le composant fournit la
-     *            fonction en question
+     *            Index du composant qui fournit la fonction en question
      * 
      * @see #processInterfaces()
      */
-    private void processInterfacesFct(final int idxNode)
+    private void processInterfacesFct(final Component comp)
     {
-        if (idxNode < this.nodes.size())
+        for (final Function fct : this.coa.getComponentFunctions(comp))
         {
-            final Node node = this.nodes.get(idxNode);
-            final Component comp = node.getComponent();
+            Interface itf = new Interface();
+            this.coa.addInterface(itf);
+            this.coa.addFunction(fct, itf);
 
-            if (comp.getFunctions().size() == 1)
+            int nbCallers = 0; // Nb of components that call fct
+
+            for (Component comp2 : this.architecture.getComponents())
             {
-                final Function fct = comp.getFunctions().iterator().next();
-
-                final Interface interfaceFct = new Interface();
-                interfaceFct.addFunction(fct);
-
-                int nbCallers = 0;
-
-                for (int idx = 0 ; idx < this.nodes.size() ; ++idx)
+                if (comp2.equals(comp) == false)
                 {
-                    if (idx != idxNode)
+                    Iterator<Function> itFcts =
+                            this.coa.getComponentFunctions(comp2).iterator();
+
+                    Function fct2 = null;
+                    boolean found = false;
+
+                    while (itFcts.hasNext() && (found == false))
                     {
-                        final Component comp2 = this.nodes.get(idx)
-                                .getComponent();
+                        fct2 = itFcts.next();
 
-                        // If compo2 contains no function, it cannot call fct
-                        if (comp2.getFunctions().isEmpty() == false)
+                        if (fct2.calls(fct))
                         {
-                            final Function fctComp2 = comp2.getFunctions()
-                                    .iterator().next();
-
-                            if (fctComp2.calls(fct))
-                            {
-                                comp2.addRequiredInterface(interfaceFct);
-                                nbCallers++;
-                            }
+                            comp2.addRequiredInterface(itf);
+                            ++nbCallers;
+                            found = true;
                         }
                     }
                 }
-
-                if (nbCallers > 0)
-                {
-                    comp.addProvidedInterface(interfaceFct);
-                }
             }
 
-            else
+            if (nbCallers > 0)
             {
-                throw new RuntimeException(
-                        "Erreur interne (processInterfacesFct) - "
-                                + "le noeud en paramètre ne contient pas de fonction.");
+                comp.addProvidedInterface(itf);
             }
-        }
-
-        else
-        {
-            throw new RuntimeException(
-                    "Erreur interne (processInterfacesFct) - "
-                            + "l'index passé en paramètre est incorrect.");
         }
     }
 
     /**
-     * Fonction appelée à la création du dendogramme pour initialiser les
-     * interfaces liées à une variable d'un composant
+     * A COMPLETER
      * 
      * <p>
      * Recherche les accès à une variable fournie par un composant. Une
@@ -510,47 +489,50 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      * </p>
      * 
      * @param idxNode
-     *            Index du noeud du dendogramme dont le composant fournit la
-     *            variable en question
+     *            Index du composant qui fournit la variable en question
      * 
      * @see #processInterfaces()
      */
-    private void processInterfacesVar(final int idxNode)
+    private void processInterfacesVar(Component comp)
     {
-        final Component compo1 = this.nodes.get(idxNode).getComponent();
-        final Variable var = compo1.getVariables().iterator().next();
-
-        final Interface interfaceVar = new Interface();
-        interfaceVar.addVariable(var);
-
-        int nbAccessors = 0;
-
-        for (int idx = 0 ; idx < this.nodes.size() ; ++idx)
+        for (final Variable var : this.coa.getComponentVariables(comp))
         {
-            final Component compo2 = this.nodes.get(idx).getComponent();
+            Interface itf = new Interface();
+            this.coa.addInterface(itf);
+            this.coa.addVariable(var, itf);
 
-            // If compo2 contains no function, it cannot access var
-            if (compo2.getFunctions().isEmpty() == false)
+            int nbAccessors = 0;
+
+            for (Component comp2 : this.architecture.getComponents())
             {
-                final Function fct2 = compo2.getFunctions().iterator().next();
+                Iterator<Function> itFcts =
+                        this.coa.getComponentFunctions(comp2).iterator();
 
-                final Map<FileGlobalVariable, Integer> fileGlobalsFct = fct2
-                        .getFileGlobals();
-                final Map<ProgramGlobalVariable, Integer> progGlobalsFct = fct2
-                        .getProgramGlobals();
+                Function fct2 = null;
+                boolean found = false;
 
-                if (fileGlobalsFct.containsKey(var)
-                        || progGlobalsFct.containsKey(var))
+                while (itFcts.hasNext() && (found == false))
                 {
-                    compo2.addRequiredInterface(interfaceVar);
-                    nbAccessors++;
+                    fct2 = itFcts.next();
+
+                    final Map<FileGlobalVariable, Integer> fgFct2 =
+                            fct2.getFileGlobals();
+                    final Map<ProgramGlobalVariable, Integer> pgFct2 =
+                            fct2.getProgramGlobals();
+
+                    if (fgFct2.containsKey(var) || pgFct2.containsKey(var))
+                    {
+                        comp2.addRequiredInterface(itf);
+                        ++nbAccessors;
+                        found = true;
+                    }
                 }
             }
-        }
 
-        if (nbAccessors > 0)
-        {
-            compo1.addProvidedInterface(interfaceVar);
+            if (nbAccessors > 0)
+            {
+                comp.addProvidedInterface(itf);
+            }
         }
     }
 
@@ -567,219 +549,198 @@ public class Dendogram implements Iterable<Dendogram.Node>, Cloneable
      * </p>
      * 
      * @param idxNode
-     *            Index du noeud du dendogramme dont le composant fournit le
-     *            type en question
+     *            Index du composant qui fournit le type en question
      * 
      * @see #processInterfaces()
      */
 
-    private void processInterfacesType(final int idxNode)
+    private void processInterfacesType(Component comp)
     {
-        final Component compo1 = this.nodes.get(idxNode).getComponent();
-        final Type t = compo1.getTypes().iterator().next();
-
-        final Interface interfaceType = new Interface();
-        interfaceType.addType(t);
-
-        int nbUsers = 0;
-
-        for (int idx = 0 ; idx < this.nodes.size() ; ++idx)
+        for (final Type t : this.coa.getComponentTypes(comp))
         {
-            if (idx != idxNode)
+            Interface itf = new Interface();
+            this.coa.addInterface(itf);
+            this.coa.addType(t, itf);
+
+            int nbUsers = 0;
+
+            for (Component comp2 : this.architecture.getComponents())
             {
-                final Component compo2 = this.nodes.get(idx)
-                        .getComponent();
+                boolean found = false;
 
-                // Compo2 contains a function that can use a variable of type t
-                if (compo2.getFunctions().isEmpty() == false)
+                Set<Function> fcts = this.coa.getComponentFunctions(comp2);
+                Iterator<Function> itFcts = fcts.iterator();
+
+                // A function of comp2 can use t within its body or it can
+                // have an argument of this type
+                while (itFcts.hasNext() && (found == false))
                 {
-                    final Function fct2 = compo2.getFunctions().iterator()
-                            .next();
+                    final Function fct2 = itFcts.next();
 
-                    // Types of arguments
+                    // Arguments
 
                     final Set<LocalVariable> args = fct2.getArguments();
-                    final Iterator<LocalVariable> itArgs = args.iterator();
-                    boolean found = false;
+                    Iterator<LocalVariable> itArgs = args.iterator();
 
                     while (itArgs.hasNext() && (found == false))
                     {
                         final LocalVariable arg = itArgs.next();
 
-                        if (arg.getType().equals(t))
+                        if (arg.ofType(t))
                         {
+                            comp2.addRequiredInterface(itf);
+                            ++nbUsers;
                             found = true;
-                            compo2.addRequiredInterface(interfaceType);
-                            nbUsers++;
                         }
                     }
 
-                    // Types used in the body
+                    // Body
 
-                    final Map<Type, Integer> typesFct = fct2.getUsedTypes();
+                    final Map<Type, Integer> types = fct2.getUsedTypes();
 
-                    if (typesFct.containsKey(t))
+                    if (types.containsKey(t))
                     {
-                        compo2.addRequiredInterface(interfaceType);
-                        nbUsers++;
+                        comp2.addRequiredInterface(itf);
+                        ++nbUsers;
+                        found = true;
                     }
                 }
 
-                // Compo2 contains a variable of type t
-                else if (compo2.getVariables().isEmpty() == false)
+                if (found == false)
                 {
-                    final Variable var = compo2.getVariables().iterator()
-                            .next();
+                    // comp2 can have a global variable of type t
+                    Set<Variable> vars =
+                            this.coa.getComponentVariables(comp2);
+                    Iterator<Variable> itVars = vars.iterator();
 
-                    if (var.getType().equals(t))
+                    while (itVars.hasNext() && (found == false))
                     {
-                        compo2.addRequiredInterface(interfaceType);
-                        nbUsers++;
+                        Variable v = itVars.next();
+
+                        if (v.ofType(t))
+                        {
+                            comp2.addRequiredInterface(itf);
+                            ++nbUsers;
+                            found = true;
+                        }
                     }
                 }
             }
-        }
 
-        if (nbUsers > 0)
-        {
-            compo1.addProvidedInterface(interfaceType);
-        }
-    }
-
-    /**
-     * Calcule les interfaces requises d'un nouveau cluster.
-     * 
-     * <p>
-     * Une interface requise d'un des composants fils ne doit pas être
-     * transférée au cluster si l'autre composant fils la fournit.
-     * </p>
-     * 
-     * @param cluster
-     *            Le composant cluster
-     * @param idxChild1
-     *            L'index du premier noeud fils
-     * @param idxChild2
-     *            L'index du second noeud fils
-     */
-    private void updateRequiredInterfaces(final Component cluster,
-            final int idxChild1, final int idxChild2)
-    {
-        final Component child1 = this.nodes.get(idxChild1)
-                .getComponent();
-        final Component child2 = this.nodes.get(idxChild2)
-                .getComponent();
-        
-        for (final Interface reqI : child1.getRequiredInterfaces())
-        {
-            if (child2.providesInterface(reqI) == false)
+            if (nbUsers > 0)
             {
-                cluster.addRequiredInterface(reqI);
-            }
-        }
-
-        for (final Interface reqI : child2.getRequiredInterfaces())
-        {
-            if (child1.providesInterface(reqI) == false)
-            {
-                cluster.addRequiredInterface(reqI);
+                comp.addProvidedInterface(itf);
             }
         }
     }
 
-    /**
-     * Calcule les interfaces fournies d'un nouveau cluster.
-     * 
-     * <p>
-     * Une interface fournie d'un des composants fils ne doit pas être
-     * transférée au cluster si seul l'autre composant fils la requérais.
-     * </p>
-     * 
-     * @param cluster
-     *            L'index du noeud cluster
-     * @param idxChild1
-     *            L'index du premier noeud fils
-     * @param idxChild2
-     *            L'index du second noeud fils
-     */
-    private void updateProvidedInterfaces(final Component cluster,
-            final int idxChild1, final int idxChild2)
-    {
-        final Component child1 = this.nodes.get(idxChild1)
-                .getComponent();
-        final Component child2 = this.nodes.get(idxChild2)
-                .getComponent();
-
-        for (final Interface proI : child1.getProvidedInterfaces())
-        {
-            final Iterator<Dendogram.Node> itNodes = this.nodes.iterator();
-            boolean required = false;
-
-            while (itNodes.hasNext() && (required == false))
-            {
-                final Component compo = itNodes.next().getComponent();
-
-                if ((compo != child1) && (compo != child2))
-                {
-                    if (compo.requiresInterface(proI))
-                    {
-                        cluster.addProvidedInterface(proI);
-                        required = true;
-                    }
-                }
-            }
-        }
-
-        for (final Interface proI : child2.getProvidedInterfaces())
-        {
-            final Iterator<Dendogram.Node> itNodes = this.nodes.iterator();
-            boolean required = false;
-
-            while (itNodes.hasNext() && (required == false))
-            {
-                final Component compo = itNodes.next().getComponent();
-
-                if ((compo != child1) && (compo != child2))
-                {
-                    if (compo.requiresInterface(proI))
-                    {
-                        cluster.addProvidedInterface(proI);
-                        required = true;
-                    }
-                }
-            }
-        }
-    }
+//    /**
+//     * Calcule les interfaces requises d'un nouveau cluster.
+//     * 
+//     * <p>
+//     * Une interface requise d'un des composants fils ne doit pas être
+//     * transférée au cluster si l'autre composant fils la fournit.
+//     * </p>
+//     * 
+//     * @param cluster
+//     *            Le composant cluster
+//     * @param idxChild1
+//     *            L'index du premier noeud fils
+//     * @param idxChild2
+//     *            L'index du second noeud fils
+//     */
+//    private void updateRequiredInterfaces(final Component cluster,
+//            final int idxChild1, final int idxChild2)
+//    {
+//        final Component child1 = this.nodes.get(idxChild1)
+//                .getComponent();
+//        final Component child2 = this.nodes.get(idxChild2)
+//                .getComponent();
+//
+//        for (final Interface reqI : child1.getRequiredInterfaces())
+//        {
+//            if (child2.providesInterface(reqI) == false)
+//            {
+//                cluster.addRequiredInterface(reqI);
+//            }
+//        }
+//
+//        for (final Interface reqI : child2.getRequiredInterfaces())
+//        {
+//            if (child1.providesInterface(reqI) == false)
+//            {
+//                cluster.addRequiredInterface(reqI);
+//            }
+//        }
+//    }
+//
+//    /**
+//     * Calcule les interfaces fournies d'un nouveau cluster.
+//     * 
+//     * <p>
+//     * Une interface fournie d'un des composants fils ne doit pas être
+//     * transférée au cluster si seul l'autre composant fils la requérais.
+//     * </p>
+//     * 
+//     * @param cluster
+//     *            L'index du noeud cluster
+//     * @param idxChild1
+//     *            L'index du premier noeud fils
+//     * @param idxChild2
+//     *            L'index du second noeud fils
+//     */
+//    private void updateProvidedInterfaces(final Component cluster,
+//            final int idxChild1, final int idxChild2)
+//    {
+//        final Component child1 = this.nodes.get(idxChild1)
+//                .getComponent();
+//        final Component child2 = this.nodes.get(idxChild2)
+//                .getComponent();
+//
+//        for (final Interface proI : child1.getProvidedInterfaces())
+//        {
+//            final Iterator<Dendogram.Node> itNodes = this.nodes.iterator();
+//            boolean required = false;
+//
+//            while (itNodes.hasNext() && (required == false))
+//            {
+//                final Component compo = itNodes.next().getComponent();
+//
+//                if ((compo != child1) && (compo != child2))
+//                {
+//                    if (compo.requiresInterface(proI))
+//                    {
+//                        cluster.addProvidedInterface(proI);
+//                        required = true;
+//                    }
+//                }
+//            }
+//        }
+//
+//        for (final Interface proI : child2.getProvidedInterfaces())
+//        {
+//            final Iterator<Dendogram.Node> itNodes = this.nodes.iterator();
+//            boolean required = false;
+//
+//            while (itNodes.hasNext() && (required == false))
+//            {
+//                final Component compo = itNodes.next().getComponent();
+//
+//                if ((compo != child1) && (compo != child2))
+//                {
+//                    if (compo.requiresInterface(proI))
+//                    {
+//                        cluster.addProvidedInterface(proI);
+//                        required = true;
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public Iterator<Node> iterator()
     {
         return nodes.iterator();
-    }
-
-    @Override
-    public Object clone()
-    {
-        Dendogram dendogram = null;
-
-        try
-        {
-            dendogram = (Dendogram) super.clone();
-
-            dendogram.nodes = new ArrayList<Dendogram.Node>();
-
-            for (Node node : this.nodes)
-            {
-                dendogram.nodes.add((Node) node.clone());
-            }
-            
-            dendogram.architecture = null;
-        }
-
-        catch (CloneNotSupportedException e)
-        {
-            throw new RuntimeException("Dendogram : clone not supported");
-        }
-
-        return dendogram;
     }
 }
