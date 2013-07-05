@@ -52,21 +52,26 @@ public class Cohesion
         Set<Type> types1 = this.coa.getInterfaceTypes(itf1);
         Set<Type> types2 = this.coa.getInterfaceTypes(itf2);
 
+        int nbPairs = 0;
+        
         for (Function fct1 : functions1)
         {
             for (Function fct2 : functions2)
             {
                 result += cohesion(fct1, fct2);
+                ++nbPairs;
             }
 
             for (Variable var2 : variables2)
             {
                 result += cohesion(fct1, var2);
+                ++nbPairs;
             }
 
             for (Type t2 : types2)
             {
                 result += cohesion(fct1, t2);
+                ++nbPairs;
             }
         }
 
@@ -75,14 +80,18 @@ public class Cohesion
             for (Variable var1 : variables1)
             {
                 result += cohesion(fct2, var1);
+                ++nbPairs;
             }
 
             for (Type t1 : types1)
             {
                 result += cohesion(fct2, t1);
+                ++nbPairs;
             }
         }
-
+        
+        result /= nbPairs;
+        
         return result;
     }
 
@@ -91,6 +100,8 @@ public class Cohesion
      * 
      * @param comp
      *            Le composant à évaluer
+     *            
+     * @return Un double entre 0.0 et 1.0    
      */
     public double componentInternalCohesion(final Component comp)
     {
@@ -146,6 +157,8 @@ public class Cohesion
      * 
      * @param itf
      *            L'interface à évaluer
+     *            
+     * @return Un double entre 0.0 et 1.0            
      */
     public double interfaceInternalCohesion(final Interface itf)
     {

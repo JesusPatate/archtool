@@ -165,42 +165,47 @@ public class ObjectiveFunction
         double result = 0.0;
         double sum = 0.0;
 
-        // Provided interfaces internal cohesion
-
         final Set<Interface> proInterfaces = comp.getProvidedInterfaces();
         final double nbProInterfaces = proInterfaces.size();
 
         if(nbProInterfaces > 0)
         {
+            // Provided interfaces internal cohesion
+            
             for (final Interface itf : comp.getProvidedInterfaces())
             {
                 sum += this.cohesion.interfaceInternalCohesion(itf);
             }
     
             result += sum / nbProInterfaces;
-        }
+            
+            // Provided interfaces cohesion
 
-        // Provided interfaces cohesion
-
-        if(nbProInterfaces > 1)
-        {
-            final Interface[] itfs = new Interface[proInterfaces.size()];
-            proInterfaces.toArray(itfs);
-    
-            sum = 0.0;
-    
-            for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
+            if(nbProInterfaces > 1)
             {
-                for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
+                final Interface[] itfs = new Interface[proInterfaces.size()];
+                proInterfaces.toArray(itfs);
+        
+                sum = 0.0;
+        
+                for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
                 {
-                    sum += this.cohesion.interfacesCohesion(
-                            itfs[idx1], itfs[idx2]);
+                    for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
+                    {
+                        sum += this.cohesion.interfacesCohesion(
+                                itfs[idx1], itfs[idx2]);
+                    }
                 }
+        
+                final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
+        
+                result += sum / nbPairs;
             }
-    
-            final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
-    
-            result += sum / nbPairs;
+            
+            else
+            {
+                result += 1.0;
+            }
         }
 
         // Component internal cohesion
