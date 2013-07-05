@@ -1,5 +1,6 @@
 package fr.univ_nantes.alma.archtool.sourceModel;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +22,7 @@ import java.util.Set;
 public class Function
 {
     private final String name;
-    
+
     private final boolean isStatic;
 
     private Set<LocalVariable> arguments = null;
@@ -42,7 +43,7 @@ public class Function
     {
         this(name, returnType, false);
     }
-    
+
     public Function(final String name, Type returnType, boolean isStatic)
     {
         this.name = name;
@@ -50,7 +51,7 @@ public class Function
         this.isStatic = isStatic;
     }
 
-    public Function(final String name, final Type returnType, 
+    public Function(final String name, final Type returnType,
             final Set<LocalVariable> arguments, final Block body,
             final File sourceFile)
     {
@@ -59,8 +60,8 @@ public class Function
         this.body = body;
         this.sourceFile = sourceFile;
     }
-    
-    public Function(final String name, final Type returnType, boolean isStatic, 
+
+    public Function(final String name, final Type returnType, boolean isStatic,
             final Set<LocalVariable> arguments, final Block body,
             final File sourceFile)
     {
@@ -93,11 +94,11 @@ public class Function
     {
         return this.returnType;
     }
-    
+
     public boolean isStatic()
     {
         return this.isStatic;
-    }    
+    }
 
     /**
      * Retourne le fichier source dans lequel est définie la fonction.
@@ -193,17 +194,46 @@ public class Function
      * Renvoie l'ensemble des types utilisés par la fonction.
      * 
      * <p>
-     * Les types utilisés peuvent être primitifs ou complexes. Les arguments ne
-     * sont pas pris en compte.
+     * Les types utilisés peuvent être primitifs ou complexes. Sont pris en
+     * compte les types des variables utilisées, le type de retour, et les types
+     * des arguments.
      * </p>
      * 
      * @return Un set contenant les types utilisés dans le corps de la fonction.
      */
     public Map<Type, Integer> getUsedTypes()
     {
-        return this.body.getUsedTypes();
+        Map<Type, Integer> usedTypes = new HashMap<Type, Integer>();
+
+        usedTypes.putAll(this.body.getUsedTypes());
+
+        for (LocalVariable var : this.arguments)
+        {
+            Type t = var.getType();
+
+            if (usedTypes.containsKey(t))
+            {
+                usedTypes.put(t, (usedTypes.get(t) + 1));
+            }
+            else
+            {
+                usedTypes.put(t, 1);
+            }
+        }
+
+        if (usedTypes.containsKey(this.returnType))
+        {
+            usedTypes.put(this.returnType, 
+                    (usedTypes.get(this.returnType) + 1));
+        }
+        else
+        {
+            usedTypes.put(this.returnType, 1);
+        }
+
+        return usedTypes;
     }
-    
+
     @Override
     public String toString()
     {

@@ -53,7 +53,7 @@ public class Cohesion
         Set<Type> types2 = this.coa.getInterfaceTypes(itf2);
 
         int nbPairs = 0;
-        
+
         for (Function fct1 : functions1)
         {
             for (Function fct2 : functions2)
@@ -89,9 +89,12 @@ public class Cohesion
                 ++nbPairs;
             }
         }
-        
-        result /= nbPairs;
-        
+
+        if (nbPairs > 0)
+        {
+            result /= nbPairs;
+        }
+
         return result;
     }
 
@@ -100,8 +103,8 @@ public class Cohesion
      * 
      * @param comp
      *            Le composant à évaluer
-     *            
-     * @return Un double entre 0.0 et 1.0    
+     * 
+     * @return Un double entre 0.0 et 1.0
      */
     public double componentInternalCohesion(final Component comp)
     {
@@ -157,8 +160,8 @@ public class Cohesion
      * 
      * @param itf
      *            L'interface à évaluer
-     *            
-     * @return Un double entre 0.0 et 1.0            
+     * 
+     * @return Un double entre 0.0 et 1.0
      */
     public double interfaceInternalCohesion(final Interface itf)
     {
@@ -326,21 +329,24 @@ public class Cohesion
         Set<Function> functions = this.coa.getInterfaceFunctions(itf);
         int nbFunctions = functions.size();
 
-        Function[] fctArray = new Function[nbFunctions];
-        this.coa.getInterfaceFunctions(itf).toArray(fctArray);
-
-        for (int i = 0 ; i < (nbFunctions - 2) ; ++i)
+        if (nbFunctions > 0)
         {
-            for (int j = (i + 1) ; j < (nbFunctions - 1) ; ++j)
+            Function[] fctArray = new Function[nbFunctions];
+            this.coa.getInterfaceFunctions(itf).toArray(fctArray);
+
+            for (int i = 0 ; i < (nbFunctions - 2) ; ++i)
             {
-                final Function f1 = fctArray[i];
-                final Function f2 = fctArray[j];
+                for (int j = (i + 1) ; j < (nbFunctions - 1) ; ++j)
+                {
+                    final Function f1 = fctArray[i];
+                    final Function f2 = fctArray[j];
 
-                sum += this.cohesion(f1, f2);
+                    sum += this.cohesion(f1, f2);
+                }
             }
-        }
 
-        result = sum / (nbFunctions * (nbFunctions - 1) / 2);
+            result = sum / (nbFunctions * (nbFunctions - 1) / 2);
+        }
 
         return result;
     }
@@ -361,21 +367,24 @@ public class Cohesion
         Set<Function> functions = this.coa.getConnectorFunctions(con);
         int nbFunctions = functions.size();
 
-        Function[] fctArray = new Function[nbFunctions];
-        this.coa.getConnectorFunctions(con).toArray(fctArray);
-
-        for (int i = 0 ; i < (nbFunctions - 2) ; ++i)
+        if (nbFunctions > 0)
         {
-            for (int j = (i + 1) ; j < (nbFunctions - 1) ; ++j)
+            Function[] fctArray = new Function[nbFunctions];
+            this.coa.getConnectorFunctions(con).toArray(fctArray);
+
+            for (int i = 0 ; i < (nbFunctions - 2) ; ++i)
             {
-                final Function f1 = fctArray[i];
-                final Function f2 = fctArray[j];
+                for (int j = (i + 1) ; j < (nbFunctions - 1) ; ++j)
+                {
+                    final Function f1 = fctArray[i];
+                    final Function f2 = fctArray[j];
 
-                sum += this.cohesion(f1, f2);
+                    sum += this.cohesion(f1, f2);
+                }
             }
-        }
 
-        result = sum / (nbFunctions * (nbFunctions - 1) / 2);
+            result = sum / (nbFunctions * (nbFunctions - 1) / 2);
+        }
 
         return result;
     }
@@ -407,7 +416,10 @@ public class Cohesion
 
         double nbPairs = compFcts.size() * compVars.size();
 
-        result = sum / nbPairs;
+        if (nbPairs > 0)
+        {
+            result = sum / nbPairs;
+        }
 
         return result;
     }
@@ -439,7 +451,10 @@ public class Cohesion
 
         double nbPairs = itfFcts.size() * itfVars.size();
 
-        result = sum / nbPairs;
+        if (nbPairs > 0)
+        {
+            result = sum / nbPairs;
+        }
 
         return result;
     }
@@ -471,7 +486,10 @@ public class Cohesion
 
         double nbPairs = conFcts.size() * conVars.size();
 
-        result = sum / nbPairs;
+        if (nbPairs > 0)
+        {
+            result = sum / nbPairs;
+        }
 
         return result;
     }
@@ -503,7 +521,10 @@ public class Cohesion
 
         double nbPairs = compFcts.size() * compTypes.size();
 
-        result = sum / nbPairs;
+        if (nbPairs > 0)
+        {
+            result = sum / nbPairs;
+        }
 
         return result;
     }
@@ -535,7 +556,10 @@ public class Cohesion
 
         double nbPairs = itfFcts.size() * itfTypes.size();
 
-        result = sum / nbPairs;
+        if (nbPairs > 0)
+        {
+            result = sum / nbPairs;
+        }
 
         return result;
     }
@@ -567,7 +591,10 @@ public class Cohesion
 
         double nbPairs = conFcts.size() * conTypes.size();
 
-        result = sum / nbPairs;
+        if (nbPairs > 0)
+        {
+            result = sum / nbPairs;
+        }
 
         return result;
     }
@@ -607,7 +634,10 @@ public class Cohesion
 
         double nbPairs = compVars.size() * compTypes.size();
 
-        result = sum / nbPairs;
+        if (nbPairs > 0)
+        {
+            result = sum / nbPairs;
+        }
 
         return result;
     }
@@ -647,7 +677,10 @@ public class Cohesion
 
         double nbPairs = compVars.size() * compTypes.size();
 
-        result = sum / nbPairs;
+        if (nbPairs > 0)
+        {
+            result = sum / nbPairs;
+        }
 
         return result;
     }
@@ -687,7 +720,10 @@ public class Cohesion
 
         double nbPairs = compVars.size() * compTypes.size();
 
-        result = sum / nbPairs;
+        if (nbPairs > 0)
+        {
+            result = sum / nbPairs;
+        }
 
         return result;
     }
@@ -722,7 +758,7 @@ public class Cohesion
         result += this.cohesionLocalVars(f1, f2);
         result += this.cohesionTypes(f1, f2);
         result += this.cohesionCalls(f1, f2);
-        result += this.cohesionArguments(f1, f2);
+        // result += this.cohesionArguments(f1, f2);
 
         if (f1.getSourceFile().equals(f2.getSourceFile()))
         {
@@ -793,7 +829,10 @@ public class Cohesion
             }
         }
 
-        result = nbAccessToVar / total;
+        if (total > 0)
+        {
+            result = nbAccessToVar / total;
+        }
 
         return result;
     }
@@ -821,8 +860,6 @@ public class Cohesion
         double nbUsesOfType = 0.0;
         double total = 0.0; // Total uses of types
 
-        // Types used in the body
-
         Map<Type, Integer> usedTypes = fct.getUsedTypes();
 
         for (Type t : usedTypes.keySet())
@@ -835,21 +872,10 @@ public class Cohesion
             total += usedTypes.get(t);
         }
 
-        // Arguments
-
-        Set<LocalVariable> args = fct.getArguments();
-
-        for (LocalVariable arg : args)
+        if (total > 0)
         {
-            if (arg.ofType(type))
-            {
-                ++nbUsesOfType;
-            }
-
-            ++total;
+            result = nbUsesOfType / total;
         }
-
-        result = nbUsesOfType / total;
 
         return result;
     }
@@ -1092,51 +1118,54 @@ public class Cohesion
         return result;
     }
 
-    /**
-     * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
-     * 
-     * <p>
-     * Calcule le ratio d'arguments similaires entre les deux fonctions sur le
-     * nombre total d'arguments des deux fonctions.
-     * </p>
-     * 
-     * @param f1
-     *            Une fonction d'un modèle de code source
-     * @param f2
-     *            Une autre fonction d'un modèle de code source
-     * 
-     * @return Un double entre 0.0 et 1.0
-     * 
-     * @see #cohesion(Function, Function)
-     */
-    private double cohesionArguments(Function f1, Function f2)
-    {
-        double result = 0.0;
-        double nbArgs = 0;
-        double nbCommon = 0;
+    // cohesionArguments ne doit plus être utilisée car maintenant
+    // function.getUsedTypes() prend également en compte les arguments
 
-        Set<LocalVariable> args1 = f1.getArguments();
-        Set<LocalVariable> args2 = f2.getArguments();
-
-        for (LocalVariable var1 : args1)
-        {
-            for (LocalVariable var2 : args2)
-            {
-                if ((var1.getName().compareTo(var2.getName()) == 0)
-                        && (var1.ofType(var2.getType())))
-                {
-                    ++nbCommon;
-                }
-            }
-        }
-
-        nbArgs = args1.size() + args2.size() - nbCommon;
-
-        if (nbArgs > 0)
-        {
-            result = nbCommon / nbArgs;
-        }
-
-        return result;
-    }
+    // /**
+    // * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
+    // *
+    // * <p>
+    // * Calcule le ratio d'arguments similaires entre les deux fonctions sur le
+    // * nombre total d'arguments des deux fonctions.
+    // * </p>
+    // *
+    // * @param f1
+    // * Une fonction d'un modèle de code source
+    // * @param f2
+    // * Une autre fonction d'un modèle de code source
+    // *
+    // * @return Un double entre 0.0 et 1.0
+    // *
+    // * @see #cohesion(Function, Function)
+    // */
+    // private double cohesionArguments(Function f1, Function f2)
+    // {
+    // double result = 0.0;
+    // double nbArgs = 0;
+    // double nbCommon = 0;
+    //
+    // Set<LocalVariable> args1 = f1.getArguments();
+    // Set<LocalVariable> args2 = f2.getArguments();
+    //
+    // for (LocalVariable var1 : args1)
+    // {
+    // for (LocalVariable var2 : args2)
+    // {
+    // if ((var1.getName().compareTo(var2.getName()) == 0)
+    // && (var1.ofType(var2.getType())))
+    // {
+    // ++nbCommon;
+    // }
+    // }
+    // }
+    //
+    // nbArgs = args1.size() + args2.size() - nbCommon;
+    //
+    // if (nbArgs > 0)
+    // {
+    // result = nbCommon / nbArgs;
+    // }
+    //
+    // return result;
+    // }
 }

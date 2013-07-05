@@ -285,20 +285,6 @@ public class Coupling
     {
         int result = 0;
 
-        // Arguments types
-
-        Set<LocalVariable> locals = fct.getArguments();
-
-        for (LocalVariable var : locals)
-        {
-            if (var.ofType(type))
-            {
-                ++result;
-            }
-        }
-
-        // Types used in the body
-
         Map<Type, Integer> usedTypes = fct.getUsedTypes();
 
         if (usedTypes.containsKey(type))
@@ -310,21 +296,10 @@ public class Coupling
     }
 
     /**
-     * Mesure le couplage entre deux fonctions.
-     * 
-     * @param fct1
-     * @param fct2
-     * @return
+     * Mesure le couplage entre une variable et un type.
      */
     private int coupling(Variable var, Type type)
     {
-        int result = 0;
-
-        if (var.ofType(type))
-        {
-            ++result;
-        }
-
-        return result;
+        return var.ofType(type) ? 1 : 0;
     }
 }
