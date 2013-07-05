@@ -1,32 +1,3 @@
-/*
- [The "BSD licence"]
- Copyright (c) 2013 Sam Harwell
- All rights reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 3. The name of the author may not be used to endorse or promote products
-    derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-/** C 2011 grammar built from the C11 Spec */
 grammar C;
 
 
@@ -44,7 +15,7 @@ grammar C;
 
 @parser::members
 {
-	private String currentPath;
+	private File currentFile;
 	private Map<String, Function> functions = new HashMap<String, Function>();
 	private Map<String, ComplexType> complexTypes = new HashMap<String, ComplexType>();
 	private Map<String, Variable> globalVariables = new HashMap<String, Variable>();
@@ -53,22 +24,7 @@ grammar C;
 	{
 		if(name != null)
 		{
-			this.complexTypes.put(name, new ComplexType(name, null));
-		}
-	}
-	
-	private void declareTypedef(boolean isTypedef, String name, List<String> names)
-	{
-		if(isTypedef)
-		{
-			if(names.isEmpty())
-			{
-				addComplexType(name);
-			}
-			else
-			{
-				addComplexType(names.get(0));
-			}
+			this.complexTypes.put(name, new ComplexType(name, this.currentFile));
 		}
 	}
 }
@@ -224,20 +180,58 @@ constantExpression
 
 /************************************ DECLARATIONS ************************************/
 
-declaration returns [List<String> names = new ArrayList<String>(), Type type = null, boolean isStatic, boolean isFunction]
-    : ds=declarationSpecifiers idl=initDeclaratorList? ';'  {declareTypedef($ds.isTypedef, $ds.name, $names); $isStatic = $ds.isStatic;
-    														if(!$ds.isTypedef) $type = $ds.specifier.getType();}
+declaration returns [String name, List<String> names = new ArrayList<String>(), Type type = null, boolean isStatic, boolean isFunction, boolean isDeclarationType]
+    : ds=declarationSpecifiers idl=initDeclaratorList? ';'  
+{
+	$name = $ds.name;
+	$type = $ds.type;
+	$isDeclarationType = $ds.isDeclarationType;
+	          
+    if($ds.isTypedef)
+    {
+        if($names.isEmpty())
+        {
+            this.addComplexType($name);
+        }
+        else
+        {
+            this.addComplexType($names.get(0));
+        }
+    }    
+}
     | staticAssertDeclaration
     ;
 
-declarationSpecifiers returns [DeclarationSpecifier specifier = new NullSpecifier(), String name = null, boolean isStatic = false, boolean isTypedef = false]
+declarationSpecifiers 
+    returns [Type type, String name = null, boolean isStatic = false,
+        boolean isTypedef = false, boolean isDeclarationType = false]
+    locals [DeclarationSpecifier specifier = new NullSpecifier()]
     : declarationSpecifier+
+{
+    if(!$isTypedef)
+    {
+        $type = $specifier.getType();
+    }
+}
     ;
 
 declarationSpecifier
     : storageClassSpecifier
-    | ts=typeSpecifier {$declarationSpecifiers::specifier = $declarationSpecifiers::specifier.merge($ts.specifier); 
-    					if($ts.name != null) $declarationSpecifiers::name = $ts.name;}
+    | ts=typeSpecifier
+{
+    $declarationSpecifiers::specifier = 
+            $declarationSpecifiers::specifier.merge($ts.specifier);
+    
+    if($ts.isDeclarationType)
+    {
+        $declarationSpecifiers::isDeclarationType = $ts.isDeclarationType;
+    }
+    
+    if($ts.name != null)
+    {
+        $declarationSpecifiers::name = $ts.name;
+    }
+}
     | typeQualifier
     | functionSpecifier
     | alignmentSpecifier
@@ -249,29 +243,70 @@ initDeclaratorList
     ;
 
 initDeclarator
-    : d=declarator {$declaration::names.add($d.name); $declaration::isFunction = $d.isFunction;}
-    | d=declarator '=' initializer {$declaration::names.add($d.name);} //PRENDRE EN COMPTE LES VALEURS D'INITIALISATION QUI PEUVENT ETRE DES VARIABLES
+    : d=declarator
+{
+    $declaration::names.add($d.name);
+    $declaration::isFunction = $d.isFunction;
+}
+    | d=declarator '=' initializer
+{
+    $declaration::names.add($d.name);
+} //PRENDRE EN COMPTE LES VALEURS D'INITIALISATION QUI PEUVENT ETRE DES VARIABLES
     ;
 
 storageClassSpecifier
-    : 'typedef' {$declarationSpecifiers::isTypedef = true;}
+    : 'typedef'
+{
+    $declarationSpecifiers::isTypedef = true;
+    $declarationSpecifiers::isDeclarationType = true;
+}
     | 'extern'
-    | 'static' {$declarationSpecifiers::isStatic = true;}
+    | 'static'
+{
+    $declarationSpecifiers::isStatic = true;
+}
     | '_Thread_local'
     | 'auto'
     | 'register'
     ;
 
-typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier(), String name = null]
-    : ('void' {$specifier = new VoidSpecifier();}
-    | 'char' {$specifier = new CharSpecifier();}
-    | 'short' {$specifier = new ShortSpecifier();}
-    | 'int' {$specifier = new IntSpecifier();}
-    | 'long' {$specifier = new LongSpecifier();}
-    | 'float' {$specifier = new FloatSpecifier();}
-    | 'double' {$specifier = new DoubleSpecifier();}
-    | 'signed' {$specifier = new SignedSpecifier();}
-    | 'unsigned' {$specifier = new UnsignedSpecifier();}
+typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier(), String name = null, boolean isDeclarationType = false]
+    : ('void' 
+{
+    $specifier = new VoidSpecifier();
+}
+    | 'char' 
+{
+    $specifier = new CharSpecifier();
+}
+    | 'short' 
+{
+    $specifier = new ShortSpecifier();
+}
+    | 'int'
+{
+    $specifier = new IntSpecifier();
+}
+    | 'long'
+{
+    $specifier = new LongSpecifier();
+}
+    | 'float'
+{
+    $specifier = new FloatSpecifier();
+}
+    | 'double'
+{
+    $specifier = new DoubleSpecifier();
+}
+    | 'signed'
+{
+    $specifier = new SignedSpecifier();
+}
+    | 'unsigned'
+{
+    $specifier = new UnsignedSpecifier();
+}
     | '_Bool'
     | '_Complex'
     | '__m128'
@@ -282,12 +317,23 @@ typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier(), Str
     | structOrUnionSpecifier
     | enumSpecifier
     | typedefName
-    | '__typeof__' '(' constantExpression ')' // GCC extension
+    | '__typeof__' '(' constantExpression ')'
     ;
 
 structOrUnionSpecifier
-    : structOrUnion i=Identifier? '{' structDeclarationList '}' {this.addComplexType($i.text); $typeSpecifier::specifier = new StructOrUnionSpecifier($i.text, this.complexTypes);}
-    | structOrUnion i=Identifier {$typeSpecifier::specifier = new StructOrUnionSpecifier($i.text, this.complexTypes);}
+    : structOrUnion i=Identifier? '{' structDeclarationList '}' 
+{
+    this.addComplexType($i.text);
+    $typeSpecifier::isDeclarationType = true;
+    $typeSpecifier::name = $i.text;
+    $typeSpecifier::specifier = 
+            new StructOrUnionSpecifier($i.text, this.complexTypes);
+}
+    | structOrUnion i=Identifier
+{
+    $typeSpecifier::specifier = 
+            new StructOrUnionSpecifier($i.text, this.complexTypes);
+}
     ;
 
 structOrUnion
@@ -321,9 +367,24 @@ structDeclarator
     ;
 
 enumSpecifier
-    : 'enum' i=Identifier? '{' enumeratorList '}' {this.addComplexType($i.text); $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);}
-    | 'enum' i=Identifier? '{' enumeratorList ',' '}' {this.addComplexType($i.text); $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);}
-    | 'enum' i=Identifier {$typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);}
+    : 'enum' i=Identifier? '{' enumeratorList '}'
+{
+    this.addComplexType($i.text);
+    $typeSpecifier::isDeclarationType = true;
+    $typeSpecifier::name = $i.text;
+    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);
+}
+    | 'enum' i=Identifier? '{' enumeratorList ',' '}'
+{
+    this.addComplexType($i.text);
+    $typeSpecifier::isDeclarationType = true;
+    $typeSpecifier::name = $i.text;
+    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);
+}
+    | 'enum' i=Identifier
+{
+    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);
+}
     ;
 
 enumeratorList
@@ -354,7 +415,7 @@ typeQualifier
 functionSpecifier
     : ('inline'
     | '_Noreturn'
-    | '__inline__' // GCC extension
+    | '__inline__'
     | '__stdcall')
     | gccAttributeSpecifier
     | '__declspec' '(' Identifier ')'
@@ -366,18 +427,51 @@ alignmentSpecifier
     ;
 
 declarator returns [String name, Set<LocalVariable> arguments, boolean isFunction]
-    : pointer? dd=directDeclarator gccDeclaratorExtension* {$name = $dd.name; $arguments = $dd.arguments; $isFunction = $dd.isFunction;}
+    : pointer? dd=directDeclarator gccDeclaratorExtension*
+{
+    $name = $dd.name;
+    $arguments = $dd.arguments;
+    $isFunction = $dd.isFunction;
+}
     ;
 
-directDeclarator returns [String name, Set<LocalVariable> arguments, boolean isFunction = false]
-    : i=Identifier {$name = $i.text;}
-    | '(' d=declarator ')' {$name = $d.name;}
-    | dd=directDeclarator '[' typeQualifierList? assignmentExpression? ']' {$name = $dd.name;}
-    | dd=directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']' {$name = $dd.name;}
-    | dd=directDeclarator '[' typeQualifierList 'static' assignmentExpression ']' {$name = $dd.name;}
-    | dd=directDeclarator '[' typeQualifierList? '*' ']' {$name = $dd.name;}
-    | dd=directDeclarator '(' ptl=parameterTypeList ')' {$name = $dd.name; $arguments = $ptl.arguments; $isFunction = true;}
-    | dd=directDeclarator '(' identifierList? ')' {$name = $dd.name; $isFunction = true;}
+directDeclarator returns [String name, Set<LocalVariable> arguments, boolean isFunction = false, Set<String> names]
+    : i=Identifier
+{
+    $name = $i.text;
+}
+    | '(' d=declarator ')'
+{
+    $name = $d.name;
+}
+    | dd=directDeclarator '[' typeQualifierList? assignmentExpression? ']'
+{
+    $name = $dd.name;
+}
+    | dd=directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
+{
+    $name = $dd.name;
+}
+    | dd=directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
+{
+    $name = $dd.name;
+}
+    | dd=directDeclarator '[' typeQualifierList? '*' ']' 
+{
+    $name = $dd.name;
+}
+    | dd=directDeclarator '(' ptl=parameterTypeList ')' 
+{
+    $name = $dd.name;
+    $arguments = $ptl.arguments;
+    $isFunction = true;
+}
+    | dd=directDeclarator '(' il=identifierList? ')' 
+{
+    $name = $dd.name;
+    $names = $il.names;
+    $isFunction = true;
+}
     ;
 
 gccDeclaratorExtension
@@ -429,13 +523,22 @@ parameterList
     ;
 
 parameterDeclaration
-    : ds=declarationSpecifiers d=declarator {$parameterTypeList::arguments.add(new LocalVariable($d.name, $ds.specifier.getType()));}
+    : ds=declarationSpecifiers d=declarator
+{
+    $parameterTypeList::arguments.add(new LocalVariable($d.name, $ds.type));
+}
     | ds=declarationSpecifiers abstractDeclarator?
     ;
 
-identifierList
-    : Identifier
-    | identifierList ',' Identifier
+identifierList returns [Set<String> names = new HashSet<String>()]
+    : i=Identifier
+{
+    $names.add($i.text);
+}
+    | il=identifierList ',' i=Identifier
+{
+    $names.addAll($il.names); $names.add($i.text);
+}
     ;
 
 typeName
@@ -462,7 +565,12 @@ directAbstractDeclarator
     ;
 
 typedefName
-    : i=Identifier {$typeSpecifier::specifier = new TypedefNameSpecifier($i.text, this.complexTypes); $typeSpecifier::name = $i.text;}
+    : i=Identifier
+{
+    $typeSpecifier::specifier = 
+            new TypedefNameSpecifier($i.text, this.complexTypes);
+    $typeSpecifier::name = $i.text;
+}
     ;
 
 initializer
@@ -548,7 +656,7 @@ jumpStatement
     | 'continue' ';'
     | 'break' ';'
     | 'return' expression? ';'
-    | 'goto' unaryExpression ';' // GCC extension
+    | 'goto' unaryExpression ';'
     ;
 
 
@@ -556,6 +664,14 @@ jumpStatement
 
 compilationUnit
     : translationUnit? EOF
+{
+    System.out.println("\n\nGLOBALS DEFINITIONS\n");
+    
+    for(String name : this.globalVariables.keySet())
+    {
+        System.out.println(name);
+    }
+}
     ;
 
 translationUnit
@@ -564,13 +680,39 @@ translationUnit
     ;
 
 externalDeclaration
-    : functionDefinition
-    | d=declaration {System.out.println($d.text);}
-    | ';' // stray ;
+    : fd=functionDefinition
+{
+    // FONCTION A MODIFIER SI ELLE EXISTE DEJA
+	this.functions.put($fd.result.getName(), $fd.result);
+}
+    | d=declaration 
+{
+	if(!$d.isDeclarationType)
+	{
+		if($d.isFunction)
+		{
+			Function declaredFunction = new Function($d.name, $d.type, $d.isStatic);
+			this.functions.put(declaredFunction.getName(), declaredFunction);
+		}
+		else
+		{
+		    // NE PAS OUBLIER LE CAS OU ON DECLARE UN TYPE ET UNE VARIABLE
+		    System.out.println($d.text);
+		    GlobalVariable variable = new GlobalVariable($d.name, $d.type, $d.isStatic, this.currentFile);
+            this.globalVariables.put(variable.getName(), variable);
+		}
+	}
+}
+    | ';'
     ;
 
-functionDefinition returns [Function result]
-    : ds=declarationSpecifiers? d=declarator declarationList? compoundStatement {/*System.out.println($d.name + ": " + $d.arguments);*/} //AJOUTER FONCTION DANS LA TABLE
+functionDefinition returns [Function result] 
+        locals [Set<LocalVariable> arguments = new HashSet<LocalVariable>()]
+    : ds=declarationSpecifiers? d=declarator dl=declarationList? compoundStatement 
+{
+    Type returnType = $ds.type == null ? PrimitiveType.voidType() : $ds.type;
+    $result = new Function($d.name, returnType, $ds.isStatic);
+} 
     ;
 
 declarationList
