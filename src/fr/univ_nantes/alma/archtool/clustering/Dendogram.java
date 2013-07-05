@@ -167,7 +167,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
     private final SourceCode sourceCode;
 
-    private final COA coa;
+    private COA coa;
 
     /**
      * Initialise un nouveau dendogramme à partir d'un modèle de code source.
@@ -190,7 +190,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
     public Dendogram(Dendogram dendo)
     {
         this.sourceCode = dendo.sourceCode;
-        this.coa = dendo.coa;
+        this.coa = null;
         this.architecture = null;
 
         for (Node node : dendo.nodes)
@@ -394,6 +394,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
     private void buildArchitecture()
     {
         this.architecture = new Architecture();
+        this.coa = new COA();
 
         for (Node node : this.nodes)
         {
@@ -634,110 +635,25 @@ public class Dendogram implements Iterable<Dendogram.Node>
         }
     }
 
-//    /**
-//     * Calcule les interfaces requises d'un nouveau cluster.
-//     * 
-//     * <p>
-//     * Une interface requise d'un des composants fils ne doit pas être
-//     * transférée au cluster si l'autre composant fils la fournit.
-//     * </p>
-//     * 
-//     * @param cluster
-//     *            Le composant cluster
-//     * @param idxChild1
-//     *            L'index du premier noeud fils
-//     * @param idxChild2
-//     *            L'index du second noeud fils
-//     */
-//    private void updateRequiredInterfaces(final Component cluster,
-//            final int idxChild1, final int idxChild2)
-//    {
-//        final Component child1 = this.nodes.get(idxChild1)
-//                .getComponent();
-//        final Component child2 = this.nodes.get(idxChild2)
-//                .getComponent();
-//
-//        for (final Interface reqI : child1.getRequiredInterfaces())
-//        {
-//            if (child2.providesInterface(reqI) == false)
-//            {
-//                cluster.addRequiredInterface(reqI);
-//            }
-//        }
-//
-//        for (final Interface reqI : child2.getRequiredInterfaces())
-//        {
-//            if (child1.providesInterface(reqI) == false)
-//            {
-//                cluster.addRequiredInterface(reqI);
-//            }
-//        }
-//    }
-//
-//    /**
-//     * Calcule les interfaces fournies d'un nouveau cluster.
-//     * 
-//     * <p>
-//     * Une interface fournie d'un des composants fils ne doit pas être
-//     * transférée au cluster si seul l'autre composant fils la requérais.
-//     * </p>
-//     * 
-//     * @param cluster
-//     *            L'index du noeud cluster
-//     * @param idxChild1
-//     *            L'index du premier noeud fils
-//     * @param idxChild2
-//     *            L'index du second noeud fils
-//     */
-//    private void updateProvidedInterfaces(final Component cluster,
-//            final int idxChild1, final int idxChild2)
-//    {
-//        final Component child1 = this.nodes.get(idxChild1)
-//                .getComponent();
-//        final Component child2 = this.nodes.get(idxChild2)
-//                .getComponent();
-//
-//        for (final Interface proI : child1.getProvidedInterfaces())
-//        {
-//            final Iterator<Dendogram.Node> itNodes = this.nodes.iterator();
-//            boolean required = false;
-//
-//            while (itNodes.hasNext() && (required == false))
-//            {
-//                final Component compo = itNodes.next().getComponent();
-//
-//                if ((compo != child1) && (compo != child2))
-//                {
-//                    if (compo.requiresInterface(proI))
-//                    {
-//                        cluster.addProvidedInterface(proI);
-//                        required = true;
-//                    }
-//                }
-//            }
-//        }
-//
-//        for (final Interface proI : child2.getProvidedInterfaces())
-//        {
-//            final Iterator<Dendogram.Node> itNodes = this.nodes.iterator();
-//            boolean required = false;
-//
-//            while (itNodes.hasNext() && (required == false))
-//            {
-//                final Component compo = itNodes.next().getComponent();
-//
-//                if ((compo != child1) && (compo != child2))
-//                {
-//                    if (compo.requiresInterface(proI))
-//                    {
-//                        cluster.addProvidedInterface(proI);
-//                        required = true;
-//                    }
-//                }
-//            }
-//        }
-//    }
-
+    @Override
+    public String toString()
+    {
+        StringBuffer buf = new StringBuffer("Dendogram (");
+        
+        for(Node node : this.nodes)
+        {
+            buf.append(node);
+            buf.append(", ");
+        }
+        
+        int idx = buf.lastIndexOf(",");
+        buf.delete(idx, buf.length());
+        
+        buf.append(")");
+        
+        return buf.toString();
+    }
+    
     @Override
     public Iterator<Node> iterator()
     {
