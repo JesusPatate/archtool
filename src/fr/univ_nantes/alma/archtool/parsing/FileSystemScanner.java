@@ -1,36 +1,47 @@
 package fr.univ_nantes.alma.archtool.parsing;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.utils.FileUtils;
-
 public class FileSystemScanner
 {
     private Set<String> paths;
-    private Set<String> allowedExtensions;
-    private Map<String, Set<String>> filesFound = 
+    private FilenameFilter filter;
+    private Map<String, Set<String>> pathsFoundByName = 
             new HashMap<String, Set<String>>();
     
-    public FileSystemScanner(String [] paths, String [] extensions)
+    public FileSystemScanner(String [] paths, FilenameFilter filter)
     {
         this.paths = new HashSet<String>(Arrays.asList(paths));
-        this.allowedExtensions = new HashSet<String>(Arrays.asList(extensions));
+        this.filter = filter;
     }
     
-    public FileSystemScanner(Set<String> paths, Set<String> extensions)
+    public FileSystemScanner(Set<String> paths, FilenameFilter filter)
     {
         this.paths = paths;
-        this.allowedExtensions = extensions;
+        this.filter = filter;
     }
     
-    public Map<String, Set<String>> getFilesFound()
+    public Map<String, Set<String>> getPathsFoundByName()
     {
-        return new HashMap<String, Set<String>>(this.filesFound);
+        return new HashMap<String, Set<String>>(this.pathsFoundByName);
+    }
+    
+    public Set<String> getPathsFound()
+    {
+        Set<String> pathsFound = new HashSet<String>();
+        
+        for(Set<String> paths : this.pathsFoundByName.values())
+        {
+            pathsFound.addAll(paths);
+        }
+        
+        return pathsFound;
     }
     
     public void scann()
@@ -43,7 +54,7 @@ public class FileSystemScanner
     
     public void reset()
     {
-        this.filesFound.clear();
+        this.pathsFoundByName.clear();
     }
     
     private void scannPath(String path)
@@ -51,20 +62,15 @@ public class FileSystemScanner
         File file  = new File(path);
         
         if(file.isFile())
-        {
-            String extension = FileUtils.getExtension(file.getName());
-            
-            if(this.allowedExtensions.contains(extension))
+        {            
+            if(this.filter.accept(file.getParentFile(), file.getName()))
             {
                 this.addFoundFile(file.getName(), file.getAbsolutePath());
             }
         }
         else
         {
-            File [] children = file.listFiles(
-                    new ExtensionFilter(allowedExtensions));
-            
-            for(File child : children)
+            for(File child : file.listFiles(filter))
             {
                 if(child.isFile())
                 {
@@ -78,12 +84,9 @@ public class FileSystemScanner
         }
     }
     
-    private void scannDirectory(File Directory)
-    {
-        File [] children = Directory.listFiles(new ExtensionFilter(
-                allowedExtensions));
-        
-        for(File child : children)
+    private void scannDirectory(File directory)
+    {        
+        for(File child : directory.listFiles(filter))
         {
             if(child.isFile())
             {
@@ -94,20 +97,19 @@ public class FileSystemScanner
                 this.scannDirectory(child);
             }
         }
-
     }
     
     private void addFoundFile(String name, String path)
     {
-        if(this.filesFound.containsKey(name))
+        if(this.pathsFoundByName.containsKey(name))
         {
-            this.filesFound.get(name).add(path);
+            this.pathsFoundByName.get(name).add(path);
         }
         else
         {
             Set<String> paths = new HashSet<String>();
             paths.add(path);
-            this.filesFound.put(name, paths);
+            this.pathsFoundByName.put(name, paths);
         }
     }
 }
