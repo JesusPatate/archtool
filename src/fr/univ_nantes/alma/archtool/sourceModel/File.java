@@ -2,23 +2,15 @@ package fr.univ_nantes.alma.archtool.sourceModel;
 
 public class File
 {
-    private final String name;
+    private final String path;
 
-    private final Folder folder;
-
-    public File(final String name, final Folder folder)
+    public File(final String path)
     {
-        this.name = name;
-        this.folder = folder;
+        this.path = path;
     }
 
-    public String getName()
+    public String getPath()
     {
-        return this.name;
-    }
-
-    public Folder getFolder()
-    {
-        return this.folder;
+        return this.path;
     }
 }
