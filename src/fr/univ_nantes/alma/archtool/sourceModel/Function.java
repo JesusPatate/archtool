@@ -131,7 +131,7 @@ public class Function
      *         accédées dans le corps de la fonction et pour valeurs leur nombre
      *         d'accès.
      */
-    public Map<ProgramGlobalVariable, Integer> getProgramGlobals()
+    public Map<GlobalVariable, Integer> getProgramGlobals()
     {
         return this.body.getProgramGlobals();
     }
@@ -144,7 +144,7 @@ public class Function
      *         accédées dans le corps de la fonction et pour valeurs leur nombre
      *         d'accès.
      */
-    public Map<FileGlobalVariable, Integer> getFileGlobals()
+    public Map<GlobalVariable, Integer> getFileGlobals()
     {
         return this.body.getFileGlobals();
     }

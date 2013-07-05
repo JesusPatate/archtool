@@ -11,11 +11,8 @@ public class SourceCode
 {
     private final Set<Function> functions = new HashSet<Function>();
 
-    private final Set<ProgramGlobalVariable> programGlobals =
-            new HashSet<ProgramGlobalVariable>();
-
-    private final Set<FileGlobalVariable> fileGlobals =
-            new HashSet<FileGlobalVariable>();
+    private final Set<GlobalVariable> globals =
+            new HashSet<GlobalVariable>();
 
     private final Set<ComplexType> types = new HashSet<ComplexType>();
 
@@ -29,34 +26,46 @@ public class SourceCode
         this.functions.add(function);
     }
 
-    public Set<ProgramGlobalVariable> getProgramGlobals()
+    public Set<GlobalVariable> getProgramGlobals()
     {
-        return new HashSet<ProgramGlobalVariable>(this.programGlobals);
+        Set<GlobalVariable> programGlobals = 
+                new HashSet<GlobalVariable>();
+        
+        for(GlobalVariable gv : this.globals)
+        {
+            if(!gv.isStatic())
+            {
+                programGlobals.add(gv);
+            }
+        }
+        
+        return programGlobals;
+    }
+    
+    public Set<GlobalVariable> getFileGlobals()
+    {
+        Set<GlobalVariable> programGlobals = 
+                new HashSet<GlobalVariable>();
+        
+        for(GlobalVariable gv : this.globals)
+        {
+            if(gv.isStatic())
+            {
+                programGlobals.add(gv);
+            }
+        }
+        
+        return programGlobals;
+    }
+    
+    public Set<GlobalVariable> getGlobalVariables()
+    {
+        return new HashSet<GlobalVariable>(this.globals);
     }
 
-    public void addProgramGlobal(final ProgramGlobalVariable var)
+    public void addGlobal(final GlobalVariable var)
     {
-        this.programGlobals.add(var);
-    }
-
-    public boolean isProgramGlobal(final Variable var)
-    {
-        return this.programGlobals.contains(var);
-    }
-
-    public Set<FileGlobalVariable> getFileGlobals()
-    {
-        return new HashSet<FileGlobalVariable>(this.fileGlobals);
-    }
-
-    public void addFileGlobal(final FileGlobalVariable var)
-    {
-        this.fileGlobals.add(var);
-    }
-
-    public boolean isFileGlobal(final Variable var)
-    {
-        return this.fileGlobals.contains(var);
+        this.globals.add(var);
     }
 
     public Set<Type> getTypes()
