@@ -18,10 +18,9 @@ import java.util.Set;
  * </ul>
  * </p>
  */
-public class Function
-{
+public class Function {
     private final String name;
-    
+
     private final boolean isStatic;
 
     private Set<LocalVariable> arguments = null;
@@ -38,88 +37,86 @@ public class Function
      * @param name
      * @param sourceFile
      */
-    public Function(final String name, final Type returnType)
-    {
-        this(name, returnType, false);
-    }
-    
-    public Function(final String name, Type returnType, boolean isStatic)
-    {
-        this.name = name;
-        this.returnType = returnType;
-        this.isStatic = isStatic;
+    public Function(final String name, final Type returnType) {
+	this(name, returnType, false);
     }
 
-    public Function(final String name, final Type returnType, 
-            final Set<LocalVariable> arguments, final Block body,
-            final File sourceFile)
-    {
-        this(name, returnType);
-        this.arguments = arguments;
-        this.body = body;
-        this.sourceFile = sourceFile;
+    public Function(final String name, Type returnType, boolean isStatic) {
+	this.name = name;
+	this.returnType = returnType;
+	this.isStatic = isStatic;
     }
-    
-    public Function(final String name, final Type returnType, boolean isStatic, 
-            final Set<LocalVariable> arguments, final Block body,
-            final File sourceFile)
-    {
-        this(name, returnType, isStatic);
-        this.arguments = arguments;
-        this.body = body;
-        this.sourceFile = sourceFile;
+
+    public Function(final String name, final Type returnType,
+	    final Set<LocalVariable> arguments, final Block body,
+	    final File sourceFile) {
+	this(name, returnType);
+	this.arguments = arguments;
+	this.body = body;
+	this.sourceFile = sourceFile;
+    }
+
+    public Function(final String name, final Type returnType, boolean isStatic,
+	    final Set<LocalVariable> arguments, final Block body,
+	    final File sourceFile) {
+	this(name, returnType, isStatic);
+	this.arguments = arguments;
+	this.body = body;
+	this.sourceFile = sourceFile;
     }
 
     /**
      * Retourne le nom de la fonction.
      */
-    public String getName()
-    {
-        return this.name;
+    public String getName() {
+	return this.name;
     }
 
     /**
      * Retourne la liste des arguments de la fonction.
      */
-    public Set<LocalVariable> getArguments()
-    {
-        return new HashSet<LocalVariable>(this.arguments);
+    public Set<LocalVariable> getArguments() {
+	return new HashSet<LocalVariable>(this.arguments);
     }
 
     /**
      * Retourne le type de retour de la fonction.
      */
-    public Type getReturnType()
-    {
-        return this.returnType;
+    public Type getReturnType() {
+	return this.returnType;
     }
-    
-    public boolean isStatic()
-    {
-        return this.isStatic;
-    }    
+
+    public boolean isStatic() {
+	return this.isStatic;
+    }
 
     /**
      * Retourne le fichier source dans lequel est définie la fonction.
      */
-    public File getSourceFile()
-    {
-        return this.sourceFile;
+    public File getSourceFile() {
+	return this.sourceFile;
     }
 
-    public void setArguments(Set<LocalVariable> arguments)
-    {
-        this.arguments = arguments;
+    public void setArguments(Set<LocalVariable> arguments) {
+	this.arguments = arguments;
     }
 
-    public void setSourceFile(File sourceFile)
-    {
-        this.sourceFile = sourceFile;
+    public void setSourceFile(File sourceFile) {
+	this.sourceFile = sourceFile;
     }
 
-    public void setBody(Block body)
-    {
-        this.body = body;
+    public void setBody(Block body) {
+	this.body = body;
+    }
+
+    /**
+     * Renvoie l'ensemble des variables globales utilisées par la fonction.
+     * 
+     * @return Une map ayant pour clés les variables globales accédées dans le
+     *         corps de la fonction et pour valeurs leur nombre d'accès.
+     */
+    public Map<GlobalVariable, Integer> getGlobalVariables() {
+	return this.body.getGlobalVariables();
     }
 
     /**
@@ -130,9 +127,8 @@ public class Function
      *         accédées dans le corps de la fonction et pour valeurs leur nombre
      *         d'accès.
      */
-    public Map<GlobalVariable, Integer> getProgramGlobals()
-    {
-        return this.body.getProgramGlobals();
+    public Map<GlobalVariable, Integer> getProgramGlobals() {
+	return this.body.getProgramGlobals();
     }
 
     /**
@@ -143,9 +139,8 @@ public class Function
      *         accédées dans le corps de la fonction et pour valeurs leur nombre
      *         d'accès.
      */
-    public Map<GlobalVariable, Integer> getFileGlobals()
-    {
-        return this.body.getFileGlobals();
+    public Map<GlobalVariable, Integer> getFileGlobals() {
+	return this.body.getFileGlobals();
     }
 
     /**
@@ -158,9 +153,8 @@ public class Function
      * @return Une map ayant pour clés les variables locales utilisées dans le
      *         corps de la fonction et pour valeurs leur nombre d'utilisations.
      */
-    public Map<LocalVariable, Integer> getLocals()
-    {
-        return this.body.getLocals();
+    public Map<LocalVariable, Integer> getLocals() {
+	return this.body.getLocals();
     }
 
     /**
@@ -169,24 +163,20 @@ public class Function
      * @return Un set contenant les appels réalisés dans le corps de la
      *         fonction.
      */
-    public Set<Call> getCalls()
-    {
-        return this.body.getCalls();
+    public Set<Call> getCalls() {
+	return this.body.getCalls();
     }
 
-    public boolean calls(final Function fct)
-    {
-        boolean called = false;
+    public boolean calls(final Function fct) {
+	boolean called = false;
 
-        for (final Call call : this.getCalls())
-        {
-            if (call.getFunction().equals(fct))
-            {
-                called = true;
-            }
-        }
+	for (final Call call : this.getCalls()) {
+	    if (call.getFunction().equals(fct)) {
+		called = true;
+	    }
+	}
 
-        return called;
+	return called;
     }
 
     /**
@@ -199,14 +189,12 @@ public class Function
      * 
      * @return Un set contenant les types utilisés dans le corps de la fonction.
      */
-    public Map<Type, Integer> getUsedTypes()
-    {
-        return this.body.getUsedTypes();
+    public Map<Type, Integer> getUsedTypes() {
+	return this.body.getUsedTypes();
     }
-    
+
     @Override
-    public String toString()
-    {
-        return String.format("Function : %s", this.name);
+    public String toString() {
+	return String.format("Function : %s", this.name);
     }
 }

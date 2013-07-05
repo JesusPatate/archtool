@@ -56,6 +56,17 @@ public class Block
         this.locals.putAll(locals);
         this.subBlocks.addAll(subBlocks);
     }
+    
+    /**
+    * Retourne l'ensemble des variables globales du bloc.
+    * 
+    * @return Une map contenant les variables globales accédées
+    *         dans le bloc et pour chacune, le nombre d'accès.
+    */
+    public Map<GlobalVariable, Integer> getGlobalVariables()
+    {
+	return new HashMap<GlobalVariable, Integer>(this.globals);
+    }
 
     /**
      * Retourne l'ensemble des variables globales au programme du bloc.
