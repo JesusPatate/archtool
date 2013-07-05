@@ -1,0 +1,11 @@
+BlockComment=4
+LineComment=5
+HeaderName=3
+Newline=9
+IgnoredPreprocessingDirective=7
+Whitespace=8
+CCode=6
+T__1=1
+T__0=2
+'#'=2
+'include'=1

@@ -21,14 +21,16 @@ import java.util.Set;
 public class Function
 {
     private final String name;
+    
+    private final boolean isStatic;
 
-    private final Set<LocalVariable> arguments = new HashSet<LocalVariable>();
+    private Set<LocalVariable> arguments = null;
 
     private final Type returnType;
 
-    private final File sourceFile;
+    private File sourceFile = null;
 
-    private final Block body;
+    private Block body = null;
 
     /**
      * Constructeur pour les fonctions dont on ne connait pas la définition.
@@ -36,23 +38,36 @@ public class Function
      * @param name
      * @param sourceFile
      */
-    public Function(final String name)
+    public Function(final String name, final Type returnType)
+    {
+        this(name, returnType, false);
+    }
+    
+    public Function(final String name, Type returnType, boolean isStatic)
     {
         this.name = name;
-        this.returnType = null;
-        this.sourceFile = null;
-        this.body = null;
+        this.returnType = returnType;
+        this.isStatic = isStatic;
     }
 
-    public Function(final String name, final Set<LocalVariable> arguments,
-            final Type returnType,
-            final File sourceFile, final Block body)
+    public Function(final String name, final Type returnType, 
+            final Set<LocalVariable> arguments, final Block body,
+            final File sourceFile)
     {
-        this.name = name;
-        this.arguments.addAll(arguments);
-        this.returnType = returnType;
-        this.sourceFile = sourceFile;
+        this(name, returnType);
+        this.arguments = arguments;
         this.body = body;
+        this.sourceFile = sourceFile;
+    }
+    
+    public Function(final String name, final Type returnType, boolean isStatic, 
+            final Set<LocalVariable> arguments, final Block body,
+            final File sourceFile)
+    {
+        this(name, returnType, isStatic);
+        this.arguments = arguments;
+        this.body = body;
+        this.sourceFile = sourceFile;
     }
 
     /**
@@ -78,6 +93,11 @@ public class Function
     {
         return this.returnType;
     }
+    
+    public boolean isStatic()
+    {
+        return this.isStatic;
+    }    
 
     /**
      * Retourne le fichier source dans lequel est définie la fonction.
@@ -85,6 +105,21 @@ public class Function
     public File getSourceFile()
     {
         return this.sourceFile;
+    }
+
+    public void setArguments(Set<LocalVariable> arguments)
+    {
+        this.arguments = arguments;
+    }
+
+    public void setSourceFile(File sourceFile)
+    {
+        this.sourceFile = sourceFile;
+    }
+
+    public void setBody(Block body)
+    {
+        this.body = body;
     }
 
     /**

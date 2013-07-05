@@ -1,15 +1,15 @@
 package fr.univ_nantes.alma.archtool.parsing.specifier;
 
-import java.util.Set;
+import java.util.Map;
 
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 
 
 public class StructOrUnionSpecifier extends StructuredSpecifier
 {
-    public StructOrUnionSpecifier(String name, Set<ComplexType> types)
+    public StructOrUnionSpecifier(String name, Map<String, ComplexType> complextypes)
     {
-        super(name, types);
+        super(name, complextypes);
     }
 
     @Override
