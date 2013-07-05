@@ -19,15 +19,8 @@ public class Block
     /**
      * Les variables globales au programme accédées à l'intérieur du bloc.
      */
-    private final Map<ProgramGlobalVariable, Integer> programGlobals =
-            new HashMap<ProgramGlobalVariable, Integer>();
-
-    /**
-     * Les variables globales au fichier accédées à l'intérieur du bloc.
-     */
-    private final Map<FileGlobalVariable, Integer> fileGlobals =
-            new HashMap<FileGlobalVariable, Integer>();
-
+    private final Map<GlobalVariable, Integer> globals =
+            new HashMap<GlobalVariable, Integer>();
     /**
      * Les variables locales utilisées à l'intérieur du bloc.
      */
@@ -45,25 +38,21 @@ public class Block
     }
 
     public Block(final Set<Call> calls,
-            final Map<ProgramGlobalVariable, Integer> programGlobals,
-            final Map<FileGlobalVariable, Integer> fileGlobals,
+            final Map<GlobalVariable, Integer> globalVariables,
             final Map<LocalVariable, Integer> locals)
     {
         this.calls.addAll(calls);
-        this.programGlobals.putAll(programGlobals);
-        this.fileGlobals.putAll(fileGlobals);
+        this.globals.putAll(globalVariables);
         this.locals.putAll(locals);
     }
 
     public Block(final Set<Call> calls,
-            final Map<ProgramGlobalVariable, Integer> programGlobals,
-            final Map<FileGlobalVariable, Integer> fileGlobals,
+            final Map<GlobalVariable, Integer> globalVariables,
             final Map<LocalVariable, Integer> locals,
             final Set<Block> subBlocks)
     {
         this.calls.addAll(calls);
-        this.programGlobals.putAll(programGlobals);
-        this.fileGlobals.putAll(fileGlobals);
+        this.globals.putAll(globalVariables);
         this.locals.putAll(locals);
         this.subBlocks.addAll(subBlocks);
     }
@@ -74,23 +63,33 @@ public class Block
      * @return Une map contenant les variables globales au programme accédées
      *         dans le bloc et pour chacune, le nombre d'accès.
      */
-    public Map<ProgramGlobalVariable, Integer> getProgramGlobals()
+    public Map<GlobalVariable, Integer> getProgramGlobals()
     {
-        final Map<ProgramGlobalVariable, Integer> total =
-                new HashMap<ProgramGlobalVariable, Integer>(
-                        this.programGlobals);
+        final Map<GlobalVariable, Integer> total =
+                new HashMap<GlobalVariable, Integer>();
+        
+        for(GlobalVariable v : this.globals.keySet())
+        {
+            if(!v.isStatic())
+            {   
+                total.put(v, this.globals.get(v));
+            }
+        }
 
         for (final Block b : this.subBlocks)
         {
-            for (final ProgramGlobalVariable v : b.getProgramGlobals().keySet())
+            for (final GlobalVariable v : b.getProgramGlobals().keySet())
             {
-                if (total.containsKey(v))
-                {
-                    total.put(v, total.get(v) + b.getProgramGlobals().get(v));
-                }
-                else
-                {
-                    total.put(v, b.getProgramGlobals().get(v));
+                if(!v.isStatic())
+                {   
+                    if (total.containsKey(v))
+                    {
+                        total.put(v, total.get(v) + b.getProgramGlobals().get(v));
+                    }
+                    else
+                    {
+                        total.put(v, b.getProgramGlobals().get(v));
+                    }
                 }
             }
         }
@@ -104,23 +103,33 @@ public class Block
      * @return Une map contenant les variables globales au fichier accédées dans
      *         le bloc et pour chacune, le nombre d'accès.
      */
-    public Map<FileGlobalVariable, Integer> getFileGlobals()
+    public Map<GlobalVariable, Integer> getFileGlobals()
     {
-        final Map<FileGlobalVariable, Integer> total =
-                new HashMap<FileGlobalVariable, Integer>(
-                        this.fileGlobals);
+        final Map<GlobalVariable, Integer> total =
+                new HashMap<GlobalVariable, Integer>();
+        
+        for(GlobalVariable v : this.globals.keySet())
+        {
+            if(v.isStatic())
+            {   
+                total.put(v, this.globals.get(v));
+            }
+        }
 
         for (final Block b : this.subBlocks)
         {
-            for (final FileGlobalVariable v : b.getFileGlobals().keySet())
+            for (final GlobalVariable v : b.getProgramGlobals().keySet())
             {
-                if (total.containsKey(v))
-                {
-                    total.put(v, total.get(v) + b.getFileGlobals().get(v));
-                }
-                else
-                {
-                    total.put(v, b.getFileGlobals().get(v));
+                if(v.isStatic())
+                {   
+                    if (total.containsKey(v))
+                    {
+                        total.put(v, total.get(v) + b.getProgramGlobals().get(v));
+                    }
+                    else
+                    {
+                        total.put(v, b.getProgramGlobals().get(v));
+                    }
                 }
             }
         }
@@ -186,14 +195,9 @@ public class Block
     {
         final Map<Type, Integer> usedTypes = new HashMap<Type, Integer>();
 
-        for (final Variable var : this.programGlobals.keySet())
+        for (final Variable var : this.globals.keySet())
         {
-            usedTypes.put(var.getType(), this.programGlobals.get(var));
-        }
-
-        for (final Variable var : this.fileGlobals.keySet())
-        {
-            usedTypes.put(var.getType(), this.fileGlobals.get(var));
+            usedTypes.put(var.getType(), this.globals.get(var));
         }
 
         for (final Variable var : this.locals.keySet())
