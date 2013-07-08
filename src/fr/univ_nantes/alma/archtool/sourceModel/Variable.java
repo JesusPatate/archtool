@@ -30,6 +30,6 @@ public abstract class Variable
     @Override
     public String toString()
     {
-        return String.format("name : %s, %s", this.getName(), this.getType());
+        return String.format("%s %s", this.getType().getName(), this.getName());
     }
 }

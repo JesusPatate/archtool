@@ -18,7 +18,8 @@ import java.util.Set;
  * </ul>
  * </p>
  */
-public class Function {
+public class Function 
+{
     private final String name;
 
     private final boolean isStatic;
@@ -97,16 +98,11 @@ public class Function {
 	return this.sourceFile;
     }
 
-    public void setArguments(Set<LocalVariable> arguments) {
-	this.arguments = arguments;
-    }
-
-    public void setSourceFile(File sourceFile) {
-	this.sourceFile = sourceFile;
-    }
-
-    public void setBody(Block body) {
-	this.body = body;
+    public void update(Function definitionFunction)
+    {
+        this.arguments = definitionFunction.arguments;
+        this.body = definitionFunction.body;
+        this.sourceFile = definitionFunction.sourceFile;
     }
 
     /**
@@ -194,7 +190,26 @@ public class Function {
     }
 
     @Override
-    public String toString() {
-	return String.format("Function : %s", this.name);
+    public String toString() 
+    {
+        StringBuffer function = new StringBuffer(this.returnType.getName() + " ");
+        
+        function.append(this.name);
+        
+        if(this.isStatic)
+        {
+            function.append("static ");
+        }
+        
+        function.append("(");
+        
+        for(LocalVariable arg : this.arguments)
+        {
+            function.append(arg + ", ");
+        }
+        
+        function.append(")");
+        function.append("\n" + this.body.getLocals());
+        return function.toString();
     }
 }

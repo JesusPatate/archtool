@@ -10,7 +10,7 @@ public class TestParser
 {
     public static void main(String[] args) throws IOException
     {
-        CharStream s = new ANTLRFileStream("/comptes/E071318U/dev/projects/archtool/Makefile");
+        CharStream s = new ANTLRFileStream("Makefile");
         CLexer lexer = new CLexer(s);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         CParser parser = new CParser(tokens);
