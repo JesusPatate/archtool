@@ -24,6 +24,8 @@ public abstract class Variable
 
     public boolean ofType(final Type t)
     {
+        // TODO Renvoyer faux si t ou le type de la variable est anonyme !!
+        
         return t.equals(this.type);
     }
     

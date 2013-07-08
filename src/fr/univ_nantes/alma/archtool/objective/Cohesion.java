@@ -766,7 +766,7 @@ public class Cohesion
 
         result = (result > 1.0) ? 1.0 : result;
 
-        System.out.println("Cohesion " + f1 + " " + f2 + " : " + result); // DBG
+//        System.out.println("Cohesion " + f1 + " " + f2 + " : " + result); // DBG
         
         return result;
     }
@@ -819,7 +819,7 @@ public class Cohesion
             result = nbAccessToVar / total;
         }
 
-        System.out.println("Cohesion " + fct + " - " + var + " : " + result); // DBG
+//        System.out.println("Cohesion " + fct + " - " + var + " : " + result); // DBG
 
         return result;
     }
@@ -864,7 +864,7 @@ public class Cohesion
             result = nbUsesOfType / total;
         }
 
-        System.out.println("Cohesion " + fct + " " + type + " : " + result); // DBG
+//        System.out.println("Cohesion " + fct + " " + type + " : " + result); // DBG
 
         return result;
     }
