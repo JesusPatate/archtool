@@ -17,7 +17,7 @@ public class Block
             new HashSet<Call>();
 
     /**
-     * Les variables globales au programme accédées à l'intérieur du bloc.
+     * Les variables globales accédées à l'intérieur du bloc.
      */
     private final Map<GlobalVariable, Integer> globals =
             new HashMap<GlobalVariable, Integer>();
@@ -58,7 +58,19 @@ public class Block
     }
 
     /**
-     * Retourne l'ensemble des variables globales au programme du bloc.
+     * Retourne l'ensemble des variables globales accédées dans le bloc.
+     * 
+     * @return Une map contenant les variables globales accédées dans le bloc et
+     *         pour chacune, le nombre d'accès.
+     */
+    public Map<GlobalVariable, Integer> getGlobalVariables()
+    {
+        return this.globals;
+    }
+
+    /**
+     * Retourne l'ensemble des variables globales au programme accédées dans le
+     * bloc.
      * 
      * @return Une map contenant les variables globales au programme accédées
      *         dans le bloc et pour chacune, le nombre d'accès.
@@ -67,11 +79,11 @@ public class Block
     {
         final Map<GlobalVariable, Integer> total =
                 new HashMap<GlobalVariable, Integer>();
-        
-        for(GlobalVariable v : this.globals.keySet())
+
+        for (GlobalVariable v : this.globals.keySet())
         {
-            if(!v.isStatic())
-            {   
+            if (!v.isStatic())
+            {
                 total.put(v, this.globals.get(v));
             }
         }
@@ -80,11 +92,12 @@ public class Block
         {
             for (final GlobalVariable v : b.getProgramGlobals().keySet())
             {
-                if(!v.isStatic())
-                {   
+                if (!v.isStatic())
+                {
                     if (total.containsKey(v))
                     {
-                        total.put(v, total.get(v) + b.getProgramGlobals().get(v));
+                        total.put(v, total.get(v)
+                                + b.getProgramGlobals().get(v));
                     }
                     else
                     {
@@ -98,7 +111,8 @@ public class Block
     }
 
     /**
-     * Retourne l'ensemble des variables globales au fichier du bloc.
+     * Retourne l'ensemble des variables globales au fichier accédées dans le
+     * bloc.
      * 
      * @return Une map contenant les variables globales au fichier accédées dans
      *         le bloc et pour chacune, le nombre d'accès.
@@ -107,11 +121,11 @@ public class Block
     {
         final Map<GlobalVariable, Integer> total =
                 new HashMap<GlobalVariable, Integer>();
-        
-        for(GlobalVariable v : this.globals.keySet())
+
+        for (GlobalVariable v : this.globals.keySet())
         {
-            if(v.isStatic())
-            {   
+            if (v.isStatic())
+            {
                 total.put(v, this.globals.get(v));
             }
         }
@@ -120,11 +134,12 @@ public class Block
         {
             for (final GlobalVariable v : b.getProgramGlobals().keySet())
             {
-                if(v.isStatic())
-                {   
+                if (v.isStatic())
+                {
                     if (total.containsKey(v))
                     {
-                        total.put(v, total.get(v) + b.getProgramGlobals().get(v));
+                        total.put(v, total.get(v)
+                                + b.getProgramGlobals().get(v));
                     }
                     else
                     {
@@ -138,7 +153,7 @@ public class Block
     }
 
     /**
-     * Retourne l'ensemble des variables locales du bloc.
+     * Retourne l'ensemble des variables locales utilisées dans le bloc.
      * 
      * @return Une map contenant les variables locales utilisées dans le bloc et
      *         pour chacune, le nombre d'utilisations.
@@ -168,7 +183,7 @@ public class Block
     }
 
     /**
-     * Retourne l'ensemble des appels du bloc.
+     * Retourne l'ensemble des appels de fonction du bloc.
      * 
      * @return Un set des appels de fonction effectués à l'intérieur du bloc.
      */

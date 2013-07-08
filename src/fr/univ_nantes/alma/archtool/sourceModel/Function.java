@@ -135,6 +135,11 @@ public class Function
     {
         return this.body.getProgramGlobals();
     }
+    
+    public Map<GlobalVariable, Integer> getGlobalVariables()
+    {
+        return this.body.getGlobalVariables();
+    }
 
     /**
      * Renvoie l'ensemble des variables globales au fichier utilisées par la

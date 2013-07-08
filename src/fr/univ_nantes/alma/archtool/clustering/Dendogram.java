@@ -11,13 +11,10 @@ import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
-import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
-import fr.univ_nantes.alma.archtool.sourceModel.LocalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.ProgramGlobalVariable;
+import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
-import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
 public class Dendogram implements Iterable<Dendogram.Node>
 {
@@ -32,7 +29,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
     public class Node
     {
         private Set<Function> functions = new HashSet<Function>();
-        private Set<Variable> variables = new HashSet<Variable>();
+        private Set<GlobalVariable> variables = new HashSet<GlobalVariable>();
         private Set<Type> types = new HashSet<Type>();
 
         private Node leftChild = null;
@@ -77,7 +74,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
         public Node(final Node node)
         {
             this.functions = new HashSet<Function>(node.functions);
-            this.variables = new HashSet<Variable>(node.variables);
+            this.variables = new HashSet<GlobalVariable>(node.variables);
             this.types = new HashSet<Type>(node.types);
 
             this.leftChild = node.leftChild;
@@ -94,12 +91,12 @@ public class Dendogram implements Iterable<Dendogram.Node>
             return this.functions.add(fct);
         }
 
-        public Set<Variable> getVariables()
+        public Set<GlobalVariable> getVariables()
         {
-            return new HashSet<Variable>(this.variables);
+            return new HashSet<GlobalVariable>(this.variables);
         }
 
-        public boolean addVariable(Variable var)
+        public boolean addVariable(GlobalVariable var)
         {
             return this.variables.add(var);
         }
@@ -134,7 +131,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
                 buf.append(", ");
             }
 
-            for (Variable var : this.variables)
+            for (GlobalVariable var : this.variables)
             {
                 buf.append(var);
                 buf.append(", ");
@@ -353,15 +350,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
      */
     private void extractVariables()
     {
-        for (final Variable var : this.sourceCode.getProgramGlobals())
-        {
-            final Dendogram.Node node = new Node();
-            node.addVariable(var);
-
-            this.nodes.add(node);
-        }
-
-        for (final Variable var : this.sourceCode.getFileGlobals())
+        for (final GlobalVariable var : this.sourceCode.getGlobalVariables())
         {
             final Dendogram.Node node = new Node();
             node.addVariable(var);
@@ -496,7 +485,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
      */
     private void processInterfacesVar(Component comp)
     {
-        for (final Variable var : this.coa.getComponentVariables(comp))
+        for (final GlobalVariable var : this.coa.getComponentVariables(comp))
         {
             Interface itf = new Interface();
             this.coa.addInterface(itf);
@@ -515,13 +504,11 @@ public class Dendogram implements Iterable<Dendogram.Node>
                 while (itFcts.hasNext() && (found == false))
                 {
                     fct2 = itFcts.next();
+                    
+                    final Map<GlobalVariable, Integer> varsFct2 =
+                            fct2.getGlobalVariables();
 
-                    final Map<FileGlobalVariable, Integer> fgFct2 =
-                            fct2.getFileGlobals();
-                    final Map<ProgramGlobalVariable, Integer> pgFct2 =
-                            fct2.getProgramGlobals();
-
-                    if (fgFct2.containsKey(var) || pgFct2.containsKey(var))
+                    if (varsFct2.containsKey(var))
                     {
                         comp2.addRequiredInterface(itf);
                         ++nbAccessors;
@@ -578,23 +565,6 @@ public class Dendogram implements Iterable<Dendogram.Node>
                 {
                     final Function fct2 = itFcts.next();
 
-                    // Arguments
-
-                    final Set<LocalVariable> args = fct2.getArguments();
-                    Iterator<LocalVariable> itArgs = args.iterator();
-
-                    while (itArgs.hasNext() && (found == false))
-                    {
-                        final LocalVariable arg = itArgs.next();
-
-                        if (arg.ofType(t))
-                        {
-                            comp2.addRequiredInterface(itf);
-                            ++nbUsers;
-                            found = true;
-                        }
-                    }
-
                     // Body
 
                     final Map<Type, Integer> types = fct2.getUsedTypes();
@@ -610,13 +580,13 @@ public class Dendogram implements Iterable<Dendogram.Node>
                 if (found == false)
                 {
                     // comp2 can have a global variable of type t
-                    Set<Variable> vars =
+                    Set<GlobalVariable> vars =
                             this.coa.getComponentVariables(comp2);
-                    Iterator<Variable> itVars = vars.iterator();
+                    Iterator<GlobalVariable> itVars = vars.iterator();
 
                     while (itVars.hasNext() && (found == false))
                     {
-                        Variable v = itVars.next();
+                        GlobalVariable v = itVars.next();
 
                         if (v.ofType(t))
                         {
