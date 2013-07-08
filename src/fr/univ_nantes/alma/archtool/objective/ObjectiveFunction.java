@@ -26,13 +26,13 @@ public class ObjectiveFunction
      * Poids de la spécificité des composants dans le calcul de la validité
      * sémantique des composants.
      */
-    static final double WEIGHT_COMP_SPECI = 1.0;
+    static final double WEIGHT_COMP_SPECI = 0.25;
 
     /**
      * Poids du nombre d'interfaces fournies dans le calcul de la spécificité
      * des composants
      */
-    static final double WEIGHT_SPECI_ITFS_PRO = 1.0;
+    static final double WEIGHT_SPECI_ITFS_PRO = 10.0;
 
     /**
      * Poids de la composabilité des composants dans le calcul de la validité
