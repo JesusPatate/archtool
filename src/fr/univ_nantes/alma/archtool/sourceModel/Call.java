@@ -29,4 +29,13 @@ public class Call
     {
         return new HashSet<Variable>(this.parameters);
     }
+    
+    @Override
+    public String toString() 
+    {
+        StringBuffer call = new StringBuffer(this.function.getName() + "(");
+        call.append(this.parameters);
+        call.append(")");
+        return call.toString();
+    }
 }

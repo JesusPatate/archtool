@@ -17,19 +17,51 @@ grammar C;
 @parser::members
 {
 	private File currentFile;
-	private Map<String, Function> functions = 
-			new HashMap<String, Function>();
-	private Map<String, ComplexType> complexTypes = 
-			new HashMap<String, ComplexType>();
-	private Map<String, GlobalVariable> globalVariables = 
-			new HashMap<String, GlobalVariable>();
+	private Map<String, Function> functions;
+	private Map<String, ComplexType> complexTypes;
+	private Map<String, GlobalVariable> globalVariables;
 	
 	private void addComplexType(String name)
 	{
 		if(name != null)
 		{
-			this.complexTypes.put(name, new ComplexType(name, this.currentFile));
+			this.complexTypes.put(name, 
+					new ComplexType(name, this.currentFile));
 		}
+	}
+	
+	public void setContext(Context context)
+	{
+		this.functions = context.getFunctions();
+		this.complexTypes = context.getComplexTypes();
+		this.globalVariables = context.getGlobalVariables();
+	}
+	
+	public void setCurrentFile(File currentFile)
+	{
+		this.currentFile = currentFile;
+	}
+	
+	public void cleanUp()
+	{
+		this.functions.clear();
+		this.complexTypes.clear();
+		this.globalVariables.clear();
+	}
+	
+	public Set<Function> getFunctions()
+	{
+		return new HashSet<Function>(this.functions.values());
+	}
+	
+	public Set<ComplexType> getComplexTypes()
+	{
+		return new HashSet<ComplexType>(this.complexTypes.values());
+	}
+	
+	public Set<GlobalVariable> getGlobalVariables()
+	{
+		return new HashSet<GlobalVariable>(this.globalVariables.values());
 	}
 }
 
@@ -665,13 +697,12 @@ constantExpression returns [MultiCounter<String> variablesNameUsed =
 
 declaration returns [List<String> variableNames = new ArrayList<String>(),
         MultiCounter<String> variablesNameUsed = new MultiCounter<String>(), 
-        CallCounter calls = new CallCounter(),
+        CallCounter calls = new CallCounter(), String name = null,
 		Type type = null, boolean isStatic, boolean isFunction, 
 		boolean isDeclarationType, boolean isAnonymousTypeDeclaration]
     : ds=declarationSpecifiers initDeclaratorList? ';'  
-{
-    System.out.println($ds.text);
-    
+{    
+	$name = $ds.name;
 	$type = $ds.type;
 	$isDeclarationType = $ds.isDeclarationType;
 	$isAnonymousTypeDeclaration = $ds.isAnonymousTypeDeclaration;
@@ -714,8 +745,12 @@ declarationSpecifier
     : storageClassSpecifier
     | ts=typeSpecifier
 {
-    $declarationSpecifiers::specifier = 
-            $declarationSpecifiers::specifier.merge($ts.specifier);
+    if($declarationSpecifiers::isTypedef || $ts.name == null || 
+    		$declarationSpecifiers::specifier.isNull())
+    {
+	    $declarationSpecifiers::specifier = 
+	            $declarationSpecifiers::specifier.merge($ts.specifier);
+    }
     
     if($ts.isDeclarationType)
     {
@@ -949,7 +984,8 @@ alignmentSpecifier
     | '_Alignas' '(' constantExpression ')'
     ;
 
-declarator returns [String name, Set<LocalVariable> arguments, boolean isFunction]
+declarator returns [String name, Set<LocalVariable> arguments, 
+          boolean isFunction]
     : pointer? dd=directDeclarator gccDeclaratorExtension*
 {
     $name = $dd.name;
@@ -958,7 +994,8 @@ declarator returns [String name, Set<LocalVariable> arguments, boolean isFunctio
 }
     ;
 
-directDeclarator returns [String name, Set<LocalVariable> arguments, boolean isFunction = false, Set<String> names]
+directDeclarator returns [String name, Set<LocalVariable> arguments, 
+          boolean isFunction = false, Set<String> names]
     : i=Identifier
 {
     $name = $i.text;
@@ -966,6 +1003,7 @@ directDeclarator returns [String name, Set<LocalVariable> arguments, boolean isF
     | '(' d=declarator ')'
 {
     $name = $d.name;
+    $isFunction = true;
 }
     | dd=directDeclarator '[' typeQualifierList? assignmentExpression? ']'
 {
@@ -1035,7 +1073,8 @@ typeQualifierList
     | typeQualifierList typeQualifier
     ;
 
-parameterTypeList returns [Set<LocalVariable> arguments = new HashSet<LocalVariable>()]
+parameterTypeList returns [Set<LocalVariable> arguments = 
+		new HashSet<LocalVariable>()]
     : parameterList
     | parameterList ',' '...'
     ;
@@ -1153,7 +1192,10 @@ staticAssertDeclaration
 
 /************************************ Statements ************************************/
 
-statement locals[Map<String, LocalVariable> parentLocals = 
+statement returns [MultiCounter<String> variablesNameUsed = 
+		new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+		Set<Block> blocks = new HashSet<Block>()]
+		locals[Map<String, LocalVariable> parentLocals = 
         new HashMap<String, LocalVariable>()]
 @init
 {
@@ -1163,27 +1205,73 @@ statement locals[Map<String, LocalVariable> parentLocals =
         $parentLocals.putAll($compoundStatement::locals);
     }
 }
-    : labeledStatement
-    | compoundStatement[$parentLocals]
-    | expressionStatement
-    | selectionStatement
-    | iterationStatement
-    | jumpStatement
-    | ('__asm' | '__asm__') ('volatile' | '__volatile__') '(' (logicalOrExpression (',' logicalOrExpression)*)? (':' (logicalOrExpression (',' logicalOrExpression)*)?)* ')' ';'
+    : ls=labeledStatement
+{
+	$variablesNameUsed.addAll($ls.variablesNameUsed);
+	$calls.addAll($ls.calls);
+	$blocks.addAll($ls.blocks);
+}
+    | cs=compoundStatement[$parentLocals]
+{
+    $blocks.add($cs.block);
+}
+    | es=expressionStatement
+{
+    $variablesNameUsed.addAll($es.variablesNameUsed);
+    $calls.addAll($es.calls);
+    $blocks.addAll($es.blocks);
+}
+    | ss=selectionStatement
+{
+    $variablesNameUsed.addAll($ss.variablesNameUsed);
+    $calls.addAll($ss.calls);
+    $blocks.addAll($ss.blocks);
+}
+    | is=iterationStatement
+{
+    $variablesNameUsed.addAll($is.variablesNameUsed);
+    $calls.addAll($is.calls);
+    $blocks.addAll($is.blocks);
+}
+    | js=jumpStatement
+{
+    $variablesNameUsed.addAll($js.variablesNameUsed);
+    $calls.addAll($js.calls);
+    $blocks.addAll($js.blocks);
+}
+    | ('__asm' | '__asm__') ('volatile' | '__volatile__') '(' (loe1=logicalOrExpression (',' loe2=logicalOrExpression)*)? (':' (loe3=logicalOrExpression (',' loe4=logicalOrExpression)*)?)* ')' ';'
+{
+    // TODO	
+}
     ;
 
-labeledStatement
+labeledStatement returns [MultiCounter<String> variablesNameUsed = 
+		new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+		Set<Block> blocks = new HashSet<Block>()]
     : Identifier ':' statement
-    | 'case' constantExpression ':' statement
-    | 'default' ':' statement
+    | 'case' constantExpression ':' s=statement
+{
+	$variablesNameUsed.addAll($s.variablesNameUsed);
+    $calls.addAll($s.calls);
+    $blocks.addAll($s.blocks);
+}
+    | 'default' ':' s=statement
+{
+    $variablesNameUsed.addAll($s.variablesNameUsed);
+    $calls.addAll($s.calls);
+    $blocks.addAll($s.blocks);
+}
     ;
 
 compoundStatement[Map<String, LocalVariable> parentLocals]
         returns [Block block]
         locals [Set<Call> calls = new HashSet<Call>(), 
-        Map<String, LocalVariable> locals = new HashMap<String, LocalVariable>(),
-        MultiCounter<LocalVariable> localsUse = new MultiCounter<LocalVariable>(),
-        MultiCounter<GlobalVariable> globalsUse = new MultiCounter<GlobalVariable>(), 
+        Map<String, LocalVariable> locals = 
+        new HashMap<String, LocalVariable>(),
+        MultiCounter<LocalVariable> localsUse = 
+        new MultiCounter<LocalVariable>(),
+        MultiCounter<GlobalVariable> globalsUse = 
+        new MultiCounter<GlobalVariable>(), 
         Set<Block> subBlocks = new HashSet<Block>()]
 @init
 {
@@ -1206,13 +1294,43 @@ blockItemList
 blockItem
     : d=declaration
 {
-    if(!$d.isDeclarationType || $d.isAnonymousTypeDeclaration)
+	if($d.isFunction)
+	{
+		if(this.functions.containsKey($d.name))
+    	{
+            Function f = this.functions.get($d.name);
+            Set<Variable> parameters = new HashSet<Variable>();
+            Variable v = null;
+         
+            if(this.globalVariables.containsKey($d.variableNames.get(0)))
+            {
+                GlobalVariable g = this.globalVariables.get(
+                		$d.variableNames.get(0));
+                $compoundStatement::globalsUse.increment(g);
+                v = g;
+            }
+            else if($compoundStatement::locals.containsKey(
+            		$d.variableNames.get(0)))
+            {
+            	LocalVariable l = $compoundStatement::locals.get(
+            			$d.variableNames.get(0));
+                $compoundStatement::localsUse.increment(l);
+                v = l;
+            }
+            
+            if(v != null)
+            {
+            	parameters.add(v);
+            }
+            
+            $compoundStatement::calls.add(new Call(f, parameters));
+    	}
+	}
+	else if(!$d.isDeclarationType || $d.isAnonymousTypeDeclaration)
     {
         for(String variableName : $d.variableNames)
         {   
-            LocalVariable variable = new LocalVariable(variableName, $d.type);
-            System.out.println(variable + ": " + $d.text);
-            
+            LocalVariable variable = new LocalVariable(variableName, $d.type);  
             $compoundStatement::locals.put(variable.getName(), variable);
         }
         
@@ -1227,7 +1345,8 @@ blockItem
             }
             else if($compoundStatement::locals.containsKey(counter.getKey()))
             {
-                LocalVariable v = $compoundStatement::locals.get(counter.getKey());
+                LocalVariable v = 
+                		$compoundStatement::locals.get(counter.getKey());
                 $compoundStatement::localsUse.add(v, counter.getValue());
             }
         }
@@ -1236,64 +1355,224 @@ blockItem
         for(Entry<String, Set<Set<String>>> function : 
             $d.calls.getCalls().entrySet())
         {
-            Function f = this.functions.get(function.getKey());
-            
-            for(Set<String> functionCall : function.getValue())
-            {
-                Set<Variable> parameters = new HashSet<Variable>();
-                
-                for(String parameter : functionCall)
-                {
-                    Variable v = null;
-                    
-                    if(this.globalVariables.containsKey(function.getKey()))
-                    {
-                        v = this.globalVariables.get(function.getKey());
-                    }
-                    else if($compoundStatement::locals.containsKey(function.getKey()))
-                    {
-                        v = $compoundStatement::locals.get(function.getKey());
-                    }
-                    
-                    if(v != null)
-                    {
-                        parameters.add(v);
-                    }
-                }
-                
-                $compoundStatement::calls.add(new Call(f, parameters));
-            }
+        	if(this.functions.containsKey(function.getKey()))
+        	{
+	            Function f = this.functions.get(function.getKey());
+	            
+	            for(Set<String> functionCall : function.getValue())
+	            {
+	                Set<Variable> parameters = new HashSet<Variable>();
+	                
+	                for(String parameter : functionCall)
+	                {
+	                    Variable v = null;
+	                    
+	                    if(this.globalVariables.containsKey(function.getKey()))
+	                    {
+	                        v = this.globalVariables.get(function.getKey());
+	                    }
+	                    else if($compoundStatement::locals.containsKey(
+	                    		function.getKey()))
+	                    {
+	                        v = $compoundStatement::locals.get(
+	                        	function.getKey());
+	                    }
+	                    
+	                    if(v != null)
+	                    {
+	                        parameters.add(v);
+	                    }
+	                }
+	                
+	                $compoundStatement::calls.add(new Call(f, parameters));
+	            }
+        	}
         }
     }
 }
-    | statement
+    | s=statement
 {
-        // APPEL OU UTILISATION VARIABLES
+    // Update use of variables.
+    for(Entry<String, Integer> counter : 
+    		$s.variablesNameUsed.getCounters().entrySet())
+    {
+        if(this.globalVariables.containsKey(counter.getKey()))
+        {
+        	GlobalVariable v = this.globalVariables.get(counter.getKey());
+            $compoundStatement::globalsUse.add(v, counter.getValue());
+        }
+        else if($compoundStatement::locals.containsKey(counter.getKey()))
+        {
+            LocalVariable v = $compoundStatement::locals.get(counter.getKey());
+            $compoundStatement::localsUse.add(v, counter.getValue());
+        }
+    }
+        
+    // Update calls.
+    for(Entry<String, Set<Set<String>>> function : 
+    		$s.calls.getCalls().entrySet())
+    {
+    	if(this.functions.containsKey(function.getKey()))
+    	{
+	    	Function f = this.functions.get(function.getKey());
+	            
+	        for(Set<String> functionCall : function.getValue())
+	        {
+	        	Set<Variable> parameters = new HashSet<Variable>();
+	                
+	            for(String parameter : functionCall)
+	            {
+	            	Variable v = null;
+	                    
+	                if(this.globalVariables.containsKey(function.getKey()))
+	                {
+	                	v = this.globalVariables.get(function.getKey());
+	                }
+	                else if($compoundStatement::locals.containsKey(
+	                		function.getKey()))
+	                {
+	                	v = $compoundStatement::locals.get(function.getKey());
+	                }
+	                    
+	                if(v != null)
+	                {
+	                	parameters.add(v);
+	                }
+	            }
+	                
+	            $compoundStatement::calls.add(new Call(f, parameters));
+	        }
+    	}
+    }
+    
+    $compoundStatement::subBlocks.addAll($s.blocks);
 }
     ;
 
-expressionStatement
-    : expression? ';'
+expressionStatement returns [MultiCounter<String> variablesNameUsed = 
+		new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+		Set<Block> blocks = new HashSet<Block>()]
+    : e=expression? ';'
+{
+	if($e.text != null)
+	{
+		$variablesNameUsed.addAll($e.variablesNameUsed);
+		$calls.addAll($e.calls);
+	}
+}
     ;
 
-selectionStatement
-    : 'if' '(' expression ')' statement ('else' statement)?
-    | 'switch' '(' expression ')' statement
+selectionStatement returns [MultiCounter<String> variablesNameUsed = 
+		new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+		Set<Block> blocks = new HashSet<Block>()]
+    : 'if' '(' e=expression ')' s1=statement ('else' s2=statement)?
+{
+    $variablesNameUsed.addAll($e.variablesNameUsed);
+    $calls.addAll($e.calls);
+    $variablesNameUsed.addAll($s1.variablesNameUsed);
+    $calls.addAll($s1.calls);
+    $blocks.addAll($s1.blocks);
+    
+    if($s2.text != null)
+	{
+    	$variablesNameUsed.addAll($s2.variablesNameUsed);
+        $calls.addAll($s2.calls);
+        $blocks.addAll($s2.blocks);
+	}
+ 	
+}
+    | 'switch' '(' e=expression ')' s=statement
+{
+    $variablesNameUsed.addAll($e.variablesNameUsed);
+    $calls.addAll($e.calls);
+    $variablesNameUsed.addAll($s.variablesNameUsed);
+    $calls.addAll($s.calls);
+    $blocks.addAll($s.blocks);	
+}
     ;
 
-iterationStatement
-    : 'while' '(' expression ')' statement
-    | 'do' statement 'while' '(' expression ')' ';'
-    | 'for' '(' expression? ';' expression? ';' expression? ')' statement
-    | 'for' '(' declaration expression? ';' expression? ')' statement
+iterationStatement returns [MultiCounter<String> variablesNameUsed = 
+		new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+		Set<Block> blocks = new HashSet<Block>()]
+    : 'while' '(' e=expression ')' s=statement
+{
+	$variablesNameUsed.addAll($e.variablesNameUsed);
+    $calls.addAll($e.calls);
+    $variablesNameUsed.addAll($s.variablesNameUsed);
+    $calls.addAll($s.calls);
+    $blocks.addAll($s.blocks);
+}
+    | 'do' s=statement 'while' '(' e=expression ')' ';'
+{
+    $variablesNameUsed.addAll($s.variablesNameUsed);
+    $calls.addAll($s.calls);
+    $blocks.addAll($s.blocks);
+    $variablesNameUsed.addAll($e.variablesNameUsed);
+    $calls.addAll($e.calls);
+}
+    | 'for' '(' e1=expression? ';' e2=expression? ';' e3=expression? ')' s=statement
+{
+    if($e1.text != null)
+    {
+        $variablesNameUsed.addAll($e1.variablesNameUsed);
+        $calls.addAll($e1.calls);
+    }
+    
+    if($e2.text != null)
+    {
+        $variablesNameUsed.addAll($e2.variablesNameUsed);
+        $calls.addAll($e2.calls);
+    }
+    
+    if($e3.text != null)
+    {
+        $variablesNameUsed.addAll($e3.variablesNameUsed);
+        $calls.addAll($e3.calls);
+    }
+    	
+    $variablesNameUsed.addAll($s.variablesNameUsed);
+    $calls.addAll($s.calls);
+    $blocks.addAll($s.blocks);
+}
+    | 'for' '(' d=declaration e1=expression? ';' e2=expression? ')' s=statement
+{
+    if($e1.text != null)
+    {
+        $variablesNameUsed.addAll($e1.variablesNameUsed);
+        $calls.addAll($e1.calls);
+    }
+        
+    if($e2.text != null)
+    {
+        $variablesNameUsed.addAll($e2.variablesNameUsed);
+        $calls.addAll($e2.calls);
+    }
+        	
+    $variablesNameUsed.addAll($s.variablesNameUsed);
+    $calls.addAll($s.calls);
+    $blocks.addAll($s.blocks);	
+}
     ;
 
-jumpStatement
+jumpStatement returns [MultiCounter<String> variablesNameUsed = 
+		new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+		Set<Block> blocks = new HashSet<Block>()]
     : 'goto' Identifier ';'
     | 'continue' ';'
     | 'break' ';'
-    | 'return' expression? ';'
-    | 'goto' unaryExpression ';'
+    | 'return' e=expression? ';'
+{
+    if($e.text != null)
+    {
+        $variablesNameUsed.addAll($e.variablesNameUsed);
+        $calls.addAll($e.calls);
+    }	
+}
+    | 'goto' ue=unaryExpression ';'
+{
+    $variablesNameUsed.addAll($ue.variablesNameUsed);
+    $calls.addAll($ue.calls);	
+}
     ;
 
 
@@ -1302,12 +1581,6 @@ jumpStatement
 compilationUnit
     : translationUnit? EOF
 {
-    /*System.out.println("FUNCTION DEFINITIONS\n");
-    
-    for(Function f : this.functions.values())
-    {
-        System.out.println(f);
-    }*/
 }
     ;
 
