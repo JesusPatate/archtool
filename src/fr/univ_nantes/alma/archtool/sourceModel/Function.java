@@ -209,7 +209,7 @@ public class Function
         }
         
         function.append(")");
-        function.append("\n" + this.body.getLocals());
+        function.append("\n" + this.body.getCalls());
         return function.toString();
     }
 }

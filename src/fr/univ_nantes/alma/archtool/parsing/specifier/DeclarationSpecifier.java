@@ -4,6 +4,8 @@ import fr.univ_nantes.alma.archtool.sourceModel.Type;
 
 public abstract class DeclarationSpecifier
 {
+	protected boolean isNull = false;
+	
     public abstract DeclarationSpecifier merge(DeclarationSpecifier specifier);
     
     protected DeclarationSpecifier mergeWithNull(NullSpecifier specifier)
@@ -99,6 +101,11 @@ public abstract class DeclarationSpecifier
     protected DeclarationSpecifier mergeWithStructOrUnion(StructOrUnionSpecifier specifier)
     {
         return specifier;
+    }
+    
+    public boolean isNull()
+    {
+    	return this.isNull;
     }
     
     public Type getType()
