@@ -1,32 +1,3 @@
-/*
- [The "BSD licence"]
- Copyright (c) 2013 Sam Harwell
- All rights reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 3. The name of the author may not be used to endorse or promote products
-    derived from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-
-/** C 2011 grammar built from the C11 Spec */
 grammar C;
 
 
@@ -35,6 +6,7 @@ grammar C;
 	package fr.univ_nantes.alma.archtool.parsing;
 	
 	import java.util.Map;
+	import java.util.Map.Entry;
 	import java.util.HashMap;
 	import java.util.HashSet;
 	import java.util.Set;
@@ -44,31 +16,19 @@ grammar C;
 
 @parser::members
 {
-	private String currentPath;
-	private Map<String, Function> functions = new HashMap<String, Function>();
-	private Map<String, ComplexType> complexTypes = new HashMap<String, ComplexType>();
-	private Map<String, Variable> globalVariables = new HashMap<String, Variable>();
+	private File currentFile;
+	private Map<String, Function> functions = 
+			new HashMap<String, Function>();
+	private Map<String, ComplexType> complexTypes = 
+			new HashMap<String, ComplexType>();
+	private Map<String, GlobalVariable> globalVariables = 
+			new HashMap<String, GlobalVariable>();
 	
 	private void addComplexType(String name)
 	{
 		if(name != null)
 		{
-			this.complexTypes.put(name, new ComplexType(name, null));
-		}
-	}
-	
-	private void declareTypedef(boolean isTypedef, String name, List<String> names)
-	{
-		if(isTypedef)
-		{
-			if(names.isEmpty())
-			{
-				addComplexType(name);
-			}
-			else
-			{
-				addComplexType(names.get(0));
-			}
+			this.complexTypes.put(name, new ComplexType(name, this.currentFile));
 		}
 	}
 }
@@ -76,168 +36,703 @@ grammar C;
 
 /************************************ Expressions ************************************/
 
-primaryExpression
-    : Identifier
+primaryExpression returns [String name = null, 
+        MultiCounter<String> variablesNameUsed = new MultiCounter<String>(), 
+        CallCounter calls = new CallCounter(), Set<String> parameters = 
+        new HashSet<String>()]
+    : i=Identifier
+{
+    $name = $i.text;
+}
     | Constant
     | StringLiteral+
-    | '(' expression ')'
-    | genericSelection
-    | '__extension__'? '(' compoundStatement ')' // Blocks (GCC extension)
-    | '__builtin_va_arg' '(' unaryExpression ',' typeName ')'
-    | '__builtin_offsetof' '(' typeName ',' unaryExpression ')'
+    | '(' e=expression ')'
+{
+    $parameters.addAll($e.parameters);
+    $variablesNameUsed.addAll($e.variablesNameUsed);
+    $calls.addAll($e.calls);
+}
+    | gs=genericSelection
+{
+    $parameters.addAll($gs.parameters);
+    $variablesNameUsed.addAll($gs.variablesNameUsed);
+    $calls.addAll($gs.calls); 
+}
+    | '__extension__'? '(' cs=compoundStatement[null] ')'
+{
+        // TODO
+}
+    | '__builtin_va_arg' '(' ue=unaryExpression ',' typeName ')'
+{
+    $parameters.addAll($ue.parameters);
+    $variablesNameUsed.addAll($ue.variablesNameUsed);
+    $calls.addAll($ue.calls);
+}
+    | '__builtin_offsetof' '(' typeName ',' ue=unaryExpression ')'
+{
+    $parameters.addAll($ue.parameters);
+    $variablesNameUsed.addAll($ue.variablesNameUsed);
+    $calls.addAll($ue.calls);
+}
     ;
 
-genericSelection
-    : '_Generic' '(' assignmentExpression ',' genericAssocList ')'
+genericSelection returns [MultiCounter variablesNameUsed = new MultiCounter(), 
+        CallCounter calls = new CallCounter(), Set<String> parameters = 
+        new HashSet<String>()]
+    : '_Generic' '(' ae=assignmentExpression ',' gal=genericAssocList ')'
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+    $parameters.addAll($gal.parameters);
+    $variablesNameUsed.addAll($gal.variablesNameUsed);
+    $calls.addAll($gal.calls);
+}
     ;
 
-genericAssocList
-    : genericAssociation
-    | genericAssocList ',' genericAssociation
+genericAssocList returns [MultiCounter variablesNameUsed = new MultiCounter(), 
+        CallCounter calls = new CallCounter(), Set<String> parameters = 
+        new HashSet<String>()]
+    : ga=genericAssociation
+{
+    $parameters.addAll($ga.parameters);
+    $variablesNameUsed.addAll($ga.variablesNameUsed);
+    $calls.addAll($ga.calls);  
+}
+    | gal=genericAssocList ',' ga=genericAssociation
+{
+    $parameters.addAll($gal.parameters);
+    $variablesNameUsed.addAll($gal.variablesNameUsed);
+    $calls.addAll($gal.calls);
+    $parameters.addAll($ga.parameters);
+    $variablesNameUsed.addAll($ga.variablesNameUsed);
+    $calls.addAll($ga.calls);    
+}
     ;
 
-genericAssociation
-    : typeName ':' assignmentExpression
-    | 'default' ':' assignmentExpression
+genericAssociation returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(), 
+        Set<String> parameters = new HashSet<String>()]
+    : typeName ':' ae=assignmentExpression
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);     
+}
+    | 'default' ':' ae=assignmentExpression
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);     
+}
     ;
 
-postfixExpression
-    : primaryExpression
-    | postfixExpression '[' expression ']'
-    | postfixExpression '(' argumentExpressionList? ')'
-    | postfixExpression '.' Identifier
-    | postfixExpression '->' Identifier
-    | postfixExpression '++'
-    | postfixExpression '--'
-    | '(' typeName ')' '{' initializerList '}'
-    | '(' typeName ')' '{' initializerList ',' '}'
-    | '__extension__' '(' typeName ')' '{' initializerList '}'
-    | '__extension__' '(' typeName ')' '{' initializerList ',' '}'
+postfixExpression returns [String name = null, 
+        MultiCounter<String> variablesNameUsed = new MultiCounter<String>(), 
+        CallCounter calls = new CallCounter(),
+        boolean isCall = false,
+        Set<String> parameters = new HashSet<String>()]
+@after
+{
+    if($name != null && !$isCall)
+    {
+        $variablesNameUsed.increment($name);
+        $parameters.add($name);
+    }
+}
+    : px=primaryExpression
+{
+    $name = $px.name;
+    $parameters.addAll($px.parameters);
+    $variablesNameUsed.addAll($px.variablesNameUsed);
+    $calls.addAll($px.calls);
+}
+    | pe=postfixExpression '[' e=expression ']'
+{
+    $name = $pe.name;
+    $parameters.addAll($pe.parameters);
+    $variablesNameUsed.addAll($pe.variablesNameUsed);
+    $calls.addAll($pe.calls);
+    $parameters.addAll($e.parameters);
+    $variablesNameUsed.addAll($e.variablesNameUsed);
+    $calls.addAll($e.calls);
+}
+    | pe=postfixExpression '(' ag=argumentExpressionList? ')'
+{
+    $isCall = true;
+    Set<String> parameters = new HashSet<String>();
+    $name = $pe.name;
+    $parameters.addAll($pe.parameters);
+    $variablesNameUsed.addAll($pe.variablesNameUsed);
+    $calls.addAll($pe.calls);
+    
+    if($ag.text != null)
+    {
+        $variablesNameUsed.addAll($ag.variablesNameUsed);
+        $calls.addAll($ag.calls);
+        parameters = $ag.parameters;
+    }
+    
+    $calls.addCall($name, parameters);
+}
+    | pe=postfixExpression '.' Identifier
+{
+    $name = $pe.name;
+    $parameters.addAll($pe.parameters);
+    $variablesNameUsed.addAll($pe.variablesNameUsed);
+    $calls.addAll($pe.calls);
+}
+    | pe=postfixExpression '->' Identifier
+{
+    $name = $pe.name;
+    $parameters.addAll($pe.parameters);
+    $variablesNameUsed.addAll($pe.variablesNameUsed);
+    $calls.addAll($pe.calls);
+}
+    | pe=postfixExpression '++'
+{
+    $name = $pe.name;
+    $parameters.addAll($pe.parameters);
+    $variablesNameUsed.addAll($pe.variablesNameUsed);
+    $calls.addAll($pe.calls);
+}
+    | pe=postfixExpression '--'
+{            
+    $name = $pe.name;
+    $parameters.addAll($pe.parameters);
+    $variablesNameUsed.addAll($pe.variablesNameUsed);
+    $calls.addAll($pe.calls);
+}
+                
+    | '(' typeName ')' '{' il=initializerList '}'
+{
+    // TODO
+    /*$parameters.addAll($pe.parameters);
+    $variablesNameUsed.addAll($il.variablesNameUsed);
+    $calls.addAll($il.calls);*/
+}
+    | '(' typeName ')' '{' il=initializerList ',' '}'
+{
+        // TODO
+}
+    | '__extension__' '(' typeName ')' '{' il=initializerList '}'
+{
+        // TODO
+}
+    | '__extension__' '(' typeName ')' '{' il=initializerList ',' '}'
+{
+        // TODO
+}
     ;
 
-argumentExpressionList
-    : assignmentExpression
-    | argumentExpressionList ',' assignmentExpression
+argumentExpressionList returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : ae=assignmentExpression
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+}
+    | ael=argumentExpressionList ',' ae=assignmentExpression
+{
+    $parameters.addAll($ael.parameters);
+    $variablesNameUsed.addAll($ael.variablesNameUsed);
+    $calls.addAll($ael.calls);
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+}
     ;
 
-unaryExpression
-    : postfixExpression
-    | '++' unaryExpression
-    | '--' unaryExpression
-    | unaryOperator castExpression
-    | 'sizeof' unaryExpression
+unaryExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : pe=postfixExpression
+{
+    $parameters.addAll($pe.parameters);
+    $variablesNameUsed.addAll($pe.variablesNameUsed);
+    $calls.addAll($pe.calls);
+}
+    | '++' ue=unaryExpression
+{
+    $parameters.addAll($ue.parameters);    
+    $variablesNameUsed.addAll($ue.variablesNameUsed);
+    $calls.addAll($ue.calls);    
+}
+    | '--' ue=unaryExpression
+{
+    $parameters.addAll($ue.parameters);
+    $variablesNameUsed.addAll($ue.variablesNameUsed);
+    $calls.addAll($ue.calls);    
+}
+    | unaryOperator ce=castExpression
+{
+    $parameters.addAll($ce.parameters);
+    $variablesNameUsed.addAll($ce.variablesNameUsed);
+    $calls.addAll($ce.calls);  
+}
+    | 'sizeof' ue=unaryExpression
+{
+    $parameters.addAll($ue.parameters);
+    $variablesNameUsed.addAll($ue.variablesNameUsed);
+    $calls.addAll($ue.calls);   
+}
     | 'sizeof' '(' typeName ')'
     | '_Alignof' '(' typeName ')'
-    | '&&' Identifier // GCC extension address of label
+    | '&&' i=Identifier
+{
+    $variablesNameUsed.increment($i.text);
+    $parameters.add($i.text);
+}
     ;
 
 unaryOperator
     : '&' | '*' | '+' | '-' | '~' | '!'
     ;
 
-castExpression
-    : unaryExpression
-    | '(' typeName ')' castExpression
-    | '__extension__' '(' typeName ')' castExpression
+castExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : ue=unaryExpression
+{
+    $parameters.addAll($ue.parameters);
+    $variablesNameUsed.addAll($ue.variablesNameUsed);
+    $calls.addAll($ue.calls);
+}
+    | '(' typeName ')' ce=castExpression
+{
+    $parameters.addAll($ce.parameters);
+    $variablesNameUsed.addAll($ce.variablesNameUsed);
+    $calls.addAll($ce.calls);    
+}
+    | '__extension__' '(' typeName ')' ce=castExpression
+{
+    $parameters.addAll($ce.parameters);
+    $variablesNameUsed.addAll($ce.variablesNameUsed);
+    $calls.addAll($ce.calls);    
+}
     ;
 
-multiplicativeExpression
-    : castExpression
-    | multiplicativeExpression '*' castExpression
-    | multiplicativeExpression '/' castExpression
-    | multiplicativeExpression '%' castExpression
+multiplicativeExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : ce=castExpression
+{
+    $parameters.addAll($ce.parameters);
+    $variablesNameUsed.addAll($ce.variablesNameUsed);
+    $calls.addAll($ce.calls);
+}
+    | me=multiplicativeExpression '*' ce=castExpression
+{
+    $parameters.addAll($me.parameters);
+    $variablesNameUsed.addAll($me.variablesNameUsed);
+    $calls.addAll($me.calls);
+    $parameters.addAll($ce.parameters);
+    $variablesNameUsed.addAll($ce.variablesNameUsed);
+    $calls.addAll($ce.calls);
+} 
+    | me=multiplicativeExpression '/' ce=castExpression
+{
+    $parameters.addAll($me.parameters);
+    $variablesNameUsed.addAll($me.variablesNameUsed);
+    $calls.addAll($me.calls);
+    $parameters.addAll($ce.parameters);
+    $variablesNameUsed.addAll($ce.variablesNameUsed);
+    $calls.addAll($ce.calls);
+} 
+    | me=multiplicativeExpression '%' ce=castExpression
+{
+    $parameters.addAll($me.parameters);
+    $variablesNameUsed.addAll($me.variablesNameUsed);
+    $calls.addAll($me.calls);
+    $parameters.addAll($ce.parameters);
+    $variablesNameUsed.addAll($ce.variablesNameUsed);
+    $calls.addAll($ce.calls);
+} 
     ;
 
-additiveExpression
-    : multiplicativeExpression
-    | additiveExpression '+' multiplicativeExpression
-    | additiveExpression '-' multiplicativeExpression
+additiveExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : me=multiplicativeExpression
+{
+    $parameters.addAll($me.parameters);
+    $variablesNameUsed.addAll($me.variablesNameUsed);
+    $calls.addAll($me.calls);
+}
+    | ae=additiveExpression '+' me=multiplicativeExpression
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+    $parameters.addAll($me.parameters);
+    $variablesNameUsed.addAll($me.variablesNameUsed);
+    $calls.addAll($me.calls);
+} 
+    | ae=additiveExpression '-' me=multiplicativeExpression
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+    $parameters.addAll($me.parameters);
+    $variablesNameUsed.addAll($me.variablesNameUsed);
+    $calls.addAll($me.calls);
+} 
     ;
 
-shiftExpression
-    : additiveExpression
-    | shiftExpression '<<' additiveExpression
-    | shiftExpression '>>' additiveExpression
+shiftExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : ae=additiveExpression
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+}
+    | se=shiftExpression '<<' ae=additiveExpression
+{
+    $parameters.addAll($se.parameters);
+    $variablesNameUsed.addAll($se.variablesNameUsed);
+    $calls.addAll($se.calls);
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+} 
+    | se=shiftExpression '>>' ae=additiveExpression
+{
+    $parameters.addAll($se.parameters);
+    $variablesNameUsed.addAll($se.variablesNameUsed);
+    $calls.addAll($se.calls);
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+} 
     ;
 
-relationalExpression
-    : shiftExpression
-    | relationalExpression '<' shiftExpression
-    | relationalExpression '>' shiftExpression
-    | relationalExpression '<=' shiftExpression
-    | relationalExpression '>=' shiftExpression
+relationalExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : se=shiftExpression
+{
+    $parameters.addAll($se.parameters);
+    $variablesNameUsed.addAll($se.variablesNameUsed);
+    $calls.addAll($se.calls);
+}
+    | re=relationalExpression '<' se=shiftExpression
+{
+    $parameters.addAll($re.parameters);
+    $variablesNameUsed.addAll($re.variablesNameUsed);
+    $calls.addAll($re.calls);
+    $parameters.addAll($se.parameters);
+    $variablesNameUsed.addAll($se.variablesNameUsed);
+    $calls.addAll($se.calls);
+} 
+    | re=relationalExpression '>' se=shiftExpression
+{
+    $parameters.addAll($re.parameters);
+    $variablesNameUsed.addAll($re.variablesNameUsed);
+    $calls.addAll($re.calls);
+    $parameters.addAll($se.parameters);
+    $variablesNameUsed.addAll($se.variablesNameUsed);
+    $calls.addAll($se.calls);
+} 
+    | re=relationalExpression '<=' se=shiftExpression
+{
+    $parameters.addAll($re.parameters);
+    $variablesNameUsed.addAll($re.variablesNameUsed);
+    $calls.addAll($re.calls);
+    $parameters.addAll($se.parameters);
+    $variablesNameUsed.addAll($se.variablesNameUsed);
+    $calls.addAll($se.calls);
+} 
+    | re=relationalExpression '>=' se=shiftExpression
+{
+    $parameters.addAll($re.parameters);
+    $variablesNameUsed.addAll($re.variablesNameUsed);
+    $calls.addAll($re.calls);
+    $parameters.addAll($se.parameters);
+    $variablesNameUsed.addAll($se.variablesNameUsed);
+    $calls.addAll($se.calls);
+} 
     ;
 
-equalityExpression
-    : relationalExpression
-    | equalityExpression '==' relationalExpression
-    | equalityExpression '!=' relationalExpression
+equalityExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : re=relationalExpression
+{
+    $parameters.addAll($re.parameters);
+    $variablesNameUsed.addAll($re.variablesNameUsed);
+    $calls.addAll($re.calls);
+}
+    | ee=equalityExpression '==' re=relationalExpression
+{
+    $parameters.addAll($ee.parameters);
+    $variablesNameUsed.addAll($ee.variablesNameUsed);
+    $calls.addAll($ee.calls);
+    $parameters.addAll($re.parameters);
+    $variablesNameUsed.addAll($re.variablesNameUsed);
+    $calls.addAll($re.calls);
+} 
+    | ee=equalityExpression '!=' re=relationalExpression
+{
+    $parameters.addAll($ee.parameters);
+    $variablesNameUsed.addAll($ee.variablesNameUsed);
+    $calls.addAll($ee.calls);
+    $parameters.addAll($re.parameters);
+    $variablesNameUsed.addAll($re.variablesNameUsed);
+    $calls.addAll($re.calls);
+} 
     ;
 
-andExpression
-    : equalityExpression
-    | andExpression '&' equalityExpression
+andExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : ee=equalityExpression
+{
+    $parameters.addAll($ee.parameters);
+    $variablesNameUsed.addAll($ee.variablesNameUsed);
+    $calls.addAll($ee.calls);
+} 
+    | ae=andExpression '&' ee=equalityExpression
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+    $parameters.addAll($ee.parameters);
+    $variablesNameUsed.addAll($ee.variablesNameUsed);
+    $calls.addAll($ee.calls);
+} 
     ;
 
-exclusiveOrExpression
-    : andExpression
-    | exclusiveOrExpression '^' andExpression
+exclusiveOrExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : ae=andExpression
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+}  
+    | eoe=exclusiveOrExpression '^' ae=andExpression
+{
+    $parameters.addAll($eoe.parameters);
+    $variablesNameUsed.addAll($eoe.variablesNameUsed);
+    $calls.addAll($eoe.calls);
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+}            
     ;
 
-inclusiveOrExpression
-    : exclusiveOrExpression
-    | inclusiveOrExpression '|' exclusiveOrExpression
+inclusiveOrExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : eoe=exclusiveOrExpression
+{
+    $parameters.addAll($eoe.parameters);
+    $variablesNameUsed.addAll($eoe.variablesNameUsed);
+    $calls.addAll($eoe.calls);
+}
+    | ioe=inclusiveOrExpression '|' eoe=exclusiveOrExpression
+{
+    $parameters.addAll($ioe.parameters);
+    $variablesNameUsed.addAll($ioe.variablesNameUsed);
+    $calls.addAll($ioe.calls);
+    $parameters.addAll($eoe.parameters);
+    $variablesNameUsed.addAll($eoe.variablesNameUsed);
+    $calls.addAll($eoe.calls);
+}
     ;
 
-logicalAndExpression
-    : inclusiveOrExpression
-    | logicalAndExpression '&&' inclusiveOrExpression
+logicalAndExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : ioe=inclusiveOrExpression
+{
+    $parameters.addAll($ioe.parameters);
+    $variablesNameUsed.addAll($ioe.variablesNameUsed);
+    $calls.addAll($ioe.calls);
+}
+    | lae=logicalAndExpression '&&' ioe=inclusiveOrExpression
+{
+    $parameters.addAll($lae.parameters);
+    $variablesNameUsed.addAll($lae.variablesNameUsed);
+    $calls.addAll($lae.calls);
+    $parameters.addAll($ioe.parameters);
+    $variablesNameUsed.addAll($ioe.variablesNameUsed);
+    $calls.addAll($ioe.calls);
+}
     ;
 
-logicalOrExpression
-    : logicalAndExpression
-    | logicalOrExpression '||' logicalAndExpression
+logicalOrExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : lae=logicalAndExpression
+{
+    $parameters.addAll($lae.parameters);
+    $variablesNameUsed.addAll($lae.variablesNameUsed);
+    $calls.addAll($lae.calls);
+}
+    | loe=logicalOrExpression '||' lae=logicalAndExpression
+{
+    $parameters.addAll($loe.parameters);
+    $variablesNameUsed.addAll($loe.variablesNameUsed);
+    $calls.addAll($loe.calls);
+    $parameters.addAll($lae.parameters);
+    $variablesNameUsed.addAll($lae.variablesNameUsed);
+    $calls.addAll($lae.calls);
+}
     ;
 
-conditionalExpression
-    : logicalOrExpression ('?' expression ':' conditionalExpression)?
+conditionalExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : loe=logicalOrExpression ('?' e=expression ':' ce=conditionalExpression)?
+{
+    $parameters.addAll($loe.parameters);
+    $variablesNameUsed.addAll($loe.variablesNameUsed);
+    $calls.addAll($loe.calls);
+    
+    if($e.text != null)
+    {
+        $parameters.addAll($e.parameters);
+        $variablesNameUsed.addAll($e.variablesNameUsed);
+        $calls.addAll($e.calls);
+        $parameters.addAll($ce.parameters);
+        $variablesNameUsed.addAll($ce.variablesNameUsed);
+        $calls.addAll($ce.calls);
+    }
+}
     ;
 
-assignmentExpression
-    : conditionalExpression
-    | unaryExpression assignmentOperator assignmentExpression
+assignmentExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : ce=conditionalExpression
+{
+    $parameters.addAll($ce.parameters);    
+    $variablesNameUsed.addAll($ce.variablesNameUsed);
+    $calls.addAll($ce.calls);
+}
+    | ue=unaryExpression assignmentOperator ae=assignmentExpression
+{
+    $parameters.addAll($ue.parameters);
+    $variablesNameUsed.addAll($ue.variablesNameUsed);
+    $calls.addAll($ue.calls);
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+}
     ;
 
 assignmentOperator
     : '=' | '*=' | '/=' | '%=' | '+=' | '-=' | '<<=' | '>>=' | '&=' | '^=' | '|='
     ;
 
-expression
-    : assignmentExpression
-    | expression ',' assignmentExpression
+expression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter(),
+        Set<String> parameters = new HashSet<String>()]
+    : ae=assignmentExpression
+{
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+}
+    | e=expression ',' ae=assignmentExpression
+{
+    $parameters.addAll($e.parameters);
+    $variablesNameUsed.addAll($e.variablesNameUsed);
+    $calls.addAll($e.calls);
+    $parameters.addAll($ae.parameters);
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+}
     ;
 
-constantExpression
-    : conditionalExpression
+constantExpression returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter()]
+    : ce=conditionalExpression
+{
+    $variablesNameUsed.addAll($ce.variablesNameUsed);
+    $calls.addAll($ce.calls);
+}
     ;
 
 
 /************************************ DECLARATIONS ************************************/
 
-declaration returns [List<String> names = new ArrayList<String>(), Type type = null, boolean isStatic, boolean isFunction]
-    : ds=declarationSpecifiers idl=initDeclaratorList? ';'  {declareTypedef($ds.isTypedef, $ds.name, $names); $isStatic = $ds.isStatic;
-    														if(!$ds.isTypedef) $type = $ds.specifier.getType();}
+declaration returns [List<String> variableNames = new ArrayList<String>(),
+        MultiCounter<String> variablesNameUsed = new MultiCounter<String>(), 
+        CallCounter calls = new CallCounter(),
+		Type type = null, boolean isStatic, boolean isFunction, 
+		boolean isDeclarationType, boolean isAnonymousTypeDeclaration]
+    : ds=declarationSpecifiers initDeclaratorList? ';'  
+{
+    System.out.println($ds.text);
+    
+	$type = $ds.type;
+	$isDeclarationType = $ds.isDeclarationType;
+	$isAnonymousTypeDeclaration = $ds.isAnonymousTypeDeclaration;
+	          
+    if($ds.isTypedef)
+    {
+        if($variableNames.isEmpty())
+        {
+            this.addComplexType($ds.name);
+        }
+        else
+        {
+            this.addComplexType($variableNames.get(0));
+        }
+    }
+    
+    if($variableNames.isEmpty())
+    {
+        $variableNames.add($ds.name);
+    }
+}
     | staticAssertDeclaration
     ;
 
-declarationSpecifiers returns [DeclarationSpecifier specifier = new NullSpecifier(), String name = null, boolean isStatic = false, boolean isTypedef = false]
+declarationSpecifiers 
+    returns [Type type, String name = null, boolean isStatic = false,
+        boolean isTypedef = false, boolean isDeclarationType = false,
+        boolean isAnonymousTypeDeclaration = false]
+    locals [DeclarationSpecifier specifier = new NullSpecifier()]
     : declarationSpecifier+
+{
+    if(!$isTypedef)
+    {
+        $type = $specifier.getType();
+    }
+}
     ;
 
 declarationSpecifier
     : storageClassSpecifier
-    | ts=typeSpecifier {$declarationSpecifiers::specifier = $declarationSpecifiers::specifier.merge($ts.specifier); 
-    					if($ts.name != null) $declarationSpecifiers::name = $ts.name;}
+    | ts=typeSpecifier
+{
+    $declarationSpecifiers::specifier = 
+            $declarationSpecifiers::specifier.merge($ts.specifier);
+    
+    if($ts.isDeclarationType)
+    {
+        $declarationSpecifiers::isDeclarationType = $ts.isDeclarationType;
+    }
+    
+    if($ts.isAnonymousTypeDeclaration)
+    {
+        $declarationSpecifiers::isAnonymousTypeDeclaration =
+        		$ts.isAnonymousTypeDeclaration;
+    }
+    
+    if($ts.name != null)
+    {
+        $declarationSpecifiers::name = $ts.name;
+    }
+}
     | typeQualifier
     | functionSpecifier
     | alignmentSpecifier
@@ -249,29 +744,74 @@ initDeclaratorList
     ;
 
 initDeclarator
-    : d=declarator {$declaration::names.add($d.name); $declaration::isFunction = $d.isFunction;}
-    | d=declarator '=' initializer {$declaration::names.add($d.name);} //PRENDRE EN COMPTE LES VALEURS D'INITIALISATION QUI PEUVENT ETRE DES VARIABLES
+    : d=declarator
+{
+    $declaration::variableNames.add($d.name);
+    $declaration::isFunction = $d.isFunction;
+}
+    | d=declarator '=' i=initializer
+{
+    $declaration::variableNames.add($d.name);
+    $declaration::variablesNameUsed.addAll($i.variablesNameUsed);
+    $declaration::calls.addAll($i.calls);
+}
     ;
 
 storageClassSpecifier
-    : 'typedef' {$declarationSpecifiers::isTypedef = true;}
+    : 'typedef'
+{
+    $declarationSpecifiers::isTypedef = true;
+    $declarationSpecifiers::isDeclarationType = true;
+}
     | 'extern'
-    | 'static' {$declarationSpecifiers::isStatic = true;}
+    | 'static'
+{
+    $declarationSpecifiers::isStatic = true;
+}
     | '_Thread_local'
     | 'auto'
     | 'register'
     ;
 
-typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier(), String name = null]
-    : ('void' {$specifier = new VoidSpecifier();}
-    | 'char' {$specifier = new CharSpecifier();}
-    | 'short' {$specifier = new ShortSpecifier();}
-    | 'int' {$specifier = new IntSpecifier();}
-    | 'long' {$specifier = new LongSpecifier();}
-    | 'float' {$specifier = new FloatSpecifier();}
-    | 'double' {$specifier = new DoubleSpecifier();}
-    | 'signed' {$specifier = new SignedSpecifier();}
-    | 'unsigned' {$specifier = new UnsignedSpecifier();}
+typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier(),
+		String name = null, boolean isDeclarationType = false,
+		boolean isAnonymousTypeDeclaration = false]
+    : ('void' 
+{
+    $specifier = new VoidSpecifier();
+}
+    | 'char' 
+{
+    $specifier = new CharSpecifier();
+}
+    | 'short' 
+{
+    $specifier = new ShortSpecifier();
+}
+    | 'int'
+{
+    $specifier = new IntSpecifier();
+}
+    | 'long'
+{
+    $specifier = new LongSpecifier();
+}
+    | 'float'
+{
+    $specifier = new FloatSpecifier();
+}
+    | 'double'
+{
+    $specifier = new DoubleSpecifier();
+}
+    | 'signed'
+{
+    $specifier = new SignedSpecifier();
+}
+    | 'unsigned'
+{
+    $specifier = new UnsignedSpecifier();
+}
     | '_Bool'
     | '_Complex'
     | '__m128'
@@ -282,12 +822,29 @@ typeSpecifier returns [DeclarationSpecifier specifier = new NullSpecifier(), Str
     | structOrUnionSpecifier
     | enumSpecifier
     | typedefName
-    | '__typeof__' '(' constantExpression ')' // GCC extension
+    | '__typeof__' '(' constantExpression ')'
     ;
 
 structOrUnionSpecifier
-    : structOrUnion i=Identifier? '{' structDeclarationList '}' {this.addComplexType($i.text); $typeSpecifier::specifier = new StructOrUnionSpecifier($i.text, this.complexTypes);}
-    | structOrUnion i=Identifier {$typeSpecifier::specifier = new StructOrUnionSpecifier($i.text, this.complexTypes);}
+    : structOrUnion i=Identifier? '{' structDeclarationList '}' 
+{
+    this.addComplexType($i.text);
+    $typeSpecifier::isDeclarationType = true;
+    
+    if($i.text == null)
+    {
+    	$typeSpecifier::isAnonymousTypeDeclaration = true;
+    }
+    
+    $typeSpecifier::name = $i.text;
+    $typeSpecifier::specifier = 
+            new StructOrUnionSpecifier($i.text, this.complexTypes);
+}
+    | structOrUnion i=Identifier
+{
+    $typeSpecifier::specifier = 
+            new StructOrUnionSpecifier($i.text, this.complexTypes);
+}
     ;
 
 structOrUnion
@@ -321,9 +878,36 @@ structDeclarator
     ;
 
 enumSpecifier
-    : 'enum' i=Identifier? '{' enumeratorList '}' {this.addComplexType($i.text); $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);}
-    | 'enum' i=Identifier? '{' enumeratorList ',' '}' {this.addComplexType($i.text); $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);}
-    | 'enum' i=Identifier {$typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);}
+    : 'enum' i=Identifier? '{' enumeratorList '}'
+{
+    this.addComplexType($i.text);
+    $typeSpecifier::isDeclarationType = true;
+    
+    if($i.text == null)
+    {
+    	$typeSpecifier::isAnonymousTypeDeclaration = true;
+    }
+    
+    $typeSpecifier::name = $i.text;
+    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);
+}
+    | 'enum' i=Identifier? '{' enumeratorList ',' '}'
+{
+    this.addComplexType($i.text);
+    $typeSpecifier::isDeclarationType = true;
+    
+    if($i.text == null)
+    {
+    	$typeSpecifier::isAnonymousTypeDeclaration = true;
+    }
+    
+    $typeSpecifier::name = $i.text;
+    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);
+}
+    | 'enum' i=Identifier
+{
+    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);
+}
     ;
 
 enumeratorList
@@ -354,7 +938,7 @@ typeQualifier
 functionSpecifier
     : ('inline'
     | '_Noreturn'
-    | '__inline__' // GCC extension
+    | '__inline__'
     | '__stdcall')
     | gccAttributeSpecifier
     | '__declspec' '(' Identifier ')'
@@ -366,18 +950,51 @@ alignmentSpecifier
     ;
 
 declarator returns [String name, Set<LocalVariable> arguments, boolean isFunction]
-    : pointer? dd=directDeclarator gccDeclaratorExtension* {$name = $dd.name; $arguments = $dd.arguments; $isFunction = $dd.isFunction;}
+    : pointer? dd=directDeclarator gccDeclaratorExtension*
+{
+    $name = $dd.name;
+    $arguments = $dd.arguments;
+    $isFunction = $dd.isFunction;
+}
     ;
 
-directDeclarator returns [String name, Set<LocalVariable> arguments, boolean isFunction = false]
-    : i=Identifier {$name = $i.text;}
-    | '(' d=declarator ')' {$name = $d.name;}
-    | dd=directDeclarator '[' typeQualifierList? assignmentExpression? ']' {$name = $dd.name;}
-    | dd=directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']' {$name = $dd.name;}
-    | dd=directDeclarator '[' typeQualifierList 'static' assignmentExpression ']' {$name = $dd.name;}
-    | dd=directDeclarator '[' typeQualifierList? '*' ']' {$name = $dd.name;}
-    | dd=directDeclarator '(' ptl=parameterTypeList ')' {$name = $dd.name; $arguments = $ptl.arguments; $isFunction = true;}
-    | dd=directDeclarator '(' identifierList? ')' {$name = $dd.name; $isFunction = true;}
+directDeclarator returns [String name, Set<LocalVariable> arguments, boolean isFunction = false, Set<String> names]
+    : i=Identifier
+{
+    $name = $i.text;
+}
+    | '(' d=declarator ')'
+{
+    $name = $d.name;
+}
+    | dd=directDeclarator '[' typeQualifierList? assignmentExpression? ']'
+{
+    $name = $dd.name;
+}
+    | dd=directDeclarator '[' 'static' typeQualifierList? assignmentExpression ']'
+{
+    $name = $dd.name;
+}
+    | dd=directDeclarator '[' typeQualifierList 'static' assignmentExpression ']'
+{
+    $name = $dd.name;
+}
+    | dd=directDeclarator '[' typeQualifierList? '*' ']' 
+{
+    $name = $dd.name;
+}
+    | dd=directDeclarator '(' ptl=parameterTypeList ')' 
+{
+    $name = $dd.name;
+    $arguments = $ptl.arguments;
+    $isFunction = true;
+}
+    | dd=directDeclarator '(' il=identifierList? ')' 
+{
+    $name = $dd.name;
+    $names = $il.names;
+    $isFunction = true;
+}
     ;
 
 gccDeclaratorExtension
@@ -429,13 +1046,23 @@ parameterList
     ;
 
 parameterDeclaration
-    : ds=declarationSpecifiers d=declarator {$parameterTypeList::arguments.add(new LocalVariable($d.name, $ds.specifier.getType()));}
+    : ds=declarationSpecifiers d=declarator
+{
+    $parameterTypeList::arguments.add(new LocalVariable($d.name, $ds.type));
+}
     | ds=declarationSpecifiers abstractDeclarator?
     ;
 
-identifierList
-    : Identifier
-    | identifierList ',' Identifier
+identifierList returns [Set<String> names = new HashSet<String>()]
+    : i=Identifier
+{
+    $names.add($i.text);
+}
+    | il=identifierList ',' i=Identifier
+{
+    $names.addAll($il.names); 
+    $names.add($i.text);
+}
     ;
 
 typeName
@@ -462,18 +1089,47 @@ directAbstractDeclarator
     ;
 
 typedefName
-    : i=Identifier {$typeSpecifier::specifier = new TypedefNameSpecifier($i.text, this.complexTypes); $typeSpecifier::name = $i.text;}
+    : i=Identifier
+{
+    $typeSpecifier::specifier = 
+            new TypedefNameSpecifier($i.text, this.complexTypes);
+    $typeSpecifier::name = $i.text;
+}
     ;
 
-initializer
-    : assignmentExpression
-    | '{' initializerList '}'
-    | '{' initializerList ',' '}'
+initializer returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter()]
+    : ae=assignmentExpression
+{
+    $variablesNameUsed.addAll($ae.variablesNameUsed);
+    $calls.addAll($ae.calls);
+}
+    | '{' il=initializerList '}'
+{
+    $variablesNameUsed.addAll($il.variablesNameUsed);
+    $calls.addAll($il.calls);    
+}
+    | '{' il=initializerList ',' '}'
+{
+    $variablesNameUsed.addAll($il.variablesNameUsed);
+    $calls.addAll($il.calls);   
+}
     ;
 
-initializerList
-    : designation? initializer
-    | initializerList ',' designation? initializer
+initializerList returns [MultiCounter<String> variablesNameUsed = 
+        new MultiCounter<String>(), CallCounter calls = new CallCounter()]
+    : designation? i=initializer
+{
+    $variablesNameUsed.addAll($i.variablesNameUsed);
+    $calls.addAll($i.calls);
+}
+    | il=initializerList ',' designation? i=initializer
+{
+    $variablesNameUsed.addAll($il.variablesNameUsed);
+    $calls.addAll($il.calls);
+    $variablesNameUsed.addAll($i.variablesNameUsed);
+    $calls.addAll($i.calls);    
+}
     ;
 
 designation
@@ -497,9 +1153,18 @@ staticAssertDeclaration
 
 /************************************ Statements ************************************/
 
-statement
+statement locals[Map<String, LocalVariable> parentLocals = 
+        new HashMap<String, LocalVariable>()]
+@init
+{
+    if($compoundStatement::parentLocals != null)
+    {
+        $parentLocals.putAll($compoundStatement::parentLocals);
+        $parentLocals.putAll($compoundStatement::locals);
+    }
+}
     : labeledStatement
-    | compoundStatement
+    | compoundStatement[$parentLocals]
     | expressionStatement
     | selectionStatement
     | iterationStatement
@@ -513,7 +1178,23 @@ labeledStatement
     | 'default' ':' statement
     ;
 
-compoundStatement
+compoundStatement[Map<String, LocalVariable> parentLocals]
+        returns [Block block]
+        locals [Set<Call> calls = new HashSet<Call>(), 
+        Map<String, LocalVariable> locals = new HashMap<String, LocalVariable>(),
+        MultiCounter<LocalVariable> localsUse = new MultiCounter<LocalVariable>(),
+        MultiCounter<GlobalVariable> globalsUse = new MultiCounter<GlobalVariable>(), 
+        Set<Block> subBlocks = new HashSet<Block>()]
+@init
+{
+    $locals.putAll($parentLocals);
+}
+
+@after
+{
+    $block = new Block($calls, $globalsUse.getCounters(), 
+            $localsUse.getCounters(), $subBlocks);    
+}
     : '{' blockItemList? '}'
     ;
 
@@ -523,8 +1204,72 @@ blockItemList
     ;
 
 blockItem
-    : declaration
+    : d=declaration
+{
+    if(!$d.isDeclarationType || $d.isAnonymousTypeDeclaration)
+    {
+        for(String variableName : $d.variableNames)
+        {   
+            LocalVariable variable = new LocalVariable(variableName, $d.type);
+            System.out.println(variable + ": " + $d.text);
+            
+            $compoundStatement::locals.put(variable.getName(), variable);
+        }
+        
+        // Update use of variables.
+        for(Entry<String, Integer> counter : 
+                $d.variablesNameUsed.getCounters().entrySet())
+        {
+            if(this.globalVariables.containsKey(counter.getKey()))
+            {
+                GlobalVariable v = this.globalVariables.get(counter.getKey());
+                $compoundStatement::globalsUse.add(v, counter.getValue());
+            }
+            else if($compoundStatement::locals.containsKey(counter.getKey()))
+            {
+                LocalVariable v = $compoundStatement::locals.get(counter.getKey());
+                $compoundStatement::localsUse.add(v, counter.getValue());
+            }
+        }
+        
+        // Update calls.
+        for(Entry<String, Set<Set<String>>> function : 
+            $d.calls.getCalls().entrySet())
+        {
+            Function f = this.functions.get(function.getKey());
+            
+            for(Set<String> functionCall : function.getValue())
+            {
+                Set<Variable> parameters = new HashSet<Variable>();
+                
+                for(String parameter : functionCall)
+                {
+                    Variable v = null;
+                    
+                    if(this.globalVariables.containsKey(function.getKey()))
+                    {
+                        v = this.globalVariables.get(function.getKey());
+                    }
+                    else if($compoundStatement::locals.containsKey(function.getKey()))
+                    {
+                        v = $compoundStatement::locals.get(function.getKey());
+                    }
+                    
+                    if(v != null)
+                    {
+                        parameters.add(v);
+                    }
+                }
+                
+                $compoundStatement::calls.add(new Call(f, parameters));
+            }
+        }
+    }
+}
     | statement
+{
+        // APPEL OU UTILISATION VARIABLES
+}
     ;
 
 expressionStatement
@@ -548,7 +1293,7 @@ jumpStatement
     | 'continue' ';'
     | 'break' ';'
     | 'return' expression? ';'
-    | 'goto' unaryExpression ';' // GCC extension
+    | 'goto' unaryExpression ';'
     ;
 
 
@@ -556,6 +1301,14 @@ jumpStatement
 
 compilationUnit
     : translationUnit? EOF
+{
+    /*System.out.println("FUNCTION DEFINITIONS\n");
+    
+    for(Function f : this.functions.values())
+    {
+        System.out.println(f);
+    }*/
+}
     ;
 
 translationUnit
@@ -564,18 +1317,81 @@ translationUnit
     ;
 
 externalDeclaration
-    : functionDefinition
-    | d=declaration {System.out.println($d.text);}
-    | ';' // stray ;
+    : fd=functionDefinition
+{
+    // We already know the prototype of the function
+    if(this.functions.containsKey($fd.result.getName()))
+    {
+    	Function prototype = this.functions.get($fd.result.getName());
+    	prototype.update($fd.result);
+    }
+    else
+    {
+    	this.functions.put($fd.result.getName(), $fd.result);
+    }
+}
+    | d=declaration 
+{
+    // Function declaration
+    if($d.isFunction)
+	{
+		Function declaredFunction = new Function($d.variableNames.get(0),
+		        $d.type, $d.isStatic);
+		this.functions.put(declaredFunction.getName(), declaredFunction);
+	}
+    // Global variable(s) declaration
+	else if(!$d.isDeclarationType || $d.isAnonymousTypeDeclaration)
+	{    
+		for(String variableName : $d.variableNames)
+		{	
+			GlobalVariable variable = new GlobalVariable(variableName, $d.type,
+					$d.isStatic, this.currentFile);
+		    this.globalVariables.put(variable.getName(), variable);
+		}
+	}
+}
+    | ';'
     ;
 
-functionDefinition returns [Function result]
-    : ds=declarationSpecifiers? d=declarator declarationList? compoundStatement {/*System.out.println($d.name + ": " + $d.arguments);*/} //AJOUTER FONCTION DANS LA TABLE
+functionDefinition returns [Function result] 
+        locals [Map<String, LocalVariable> arguments = 
+        new HashMap<String, LocalVariable>()]
+    : ds=declarationSpecifiers? d=declarator dl=declarationList? cs=compoundStatement[$arguments]
+{
+    Type returnType = $ds.type == null ? PrimitiveType.voidType() : $ds.type;
+    Set<LocalVariable> arguments = 
+            $dl.text == null ? $d.arguments : $dl.arguments;
+    
+    for(LocalVariable argument : arguments)
+    {
+        $arguments.put(argument.getName(), argument);
+    }
+    
+    $result = new Function($d.name, returnType, $ds.isStatic, arguments, $cs.block,
+            this.currentFile);
+} 
     ;
 
-declarationList
-    : declaration
-    | declarationList declaration
+declarationList returns [Set<LocalVariable> arguments = 
+        new HashSet<LocalVariable>()]
+    : d=declaration
+{
+    for(String argumentName : $d.variableNames)
+    {   
+        LocalVariable argument = new LocalVariable(argumentName, $d.type);
+        $arguments.add(argument);
+    }    
+}
+    | dl=declarationList d=declaration
+{
+    $arguments.addAll($dl.arguments);
+    
+    for(String argumentName : $d.variableNames)
+    {   
+        LocalVariable argument = new LocalVariable(argumentName, $d.type);
+        $arguments.add(argument);
+    }
+}
     ;
 
 

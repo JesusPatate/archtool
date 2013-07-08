@@ -108,19 +108,22 @@ public class Function
         return this.sourceFile;
     }
 
-    public void setArguments(Set<LocalVariable> arguments)
+    public void update(Function definitionFunction)
     {
-        this.arguments = arguments;
+        this.arguments = definitionFunction.arguments;
+        this.body = definitionFunction.body;
+        this.sourceFile = definitionFunction.sourceFile;
     }
 
-    public void setSourceFile(File sourceFile)
+    /**
+     * Renvoie l'ensemble des variables globales utilisées par la fonction.
+     * 
+     * @return Une map ayant pour clés les variables globales accédées dans le
+     *         corps de la fonction et pour valeurs leur nombre d'accès.
+     */
+    public Map<GlobalVariable, Integer> getGlobalVariables()
     {
-        this.sourceFile = sourceFile;
-    }
-
-    public void setBody(Block body)
-    {
-        this.body = body;
+        return this.body.getGlobalVariables();
     }
 
     /**
@@ -134,11 +137,6 @@ public class Function
     public Map<GlobalVariable, Integer> getProgramGlobals()
     {
         return this.body.getProgramGlobals();
-    }
-    
-    public Map<GlobalVariable, Integer> getGlobalVariables()
-    {
-        return this.body.getGlobalVariables();
     }
 
     /**
@@ -228,7 +226,7 @@ public class Function
 
         if (usedTypes.containsKey(this.returnType))
         {
-            usedTypes.put(this.returnType, 
+            usedTypes.put(this.returnType,
                     (usedTypes.get(this.returnType) + 1));
         }
         else
@@ -242,6 +240,25 @@ public class Function
     @Override
     public String toString()
     {
-        return String.format("Function : %s", this.name);
+        StringBuffer function = new StringBuffer(this.returnType.getName()
+                + " ");
+
+        function.append(this.name);
+
+        if (this.isStatic)
+        {
+            function.append("static ");
+        }
+
+        function.append("(");
+
+        for (LocalVariable arg : this.arguments)
+        {
+            function.append(arg + ", ");
+        }
+
+        function.append(")");
+        function.append("\n" + this.body.getLocals());
+        return function.toString();
     }
 }
