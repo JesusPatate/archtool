@@ -1,17 +1,19 @@
-package fr.univ_nantes.alma.archtool.clustering.tests;
+package fr.univ_nantes.alma.archtool.objective.tests;
+
+import static org.junit.Assert.assertEquals;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
-import fr.univ_nantes.alma.archtool.clustering.Clustering;
+import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.Block;
@@ -23,12 +25,9 @@ import fr.univ_nantes.alma.archtool.sourceModel.LocalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.PrimitiveType;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
-import fr.univ_nantes.alma.archtool.utils.Pair;
 
-public class ClusteringTest
+public class ObjectiveFunctionTest
 {
-    private static ObjectiveFunction obj;
-
     private static SourceCode sourceCode;
 
     private static File file;
@@ -42,13 +41,12 @@ public class ClusteringTest
 
     private static GlobalVariable v4;
 
-    private Clustering clustering;
+    private ObjectiveFunction obj;
+    private COA coa;
 
     @BeforeClass
     public static void setUpBeforeClass()
     {
-        ClusteringTest.obj = new ObjectiveFunction();
-
         sourceCode = new SourceCode();
         
         file = new File("file");
@@ -72,25 +70,86 @@ public class ClusteringTest
     }
 
     @Before
-    public void setUp() throws Exception
+    public void setUp()
     {
-        this.clustering = new Clustering(ClusteringTest.obj);
+        this.coa = new COA();
+        this.obj = new ObjectiveFunction();
     }
 
-    @After
-    public void tearDown()
-    {
-        this.clustering = null;
-    }
+    /**
+     * Vérifie que la fonction objectif donne le même résultats pour deux
+     * architectures dont seul l'ordre des composants change.
+     */
 
     @Test
-    public void test()
+    public void testEvaluate1()
     {
+        Component comp1 = new Component();
+        this.coa.addComponent(comp1);
+        this.coa.addFunction(fct1, comp1);
 
-        Pair<Architecture, COA> p = this.clustering.process(this.sourceCode);
+        Component comp2 = new Component();
+        this.coa.addComponent(comp2);
+        this.coa.addFunction(fct1, comp2);
 
-        System.out.println(p.getFirst());
-        System.out.println(this.obj.evaluate(p.getFirst(), p.getSecond()));
+        Interface itf1 = new Interface();
+        this.coa.addInterface(itf1);
+        this.coa.addFunction(fct1, itf1);
+
+        Interface itf2 = new Interface();
+        this.coa.addInterface(itf2);
+        this.coa.addFunction(fct2, itf2);
+
+        comp1.addProvidedInterface(itf1);
+        comp2.addRequiredInterface(itf2);
+
+        Architecture arch1 = new Architecture();
+        arch1.addComponent(comp1);
+        arch1.addComponent(comp2);
+
+        Double result1 = this.obj.evaluate(arch1, this.coa);
+
+        Architecture arch2 = new Architecture();
+        arch2.addComponent(comp2);
+        arch2.addComponent(comp1);
+
+        Double result2 = this.obj.evaluate(arch2, this.coa);
+
+        assertEquals(result1, result2);
+        
+        System.out.println(result1);
+    }
+
+    /**
+     * Vérifie que la fonction objectif donne le même résultats pour deux
+     * composants dont seul l'ordre des éléments constitutifs change.
+     */
+    @Test
+    public void testEvaluate2()
+    {
+        Component comp1 = new Component();
+        this.coa.addComponent(comp1);
+        this.coa.addFunction(fct1, comp1);
+        this.coa.addFunction(fct2, comp1);
+
+        Architecture arch1 = new Architecture();
+        arch1.addComponent(comp1);
+
+        Double result1 = this.obj.evaluate(arch1, this.coa);
+
+        Component comp2 = new Component();
+        this.coa.addComponent(comp2);
+        this.coa.addFunction(fct2, comp2);
+        this.coa.addFunction(fct1, comp2);
+
+        Architecture arch2 = new Architecture();
+        arch2.addComponent(comp2);
+
+        Double result2 = this.obj.evaluate(arch2, this.coa);
+
+        assertEquals(result1, result2);
+        
+        System.out.println(result1);
     }
 
     /**
