@@ -19,19 +19,19 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.clustering.Dendogram;
 import fr.univ_nantes.alma.archtool.clustering.Dendogram.Node;
+import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Block;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.File;
-import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.Folder;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
+import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.LocalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.PrimitiveType;
-import fr.univ_nantes.alma.archtool.sourceModel.ProgramGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
@@ -41,25 +41,46 @@ import fr.univ_nantes.alma.archtool.sourceModel.Variable;
  */
 public class DendogramTest1
 {
+    private Dendogram dendogram;
+    
     private static SourceCode sourceCode;
 
-    private Dendogram dendogram;
+    private static File file;
+
+    private static Function fct1;
+    private static Function fct2;
+
+    private static LocalVariable v1;
+    private static LocalVariable v2;
+    private static LocalVariable v3;
+
+    private static GlobalVariable v4;
     
     @BeforeClass
     public static void setUpBeforeClass()
     {
-        Folder fold = new Folder("fold", null);
-        File file = new File("file", fold);
+sourceCode = new SourceCode();
         
-        LocalVariable v1 = new LocalVariable("x", PrimitiveType.charType());
-        LocalVariable v2 = new LocalVariable("v", PrimitiveType.intType());
+        file = new File("file");
+        v1 = new LocalVariable("x", PrimitiveType.charType());
+        v2 = new LocalVariable("v", PrimitiveType.intType());
+        v3 = new LocalVariable("y", PrimitiveType.intType());
 
-        Function fct1 = DendogramTest1.createFct1(v1, v2, file);
-        Function fct2 = DendogramTest1.createFct2(v1, v2, file, fct1);
-
-        DendogramTest1.sourceCode = new SourceCode();
-        DendogramTest1.sourceCode.addFunction(fct1);
-        DendogramTest1.sourceCode.addFunction(fct2);
+        v4 = new GlobalVariable("g", PrimitiveType.charType(), false, file);
+        sourceCode.addGlobal(v4);
+        
+        fct1 = createFct1();
+        sourceCode.addFunction(fct1);
+        
+        fct2 = createFct2();
+        sourceCode.addFunction(fct2);
+        
+        Function fct3 = new Function("fct3", PrimitiveType.longType(), false,
+                new HashSet<LocalVariable>(), new Block(), new File("file2"));
+        
+        sourceCode.addFunction(fct3);
+        
+        fail("Ces tests ne sont plus à jour");
     }
     
     @Before
@@ -101,8 +122,10 @@ public class DendogramTest1
             ArrayList<Dendogram.Node> nodes = (ArrayList<Node>)
                     PrivateAccessor.getField(this.dendogram, "nodes");
 
-            assertEquals("Mauvaise taille retournée -", nodes.size(),
-                    this.dendogram.size());
+            
+            
+            assertEquals("Mauvaise taille retournée -",
+                    4, this.dendogram.size());
         }
 
         catch (NoSuchFieldException e)
@@ -110,7 +133,7 @@ public class DendogramTest1
             fail(e.getMessage());
         }
     }
-
+    
     @Test
     public void testExtractFunctions()
     {
@@ -120,33 +143,40 @@ public class DendogramTest1
             ArrayList<Dendogram.Node> nodes = (ArrayList<Node>)
                     PrivateAccessor.getField(this.dendogram, "nodes");
 
-            assertTrue("Nombre de noeuds créés incorrect", nodes.size() == 2);
+            assertTrue("Nombre de noeuds créés incorrect", nodes.size() == 4);
 
             Dendogram.Node node1 = nodes.get(0);
             Dendogram.Node node2 = nodes.get(1);
 
-            Component comp1 = node1.getComponent();
-            Component comp2 = node2.getComponent();
-
-            Set<Function> functions1 = comp1.getFunctions();
-            Set<Function> functions2 = comp2.getFunctions();
-
-            assertTrue("node1 ne contient pas de fonction",
-                    functions1.size() == 1);
-            assertTrue("node2 ne contient pas de fonction",
-                    functions2.size() == 1);
+            Architecture arch = this.dendogram.getArchitecture();
+            COA coa = this.dendogram.getCOA();
+            
+            assertEquals(4, arch.getComponents().size());
+            
+            Iterator<Component> it = arch.getComponents().iterator();
+            
+            Component comp1 = it.next();
+            Component comp2 = it.next();
+            
+            Set<Function> functions1 = coa.getComponentFunctions(comp1);
+            Set<Function> functions2 = coa.getComponentFunctions(comp2);
+            
+            assertEquals("node1 ne contient pas de fonction -",
+                    1, functions1.size());
+            assertEquals("node2 ne contient pas de fonction -",
+                    1, functions2.size());
 
             Function fctNode1 = functions1.iterator().next();
             Function fctNode2 = functions2.iterator().next();
 
-            Iterator<Function> it = sourceCode.getFunctions().iterator();
-            Function f1 = it.next();
-            Function f2 = it.next();
+            Iterator<Function> it2 = sourceCode.getFunctions().iterator();
+            Function fct1 = it2.next();
+            Function fct2 = it2.next();
 
-            assertTrue("la fonction de node1 est différente de fct1",
-                    fctNode1.equals(f1));
-            assertTrue("la fonction de node2 est différente de fct2",
-                    fctNode2.equals(f2));
+            assertTrue("node1 ne contient ni fct1 ni fct2",
+                    (fctNode1.equals(fct1) || (fctNode1.equals(fct2))));
+            assertTrue("node2 ne contient ni fct1 ni fct2",
+                    fctNode2.equals(fct1) || (fctNode2.equals(fct2)));
         }
 
         catch (NoSuchFieldException e)
@@ -154,7 +184,7 @@ public class DendogramTest1
             fail(e.getMessage());
         }
     }
-
+    
     @Test
     public void testProcessInterfaces()
     {
@@ -167,8 +197,14 @@ public class DendogramTest1
             Node node1 = nodes.get(0);
             Node node2 = nodes.get(1);
 
-            Component comp1 = node1.getComponent();
-            Component comp2 = node2.getComponent();
+            Architecture arch = this.dendogram.getArchitecture();
+            
+            assertEquals(4, arch.getComponents().size());
+            
+            Iterator<Component> it = arch.getComponents().iterator();
+            
+            Component comp1 = it.next();
+            Component comp2 = it.next();
 
             Set<Interface> req1 = comp1.getRequiredInterfaces();
             Set<Interface> req2 = comp2.getRequiredInterfaces();
@@ -194,48 +230,53 @@ public class DendogramTest1
     /**
      * Crée la première fonction du code source
      */
-    private static Function createFct1(LocalVariable v1, LocalVariable v2, File file)
+    private static Function createFct1()
     {
-        Set<LocalVariable> args1 = new HashSet<LocalVariable>();
-        Map<LocalVariable, Integer> locals1 =
+        Set<LocalVariable> args = new HashSet<LocalVariable>();
+        args.add(v1);
+
+        Map<GlobalVariable, Integer> globals =
+                new HashMap<GlobalVariable, Integer>();
+         globals.put(v4, 2);
+
+        Map<LocalVariable, Integer> locals =
                 new HashMap<LocalVariable, Integer>();
-        Map<FileGlobalVariable, Integer> fileGlobals1 =
-                new HashMap<FileGlobalVariable, Integer>();
+        locals.put(v2, 1);
+        locals.put(v3, 1);
 
-        args1.add(v1);
-        locals1.put(v2, 1);
+        Block body1 = new Block(new HashSet<Call>(), globals, locals,
+                new HashSet<Block>());
 
-        Block body1 = new Block(new HashSet<Call>(),
-                new HashMap<ProgramGlobalVariable, Integer>(),
-                fileGlobals1, locals1, new HashSet<Block>());
-
-        return new Function("fct1", args1, PrimitiveType.intType(), file, body1);
+        return new Function("fct1", PrimitiveType.intType(), args, body1, file);
     }
 
     /**
      * Crée la seconde fonction du code source
      */
-    private static Function createFct2(LocalVariable v1, LocalVariable v2, File file,
-            Function fct)
+    private static Function createFct2()
     {
-        Set<LocalVariable> args2 = new HashSet<LocalVariable>();
-        args2.add(v1);
-        args2.add(v2);
+        Set<LocalVariable> args = new HashSet<LocalVariable>();
+        args.add(v1);
+        args.add(v2);
+
+        Map<LocalVariable, Integer> locals =
+                new HashMap<LocalVariable, Integer>();
+        locals.put(v3, 1);
+
+        Map<GlobalVariable, Integer> globals =
+                new HashMap<GlobalVariable, Integer>();
+        // pGlobals.put(v4, 2);
 
         Set<Variable> params = new HashSet<Variable>();
         params.add(v1);
         params.add(v2);
 
         Set<Call> calls = new HashSet<Call>();
-        calls.add(new Call(fct, params));
+        calls.add(new Call(fct1, params));
 
-        Block body2 =
-                new Block(calls, new HashMap<ProgramGlobalVariable, Integer>(),
-                        new HashMap<FileGlobalVariable, Integer>(),
-                        new HashMap<LocalVariable, Integer>(),
-                        new HashSet<Block>());
+        Block body2 = new Block(calls, globals, locals, new HashSet<Block>());
 
-        return new Function("fct2", args2, PrimitiveType.charType(), file,
-                body2);
+        return new Function("fct2", PrimitiveType.charType(), args, body2,
+                file);
     }
 }

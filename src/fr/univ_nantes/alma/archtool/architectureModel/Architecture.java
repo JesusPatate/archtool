@@ -1,14 +1,9 @@
 package fr.univ_nantes.alma.archtool.architectureModel;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class Architecture
 {
-    private Set<Component> components = new HashSet<Component>();
-
-    private Set<Connector> connectors = new HashSet<Connector>();
-
     private Configuration configuration = new Configuration();
 
     /**
@@ -16,7 +11,15 @@ public class Architecture
      */
     public Set<Component> getComponents()
     {
-        return new HashSet<Component>(this.components);
+        return this.configuration.getComponents();
+    }
+    
+    /**
+     * Retourne le nombre de composants de l'architecture.
+     */
+    public int nbComponents()
+    {
+        return this.configuration.nbComponents();
     }
 
     /**
@@ -24,33 +27,7 @@ public class Architecture
      */
     public boolean addComponent(Component comp)
     {
-        return this.components.add(comp);
-    }
-
-    /**
-     * Ajoute une nouvelle interface fournie à un composant.
-     * 
-     * @param itf
-     *            L'interface à ajouter
-     * @param comp
-     *            Le composant auquel ajouter la nouvelle interface
-     */
-    public boolean addProvidedInterface(Interface itf, Component comp)
-    {
-        return comp.addProvidedInterface(itf);
-    }
-
-    /**
-     * Ajoute une nouvelle interface requise à un composant.
-     * 
-     * @param itf
-     *            L'interface à ajouter
-     * @param comp
-     *            Le composant auquel ajouter la nouvelle interface
-     */
-    public boolean addRequiredInterface(Interface itf, Component comp)
-    {
-        return comp.addRequiredInterface(itf);
+        return this.configuration.addComponent(comp);
     }
 
     /**
@@ -58,7 +35,15 @@ public class Architecture
      */
     public Set<Connector> getConnectors()
     {
-        return new HashSet<Connector>(this.connectors);
+        return this.configuration.getConnectors();
+    }
+    
+    /**
+     * Retourne le nombre de connecteurs de l'architecture.
+     */
+    public int nbConnectors()
+    {
+        return this.configuration.nbConnectors();
     }
 
     /**
@@ -66,7 +51,7 @@ public class Architecture
      */
     public boolean addConnector(Connector con)
     {
-        return this.connectors.add(con);
+        return this.configuration.addConnector(con);
     }
     
     /**
@@ -104,13 +89,13 @@ public class Architecture
     {
         StringBuffer buf = new StringBuffer("Architecture [\n");
 
-        for (Component comp : this.components)
+        for (Component comp : this.configuration.getComponents())
         {
             buf.append(comp);
             buf.append("\n");
         }
 
-        for (Connector con : this.connectors)
+        for (Connector con : this.configuration.getConnectors())
         {
             buf.append(con);
             buf.append("\n");

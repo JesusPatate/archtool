@@ -4,46 +4,82 @@ import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
 
 public class ObjectiveFunction
 {
     /**
-     * Poids de l'autonomie des composants
+     * Poids de la sémantique des composants dans le calcul de la validité
+     * sémantique de l'architecture.
+     */
+    static final double WEIGHT_COMP_SEM = 1.0;
+
+    /**
+     * Poids de l'autonomie des composants dans le calcul de la validité
+     * sémantique des composants.
      */
     static final double WEIGHT_COMP_INDE = 1.0;
 
     /**
-     * Poids de la spécificité des composants
+     * Poids de la spécificité des composants dans le calcul de la validité
+     * sémantique des composants.
      */
     static final double WEIGHT_COMP_SPECI = 1.0;
 
     /**
-     * Poids du nombre d'interfaces fournies pour le calcul de la spécificité
+     * Poids du nombre d'interfaces fournies dans le calcul de la spécificité
      * des composants
      */
     static final double WEIGHT_SPECI_ITFS_PRO = 1.0;
 
     /**
-     * Poids de la composabilité des composants
+     * Poids de la composabilité des composants dans le calcul de la validité
+     * sémantique des composants.
      */
     static final double WEIGHT_COMP_COMPO = 1.0;
 
     /**
-     * Poids du nombre d'interfaces requises pour le calcul de la composabilité
+     * Poids du nombre d'interfaces requises dans le calcul de la composabilité
      * des composants
      */
     static final double WEIGHT_COMPO_ITFS_REQ = 1.0;
-    
+
+    /**
+     * Poids de la maintenabilité des éléments architecturaux dans le calcul de
+     * la qualité de l'architecture.
+     */
+    static final double WEIGHT_MAIN = 1.0;
+
+    /**
+     * Poids de la maintenabilité des composants dans le calcul de la
+     * maintenabilité de l'architecture.
+     */
+    static final double WEIGHT_MAIN_COMP = 1.0;
+
+    /**
+     * Poids de la maintenabilité des connecteurs dans le calcul de la
+     * maintenabilité de l'architecture.
+     */
+    static final double WEIGHT_MAIN_CON = 1.0;
+
+    /**
+     * Poids de la maintenabilité des connecteurs dans le calcul de la
+     * maintenabilité de l'architecture.
+     */
+    static final double WEIGHT_MAIN_CONF = 1.0;
+
     private Architecture architecture;
-    
+
     private COA coa;
-    
+
     private Cohesion cohesion;
-    
+
     private Coupling coupling;
-    
+
+    private Maintainability maintainability;
+
     /**
      * Applique la fonction objectif à un composant.
      * 
@@ -54,45 +90,73 @@ public class ObjectiveFunction
      */
     public double evaluate(final Architecture arch, final COA coa)
     {
+        double result = 0.0;
+
         this.architecture = arch;
         this.coa = coa;
-        
+
         this.cohesion = new Cohesion(this.coa);
         this.coupling = new Coupling(this.coa);
-        
-        return this.evaluateArchSemantic();
+        this.maintainability = new Maintainability(this.coa);
+
+        result += this.evaluateArchSemantic();
+        result += this.evaluateArchQuality();
+
+        return result;
     }
 
     /**
-     * Évalue la validité sémantique d'une architecture.
-     * 
-     * @param comp
-     *            L'architecture à évaluer
+     * Évalue la validité sémantique de l'architecture.
      */
     private double evaluateArchSemantic()
     {
         double result = 0.0;
-        
+
+        result += WEIGHT_COMP_SEM * this.evaluateArchSemanticComp();
+
+        return result;
+    }
+
+    /**
+     * 
+     * @return
+     */
+    private double evaluateArchQuality()
+    {
+        double result = 0.0;
+
+        result += WEIGHT_MAIN * this.evaluateMaintainability();
+
+        return result;
+    }
+
+    /**
+     * Évalue la validité sémantique des composant de l'architecture.
+     */
+    private double evaluateArchSemanticComp()
+    {
+        double result = 0.0;
+
         for (Component comp : this.architecture.getComponents())
         {
             double subresult = 0.0;
-            
+
             subresult = ObjectiveFunction.WEIGHT_COMP_COMPO
                     * this.composability(comp);
-            
+
             subresult += ObjectiveFunction.WEIGHT_COMP_INDE
                     * this.independence(comp);
-            
+
             subresult += ObjectiveFunction.WEIGHT_COMP_SPECI
                     * this.specificity(comp);
 
             subresult /= ObjectiveFunction.WEIGHT_COMP_COMPO
                     + ObjectiveFunction.WEIGHT_COMP_INDE
                     + ObjectiveFunction.WEIGHT_COMP_SPECI;
-            
+
             result += subresult;
         }
-        
+
         result /= this.architecture.getComponents().size();
 
         return result;
@@ -115,18 +179,18 @@ public class ObjectiveFunction
         final Set<Interface> proInterfaces = comp.getProvidedInterfaces();
         final double nbReqInterfaces = comp.getRequiredInterfaces().size();
 
-        if(proInterfaces.size() > 0)
+        if (proInterfaces.size() > 0)
         {
             double sumCohesion = 0.0;
             double avgCohesion = 0.0;
-            
+
             for (final Interface itf : proInterfaces)
             {
                 sumCohesion += this.cohesion.interfaceInternalCohesion(itf);
             }
-            
+
             avgCohesion = sumCohesion / proInterfaces.size();
-    
+
             result = avgCohesion
                     - (ObjectiveFunction.WEIGHT_COMPO_ITFS_REQ * nbReqInterfaces);
         }
@@ -168,26 +232,26 @@ public class ObjectiveFunction
         final Set<Interface> proInterfaces = comp.getProvidedInterfaces();
         final double nbProInterfaces = proInterfaces.size();
 
-        if(nbProInterfaces > 0)
+        if (nbProInterfaces > 0)
         {
             // Provided interfaces internal cohesion
-            
+
             for (final Interface itf : comp.getProvidedInterfaces())
             {
                 sum += this.cohesion.interfaceInternalCohesion(itf);
             }
-    
+
             result += sum / nbProInterfaces;
-            
+
             // Provided interfaces cohesion
 
-            if(nbProInterfaces > 1)
+            if (nbProInterfaces > 1)
             {
                 final Interface[] itfs = new Interface[proInterfaces.size()];
                 proInterfaces.toArray(itfs);
-        
+
                 sum = 0.0;
-        
+
                 for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
                 {
                     for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
@@ -196,12 +260,12 @@ public class ObjectiveFunction
                                 itfs[idx1], itfs[idx2]);
                     }
                 }
-        
+
                 final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
-        
+
                 result += sum / nbPairs;
             }
-            
+
             else
             {
                 result += 1.0;
@@ -219,6 +283,42 @@ public class ObjectiveFunction
         // Number of provided interfaces
 
         result -= WEIGHT_SPECI_ITFS_PRO * nbProInterfaces;
+
+        return result;
+    }
+
+    private double evaluateMaintainability()
+    {
+        double result = 0.0;
+        double subresult = 0.0;
+
+        for (Component comp : this.architecture.getComponents())
+        {
+            subresult += this.maintainability.process(comp, this.coa);
+        }
+
+        if(this.architecture.nbComponents() > 0)
+        {
+            subresult /= WEIGHT_MAIN_COMP * this.architecture.nbComponents();
+        }
+
+        result += subresult;
+        subresult = 0.0;
+
+        for (Connector con : this.architecture.getConnectors())
+        {
+            subresult += this.maintainability.process(con, this.coa);
+        }
+
+        if(this.architecture.nbConnectors() > 0)
+        {
+            subresult /= WEIGHT_MAIN_CON * this.architecture.nbConnectors();
+        }
+
+        result += subresult;
+
+        result += (1 / WEIGHT_MAIN_CONF) * this.maintainability.process(
+                this.architecture.getConfiguration());
 
         return result;
     }

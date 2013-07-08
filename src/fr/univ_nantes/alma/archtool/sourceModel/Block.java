@@ -208,6 +208,8 @@ public class Block
      */
     public Map<Type, Integer> getUsedTypes()
     {
+        // TODO Ne pas prendre en compte le type anonyme !!
+        
         final Map<Type, Integer> usedTypes = new HashMap<Type, Integer>();
 
         for (final Variable var : this.globals.keySet())

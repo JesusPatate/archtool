@@ -51,8 +51,19 @@ public class Connection
      * @param comp
      *            Le composant recherché
      */
-    public boolean isParticipant(Component comp)
+    public boolean participates(Component comp)
     {
         return this.component.equals(comp);
+    }
+
+    /**
+     * Teste si un connecteur participe à la connexion.
+     * 
+     * @param con
+     *            Le connecteur recherché
+     */
+    public boolean participates(Connector con)
+    {
+        return this.connector.equals(con);
     }
 }
