@@ -9,6 +9,7 @@ import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -396,13 +397,13 @@ public class Dendogram implements Iterable<Dendogram.Node>
             this.coa.addTypes(node.getTypes(), comp);
         }
 
-        this.processInterfaces();
+        this.buildInterfaces();
+        this.buildConnections();
     }
-
     /**
      * A COMPLETER
      */
-    private void processInterfaces()
+    private void buildInterfaces()
     {
         for (Component comp : this.architecture.getComponents())
         {
@@ -425,7 +426,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
      * @param idxNode
      *            Index du composant qui fournit la fonction en question
      * 
-     * @see #processInterfaces()
+     * @see #buildInterfaces()
      */
     private void processInterfacesFct(final Component comp)
     {
@@ -465,6 +466,10 @@ public class Dendogram implements Iterable<Dendogram.Node>
             {
                 comp.addProvidedInterface(itf);
             }
+            else
+            {
+        	this.coa.removeInterface(itf);
+            }
         }
     }
 
@@ -481,7 +486,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
      * @param idxNode
      *            Index du composant qui fournit la variable en question
      * 
-     * @see #processInterfaces()
+     * @see #buildInterfaces()
      */
     private void processInterfacesVar(Component comp)
     {
@@ -495,24 +500,27 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
             for (Component comp2 : this.architecture.getComponents())
             {
-                Iterator<Function> itFcts =
-                        this.coa.getComponentFunctions(comp2).iterator();
-
-                Function fct2 = null;
-                boolean found = false;
-
-                while (itFcts.hasNext() && (found == false))
+        	if (comp2.equals(comp) == false)
                 {
-                    fct2 = itFcts.next();
-                    
-                    final Map<GlobalVariable, Integer> varsFct2 =
-                            fct2.getGlobalVariables();
-
-                    if (varsFct2.containsKey(var))
+                    Iterator<Function> itFcts =
+                            this.coa.getComponentFunctions(comp2).iterator();
+    
+                    Function fct2 = null;
+                    boolean found = false;
+    
+                    while (itFcts.hasNext() && (found == false))
                     {
-                        comp2.addRequiredInterface(itf);
-                        ++nbAccessors;
-                        found = true;
+                        fct2 = itFcts.next();
+                        
+                        final Map<GlobalVariable, Integer> varsFct2 =
+                                fct2.getGlobalVariables();
+    
+                        if (varsFct2.containsKey(var))
+                        {
+                            comp2.addRequiredInterface(itf);
+                            ++nbAccessors;
+                            found = true;
+                        }
                     }
                 }
             }
@@ -520,6 +528,10 @@ public class Dendogram implements Iterable<Dendogram.Node>
             if (nbAccessors > 0)
             {
                 comp.addProvidedInterface(itf);
+            }
+            else
+            {
+        	this.coa.removeInterface(itf);
             }
         }
     }
@@ -539,7 +551,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
      * @param idxNode
      *            Index du composant qui fournit le type en question
      * 
-     * @see #processInterfaces()
+     * @see #buildInterfaces()
      */
 
     private void processInterfacesType(Component comp)
@@ -554,45 +566,48 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
             for (Component comp2 : this.architecture.getComponents())
             {
-                boolean found = false;
-
-                Set<Function> fcts = this.coa.getComponentFunctions(comp2);
-                Iterator<Function> itFcts = fcts.iterator();
-
-                // A function of comp2 can use t within its body or it can
-                // have an argument of this type
-                while (itFcts.hasNext() && (found == false))
+        	if (comp2.equals(comp) == false)
                 {
-                    final Function fct2 = itFcts.next();
-
-                    // Body
-
-                    final Map<Type, Integer> types = fct2.getUsedTypes();
-
-                    if (types.containsKey(t))
+                    boolean found = false;
+    
+                    Set<Function> fcts = this.coa.getComponentFunctions(comp2);
+                    Iterator<Function> itFcts = fcts.iterator();
+    
+                    // A function of comp2 can use t within its body or it can
+                    // have an argument of this type
+                    while (itFcts.hasNext() && (found == false))
                     {
-                        comp2.addRequiredInterface(itf);
-                        ++nbUsers;
-                        found = true;
-                    }
-                }
-
-                if (found == false)
-                {
-                    // comp2 can have a global variable of type t
-                    Set<GlobalVariable> vars =
-                            this.coa.getComponentVariables(comp2);
-                    Iterator<GlobalVariable> itVars = vars.iterator();
-
-                    while (itVars.hasNext() && (found == false))
-                    {
-                        GlobalVariable v = itVars.next();
-
-                        if (v.ofType(t))
+                        final Function fct2 = itFcts.next();
+    
+                        // Body
+    
+                        final Map<Type, Integer> types = fct2.getUsedTypes();
+    
+                        if (types.containsKey(t))
                         {
                             comp2.addRequiredInterface(itf);
                             ++nbUsers;
                             found = true;
+                        }
+                    }
+    
+                    if (found == false)
+                    {
+                        // comp2 can have a global variable of type t
+                        Set<GlobalVariable> vars =
+                                this.coa.getComponentVariables(comp2);
+                        Iterator<GlobalVariable> itVars = vars.iterator();
+    
+                        while (itVars.hasNext() && (found == false))
+                        {
+                            GlobalVariable v = itVars.next();
+    
+                            if (v.ofType(t))
+                            {
+                                comp2.addRequiredInterface(itf);
+                                ++nbUsers;
+                                found = true;
+                            }
                         }
                     }
                 }
@@ -602,8 +617,36 @@ public class Dendogram implements Iterable<Dendogram.Node>
             {
                 comp.addProvidedInterface(itf);
             }
+            else
+            {
+        	this.coa.removeInterface(itf);
+            }
         }
     }
+
+    private void buildConnections() {
+	
+	for(Component comp : this.architecture.getComponents())
+	{
+	    for(Interface itf : comp.getProvidedInterfaces())
+	    {
+		Connector con = new Connector();
+		this.architecture.addConnector(con);
+		this.coa.addConnector(con);
+		
+		this.architecture.addConnection(comp, con, itf);
+		
+		for(Component comp2 : this.architecture.getComponents())
+		{
+		    if(comp2.requiresInterface(itf))
+		    {
+			this.architecture.addConnection(comp2, con, itf);
+		    }
+		}
+	    }
+	}
+    }
+
 
     @Override
     public String toString()

@@ -74,14 +74,7 @@ public class Architecture
      */
     public boolean addConnection(Component comp, Connector con, Interface itf)
     {
-        boolean done = false;
-        
-        if(comp.providesInterface(itf))
-        {
-            done = this.configuration.addConnection(comp, con, itf);
-        }
-        
-        return done;
+        return this.configuration.addConnection(comp, con, itf);
     }
 
     @Override

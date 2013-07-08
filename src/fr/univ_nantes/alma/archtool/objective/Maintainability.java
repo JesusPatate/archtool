@@ -62,7 +62,14 @@ public class Maintainability
             total += value;
         }
         
-        result = nbLower / total;
+        if(total > 0)
+        {
+            result = nbLower / total;
+        }
+        else
+        {
+            result = 1.0;
+        }
         
         return result;
     }
@@ -95,7 +102,14 @@ public class Maintainability
             total += value;
         }
         
-        result = nbLower / total;
+        if(total > 0)
+        {
+            result = nbLower / total;
+        }
+        else
+        {
+            result = 1.0;
+        }
         
         return result;
     }
@@ -125,7 +139,14 @@ public class Maintainability
             total += value;
         }
         
-        result = nbLower / total;
+        if(total > 0)
+        {
+            result = nbLower / total;
+        }
+        else
+        {
+            result = 1.0;
+        }
         
         return result;
     }

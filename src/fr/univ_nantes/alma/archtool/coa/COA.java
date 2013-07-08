@@ -421,6 +421,22 @@ public class COA
     }
     
     /**
+     * Supprime une interface.
+     */
+    public boolean removeInterface(Interface itf)
+    {
+       return this.coaInterfaces.removeInterface(itf);
+    }
+    
+    /**
+     * Supprime un connecteur.
+     */
+    public boolean removeConnector(Connector con)
+    {
+       return this.coaConnectors.removeConnector(con);
+    }
+    
+    /**
      * Ajoute une interface au COA.
      */
     public boolean addInterface(Interface itf)
