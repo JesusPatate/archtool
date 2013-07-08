@@ -8,19 +8,19 @@ import java.util.Set;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
-import fr.univ_nantes.alma.archtool.sourceModel.Variable;
+import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 
 class COAComponents
 {
     private Map<Function, Component> fctToComp = new HashMap<Function, Component>();
 
-    private Map<Variable, Component> varToComp = new HashMap<Variable, Component>();
+    private Map<GlobalVariable, Component> varToComp = new HashMap<GlobalVariable, Component>();
 
     private Map<Type, Component> typeToComp = new HashMap<Type, Component>();
 
     private Map<Component, Set<Function>> compToFcts = new HashMap<Component, Set<Function>>();
 
-    private Map<Component, Set<Variable>> compToVars = new HashMap<Component, Set<Variable>>();
+    private Map<Component, Set<GlobalVariable>> compToVars = new HashMap<Component, Set<GlobalVariable>>();
 
     private Map<Component, Set<Type>> compToTypes = new HashMap<Component, Set<Type>>();
 
@@ -35,7 +35,7 @@ class COAComponents
     /**
      * Retourne l'ensemble des variables d'un composant.
      */
-    public Set<Variable> getComponentVariables(Component comp)
+    public Set<GlobalVariable> getComponentVariables(Component comp)
     {
         return this.compToVars.get(comp);
     }
@@ -58,7 +58,7 @@ class COAComponents
         if (this.compToFcts.containsKey(comp) == false)
         {
             this.compToFcts.put(comp, new HashSet<Function>());
-            this.compToVars.put(comp, new HashSet<Variable>());
+            this.compToVars.put(comp, new HashSet<GlobalVariable>());
             this.compToTypes.put(comp, new HashSet<Type>());
 
             done = true;
@@ -170,11 +170,11 @@ class COAComponents
     /**
      * Ajoute une variable à un composant.
      */
-    public boolean addVariable(Variable var, Component comp)
+    public boolean addVariable(GlobalVariable var, Component comp)
     {
         boolean done = false;
 
-        Set<Variable> compVars = this.compToVars.get(comp);
+        Set<GlobalVariable> compVars = this.compToVars.get(comp);
 
         if (compVars.contains(var) == false)
         {
@@ -191,11 +191,11 @@ class COAComponents
     /**
      * Retire une variable d'une fonction.
      */
-    public boolean removeVariable(Variable var, Component comp)
+    public boolean removeVariable(GlobalVariable var, Component comp)
     {
         boolean done = false;
 
-        Set<Variable> compVars = this.compToVars.get(comp);
+        Set<GlobalVariable> compVars = this.compToVars.get(comp);
 
         if (compVars.contains(var))
         {
@@ -213,18 +213,18 @@ class COAComponents
     /**
      * Déplace une variable d'un composant à un autre.
      */
-    public boolean moveVariable(Variable var, Component from, Component to)
+    public boolean moveVariable(GlobalVariable var, Component from, Component to)
     {
         boolean done = false;
 
-        Set<Variable> fromVars = this.compToVars.get(from);
+        Set<GlobalVariable> fromVars = this.compToVars.get(from);
 
         if (fromVars.contains(var))
         {
             fromVars.remove(var);
             this.compToVars.put(from, fromVars);
 
-            Set<Variable> toVars = this.compToVars.get(to);
+            Set<GlobalVariable> toVars = this.compToVars.get(to);
             toVars.add(var);
             this.compToVars.put(from, toVars);
 

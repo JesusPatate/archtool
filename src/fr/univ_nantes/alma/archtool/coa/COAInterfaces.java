@@ -6,23 +6,21 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
-import fr.univ_nantes.alma.archtool.architectureModel.Connector;
-import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
+import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
-import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
 public class COAInterfaces
 {
     private Map<Function, Interface> fctToItf = new HashMap<Function, Interface>();
     
-    private Map<Variable, Interface> varToItf = new HashMap<Variable, Interface>();
+    private Map<GlobalVariable, Interface> varToItf = new HashMap<GlobalVariable, Interface>();
     
     private Map<Type, Set<Interface>> typeToItf = new HashMap<Type, Set<Interface>>();
     
     private Map<Interface, Set<Function>> itfToFcts = new HashMap<Interface, Set<Function>>();
     
-    private Map<Interface, Set<Variable>> itfToVars = new HashMap<Interface, Set<Variable>>();
+    private Map<Interface, Set<GlobalVariable>> itfToVars = new HashMap<Interface, Set<GlobalVariable>>();
     
     private Map<Interface, Set<Type>> itfToTypes = new HashMap<Interface, Set<Type>>();
 
@@ -38,7 +36,7 @@ public class COAInterfaces
     /**
      * Retourne l'ensemble des variables d'une interface.
      */
-    public Set<Variable> getInterfaceVariables(Interface itf)
+    public Set<GlobalVariable> getInterfaceVariables(Interface itf)
     {
         return this.itfToVars.get(itf);
     }
@@ -61,7 +59,7 @@ public class COAInterfaces
        if(this.itfToFcts.containsKey(itf) == false)
        {
            this.itfToFcts.put(itf, new HashSet<Function>());
-           this.itfToVars.put(itf, new HashSet<Variable>());
+           this.itfToVars.put(itf, new HashSet<GlobalVariable>());
            this.itfToTypes.put(itf, new HashSet<Type>());
            
            done = true;
@@ -173,11 +171,11 @@ public class COAInterfaces
     /**
      * Ajoute une variable à une interface.
      */
-    public boolean addVariable(Variable var, Interface itf)
+    public boolean addVariable(GlobalVariable var, Interface itf)
     {
         boolean done = false;
         
-        Set<Variable> itfVars = this.itfToVars.get(itf);
+        Set<GlobalVariable> itfVars = this.itfToVars.get(itf);
         
         if (itfVars.contains(var) == false)
         {
@@ -194,11 +192,11 @@ public class COAInterfaces
     /**
      * Retire une variable d'une interface.
      */
-    public boolean removeVariable(Variable var, Interface itf)
+    public boolean removeVariable(GlobalVariable var, Interface itf)
     {
         boolean done = false;
 
-        Set<Variable> itfVars = this.itfToVars.get(itf);
+        Set<GlobalVariable> itfVars = this.itfToVars.get(itf);
         
         if (itfVars.contains(var))
         {
@@ -216,12 +214,12 @@ public class COAInterfaces
     /**
      * Déplace une variable d'une interface à une autre.
      */
-    public boolean moveVariable(Variable var, Interface from, Interface to)
+    public boolean moveVariable(GlobalVariable var, Interface from, Interface to)
     {
         boolean done = false;
 
-        Set<Variable> fromVars = this.itfToVars.get(from);
-        Set<Variable> toVars = this.itfToVars.get(to);
+        Set<GlobalVariable> fromVars = this.itfToVars.get(from);
+        Set<GlobalVariable> toVars = this.itfToVars.get(to);
         
         if (fromVars.contains(var) && (toVars.contains(var) == false))
         {

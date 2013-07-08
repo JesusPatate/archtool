@@ -14,7 +14,7 @@ public class Clustering
     private Dendogram dendogram;
 
     private ObjectiveFunction objectiveFct;
-    
+
     public Clustering(ObjectiveFunction objFct)
     {
         this.objectiveFct = objFct;
@@ -28,13 +28,13 @@ public class Clustering
      * 
      * @return Un ensemble de composants générés par l'algorithme.
      */
-    public Pair<Architecture,Double> process(final SourceCode sourceCode)
+    public Pair<Architecture, COA> process(final SourceCode sourceCode)
     {
         this.dendogram = new Dendogram(sourceCode);
         this.buildDendogram();
-        
-        Pair<Architecture,Double> result = this.phase2();
-        
+
+        Pair<Architecture, COA> result = this.phase2();
+
         return result;
     }
 
@@ -55,10 +55,10 @@ public class Clustering
 
         Dendogram dendo = null;
         Dendogram bestDendo = null;
-        
+
         Architecture arch = null;
         COA coa = null;
-        
+
         while (this.dendogram.size() > 1)
         {
             for (int i = 0 ; i < (this.dendogram.size() - 1) ; ++i)
@@ -66,12 +66,12 @@ public class Clustering
                 for (int j = i + 1 ; j < this.dendogram.size() ; ++j)
                 {
                     dendo = this.dendogram.clusterNodes(i, j);
-                    
+
                     arch = dendo.getArchitecture();
                     coa = dendo.getCOA();
-                    
+
                     final double score = this.objectiveFct.evaluate(arch, coa);
-                    
+
                     if (score > bestScore)
                     {
                         bestScore = score;
@@ -90,23 +90,24 @@ public class Clustering
             bestPair = null;
             bestDendo = null;
         }
-        
+
         return;
     }
 
     /**
      * Phase 2 : identification des composants à partir du dendogramme.
      */
-    private Pair<Architecture,Double> phase2()
+    private Pair<Architecture, COA> phase2()
     {
-        Architecture resultArch = null;
-        Double resultScore = null;
-        
+        Architecture currentArch = null;
+        COA currentCOA = null;
+        double currentScore = 0.0;
+
         Dendogram dendo = null;
-        Architecture arch1 = null;
+
         Architecture arch2 = null;
-        COA coa1 = null;
         COA coa2 = null;
+        double score2 = 0.0;
 
         int idx = 0;
 
@@ -114,40 +115,40 @@ public class Clustering
         {
             dendo = this.dendogram.splitNode(idx);
 
-            if(dendo!= null)
+            // The node has been splitted successfully
+            if (dendo != null)
             {
-                arch1 = this.dendogram.getArchitecture();
-                coa1 = this.dendogram.getCOA();
-                
+                currentArch = this.dendogram.getArchitecture();
+                currentCOA = this.dendogram.getCOA();
+                currentScore = objectiveFct.evaluate(currentArch, currentCOA);
+
                 arch2 = dendo.getArchitecture();
-                coa2 = this.dendogram.getCOA();
-    
-                double score1 = objectiveFct.evaluate(arch1, coa1);
-                double score2 = objectiveFct.evaluate(arch2, coa2);
-                
-                // Best architecture when the node is splitted
-                if (score2 > score1)
+                coa2 = dendo.getCOA();
+                score2 = objectiveFct.evaluate(arch2, coa2);
+
+                // Better architecture when the node is splitted
+                if (score2 > currentScore)
                 {
                     this.dendogram = dendo;
-                    resultArch = arch2;
-                    resultScore = score2;
                 }
-    
-                // Otherwise try to split the next node
+
+                // Try to split the next node
                 else
                 {
                     ++idx;
-                    resultArch = arch1;
-                    resultScore = score1;
                 }
             }
-            
+
+            // Try to split the next node
             else
             {
                 ++idx;
             }
         }
 
-        return new Pair<Architecture,Double>(resultArch, resultScore) ;
+        Architecture resultArch = this.dendogram.getArchitecture();
+        COA resultCOA = this.dendogram.getCOA();
+
+        return new Pair<Architecture, COA>(resultArch, resultCOA);
     }
 }

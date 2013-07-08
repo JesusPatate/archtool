@@ -8,10 +8,8 @@ import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
-import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
-import fr.univ_nantes.alma.archtool.sourceModel.LocalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.ProgramGlobalVariable;
+import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
@@ -40,7 +38,7 @@ public class Coupling
         int result = 0;
 
         Set<Function> functions = this.coa.getComponentFunctions(comp);
-        Set<Variable> variables = this.coa.getComponentVariables(comp);
+        Set<GlobalVariable> variables = this.coa.getComponentVariables(comp);
         Set<Type> types = this.coa.getComponentTypes(comp);
 
         if (functions.size() > 0)
@@ -97,7 +95,7 @@ public class Coupling
         int result = 0;
 
         Set<Function> functions = this.coa.getInterfaceFunctions(itf);
-        Set<Variable> variables = this.coa.getInterfaceVariables(itf);
+        Set<GlobalVariable> variables = this.coa.getInterfaceVariables(itf);
         Set<Type> types = this.coa.getInterfaceTypes(itf);
 
         if (functions.size() > 0)
@@ -154,7 +152,7 @@ public class Coupling
         int result = 0;
 
         Set<Function> functions = this.coa.getConnectorFunctions(con);
-        Set<Variable> variables = this.coa.getConnectorVariables(con);
+        Set<GlobalVariable> variables = this.coa.getConnectorVariables(con);
         Set<Type> types = this.coa.getConnectorTypes(con);
 
         if (functions.size() > 0)
@@ -250,18 +248,17 @@ public class Coupling
 
         if (fct != null && var != null)
         {
-            Map<ProgramGlobalVariable, Integer> pgVarsFct = fct
-                    .getProgramGlobals();
-            Map<FileGlobalVariable, Integer> fgVarsFct = fct.getFileGlobals();
-
-            if (pgVarsFct.containsKey(var))
+            Map<GlobalVariable, Integer> globalVarsFct = fct
+                    .getGlobalVariables();
+            
+            if (globalVarsFct.containsKey(var))
             {
-                result = pgVarsFct.get(var);
+                result = globalVarsFct.get(var);
             }
 
-            else if (fgVarsFct.containsKey(var))
+            else if (globalVarsFct.containsKey(var))
             {
-                result = fgVarsFct.get(var);
+                result = globalVarsFct.get(var);
             }
         }
 
@@ -285,20 +282,6 @@ public class Coupling
     {
         int result = 0;
 
-        // Arguments types
-
-        Set<LocalVariable> locals = fct.getArguments();
-
-        for (LocalVariable var : locals)
-        {
-            if (var.ofType(type))
-            {
-                ++result;
-            }
-        }
-
-        // Types used in the body
-
         Map<Type, Integer> usedTypes = fct.getUsedTypes();
 
         if (usedTypes.containsKey(type))
@@ -310,21 +293,10 @@ public class Coupling
     }
 
     /**
-     * Mesure le couplage entre deux fonctions.
-     * 
-     * @param fct1
-     * @param fct2
-     * @return
+     * Mesure le couplage entre une variable et un type.
      */
     private int coupling(Variable var, Type type)
     {
-        int result = 0;
-
-        if (var.ofType(type))
-        {
-            ++result;
-        }
-
-        return result;
+        return var.ofType(type) ? 1 : 0;
     }
 }

@@ -6,9 +6,8 @@ import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
-import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
+import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
-import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
 public class COA
 {
@@ -29,7 +28,7 @@ public class COA
     /**
      * Retourne l'ensemble des variables d'un composant.
      */
-    public Set<Variable> getComponentVariables(Component comp)
+    public Set<GlobalVariable> getComponentVariables(Component comp)
     {
         return this.coaComponents.getComponentVariables(comp);
     }
@@ -53,7 +52,7 @@ public class COA
     /**
      * Retourne l'ensemble des variables d'une interface.
      */
-    public Set<Variable> getInterfaceVariables(Interface itf)
+    public Set<GlobalVariable> getInterfaceVariables(Interface itf)
     {
         return this.coaInterfaces.getInterfaceVariables(itf);
     }
@@ -77,7 +76,7 @@ public class COA
     /**
      * Retourne l'ensemble des variables d'une interface.
      */
-    public Set<Variable> getConnectorVariables(Connector con)
+    public Set<GlobalVariable> getConnectorVariables(Connector con)
     {
         return this.coaConnectors.getConnectorVariables(con);
     }
@@ -112,7 +111,7 @@ public class COA
     /**
      * Ajoute une variable à un composant.
      */
-    public boolean addVariable(Variable var, Component comp)
+    public boolean addVariable(GlobalVariable var, Component comp)
     {
         return this.coaComponents.addVariable(var, comp);
     }
@@ -120,9 +119,9 @@ public class COA
     /**
      * Ajoute un ensemble de variables à un composant.
      */
-    public void addVariables(Set<Variable> vars, Component comp)
+    public void addVariables(Set<GlobalVariable> vars, Component comp)
     {
-       for(Variable v : vars)
+       for(GlobalVariable v : vars)
        {
            this.coaComponents.addVariable(v, comp);
        }
@@ -169,7 +168,7 @@ public class COA
     /**
      * Ajoute une variable à une interface.
      */
-    public boolean addVariable(Variable var, Interface itf)
+    public boolean addVariable(GlobalVariable var, Interface itf)
     {
         return this.coaInterfaces.addVariable(var, itf);
     }
@@ -177,9 +176,9 @@ public class COA
     /**
      * Ajoute un ensemble de variables à une interface.
      */
-    public void addVariables(Set<Variable> vars, Interface itf)
+    public void addVariables(Set<GlobalVariable> vars, Interface itf)
     {
-       for(Variable v : vars)
+       for(GlobalVariable v : vars)
        {
            this.coaInterfaces.addVariable(v, itf);
        }
@@ -226,7 +225,7 @@ public class COA
     /**
      * Ajoute une variable à un connecteur.
      */
-    public boolean addVariable(Variable var, Connector con)
+    public boolean addVariable(GlobalVariable var, Connector con)
     {
         return this.coaConnectors.addVariable(var, con);
     }
@@ -234,9 +233,9 @@ public class COA
     /**
      * Ajoute un ensemble de variables à un connecteur.
      */
-    public void addVariables(Set<Variable> vars, Connector con)
+    public void addVariables(Set<GlobalVariable> vars, Connector con)
     {
-       for(Variable v : vars)
+       for(GlobalVariable v : vars)
        {
            this.coaConnectors.addVariable(v, con);
        }
@@ -272,7 +271,7 @@ public class COA
     /**
      * Retire une variable d'un composant.
      */
-    public boolean removeVariable(Variable var, Component comp)
+    public boolean removeVariable(GlobalVariable var, Component comp)
     {
         return this.coaComponents.removeVariable(var, comp);
     }
@@ -296,7 +295,7 @@ public class COA
     /**
      * Retire une variable d'une interface.
      */
-    public boolean removeVariable(Variable var, Interface itf)
+    public boolean removeVariable(GlobalVariable var, Interface itf)
     {
         return this.coaInterfaces.removeVariable(var, itf);
     }
@@ -320,7 +319,7 @@ public class COA
     /**
      * Retire une variable d'un connecteur.
      */
-    public boolean removeVariable(Variable var, Connector con)
+    public boolean removeVariable(GlobalVariable var, Connector con)
     {
         return this.coaConnectors.removeVariable(var, con);
     }
@@ -344,7 +343,7 @@ public class COA
     /**
      * Déplace une variable d'un composant à un autre.
      */
-    public boolean moveVariable(Variable var, Component from, Component to)
+    public boolean moveVariable(GlobalVariable var, Component from, Component to)
     {
         return this.coaComponents.moveVariable(var, from, to);
     }
@@ -368,7 +367,7 @@ public class COA
     /**
      * Déplace une variable d'une interface à une autre.
      */
-    public boolean moveVariable(Variable var, Interface from, Interface to)
+    public boolean moveVariable(GlobalVariable var, Interface from, Interface to)
     {
         return this.coaInterfaces.moveVariable(var, from, to);
     }
@@ -392,7 +391,7 @@ public class COA
     /**
      * Déplace une variable d'un connecteur à un autre.
      */
-    public boolean moveVariable(Variable var, Connector from, Connector to)
+    public boolean moveVariable(GlobalVariable var, Connector from, Connector to)
     {
         return this.coaConnectors.moveVariable(var, from, to);
     }
