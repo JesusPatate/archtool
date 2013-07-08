@@ -182,6 +182,11 @@
 #include "hoptemp.h"
 #include "atpcdcg.h"
 
+struct meuh
+{
+int a;
+} pouet;
+
 #include "hrdjou1.qhe"
 static struct S_POIN poin [MAX_POINTAGE];
 

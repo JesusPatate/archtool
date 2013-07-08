@@ -17,12 +17,9 @@ grammar C;
 @parser::members
 {
 	private File currentFile;
-	private Map<String, Function> functions = 
-			new HashMap<String, Function>();
-	private Map<String, ComplexType> complexTypes = 
-			new HashMap<String, ComplexType>();
-	private Map<String, GlobalVariable> globalVariables = 
-			new HashMap<String, GlobalVariable>();
+	private Map<String, Function> functions;
+	private Map<String, ComplexType> complexTypes;
+	private Map<String, GlobalVariable> globalVariables;
 	
 	private void addComplexType(String name)
 	{
@@ -31,6 +28,40 @@ grammar C;
 			this.complexTypes.put(name, 
 					new ComplexType(name, this.currentFile));
 		}
+	}
+	
+	public void setContext(Context context)
+	{
+		this.functions = context.getFunctions();
+		this.complexTypes = context.getComplexTypes();
+		this.globalVariables = context.getGlobalVariables();
+	}
+	
+	public void setCurrentFile(File currentFile)
+	{
+		this.currentFile = currentFile;
+	}
+	
+	public void cleanUp()
+	{
+		this.functions.clear();
+		this.complexTypes.clear();
+		this.globalVariables.clear();
+	}
+	
+	public Set<Function> getFunctions()
+	{
+		return new HashSet<Function>(this.functions.values());
+	}
+	
+	public Set<ComplexType> getComplexTypes()
+	{
+		return new HashSet<ComplexType>(this.complexTypes.values());
+	}
+	
+	public Set<GlobalVariable> getGlobalVariables()
+	{
+		return new HashSet<GlobalVariable>(this.globalVariables.values());
 	}
 }
 
@@ -1550,12 +1581,6 @@ jumpStatement returns [MultiCounter<String> variablesNameUsed =
 compilationUnit
     : translationUnit? EOF
 {
-    System.out.println("FUNCTION DEFINITIONS\n");
-    
-    for(Function f : this.functions.values())
-    {
-        System.out.println(f);
-    }
 }
     ;
 
