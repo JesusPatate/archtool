@@ -15,14 +15,13 @@ import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 public class CProcessor 
 {
 	private CLexer lexer = new CLexer(null);
-    private CParser parser = 
-            new CParser(new CommonTokenStream(this.lexer));
+    private CParser parser = new CParser(null);
 	
     public void process(String filename, Context context) throws IOException
     {
         CharStream stream = new ANTLRFileStream(filename);
         this.lexer.setInputStream(stream);
-        this.parser.reset();
+        this.parser.setTokenStream(new CommonTokenStream(this.lexer));
         this.parser.setCurrentFile(new File(filename));
         this.parser.setContext(context);
         this.parser.compilationUnit();

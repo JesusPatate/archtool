@@ -16,6 +16,10 @@ public class Context
 	private Map<String, GlobalVariable> globalVariables = 
 			new HashMap<String, GlobalVariable>();
 	
+	public Context()
+	{
+	}
+	
 	public Context(Set<Function> functions, Set<ComplexType> complexTypes,
 			Set<GlobalVariable> globalVariables)
 	{
@@ -48,5 +52,17 @@ public class Context
 	public Map<String, GlobalVariable> getGlobalVariables()
 	{
 		return new HashMap<String, GlobalVariable>(this.globalVariables);
+	}
+	
+	public Context merge(Context context)
+	{
+	    Context merged = new Context();
+	    merged.functions.putAll(this.functions);
+	    merged.functions.putAll(context.functions);
+	    merged.complexTypes.putAll(this.complexTypes);
+        merged.complexTypes.putAll(context.complexTypes);
+        merged.globalVariables.putAll(this.globalVariables);
+        merged.globalVariables.putAll(context.globalVariables);
+	    return merged;
 	}
 }

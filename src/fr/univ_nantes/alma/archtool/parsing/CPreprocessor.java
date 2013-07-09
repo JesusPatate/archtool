@@ -10,14 +10,13 @@ import org.antlr.v4.runtime.CommonTokenStream;
 public class CPreprocessor
 {
     private CPreprocessorLexer lexer = new CPreprocessorLexer(null);
-    private CPreprocessorParser parser = 
-            new CPreprocessorParser(new CommonTokenStream(this.lexer));
+    private CPreprocessorParser parser = new CPreprocessorParser(null);
     
     public void process(String filename) throws IOException
     {
         CharStream stream = new ANTLRFileStream(filename);
         this.lexer.setInputStream(stream);
-        this.parser.reset();
+        this.parser.setTokenStream(new CommonTokenStream(this.lexer));
         this.parser.preprocessingFile();
     }
     
