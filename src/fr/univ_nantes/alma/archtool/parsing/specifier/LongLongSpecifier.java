@@ -25,7 +25,7 @@ public class LongLongSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.longLongType();
+        return PrimitiveType.longLongType;
     }
     
     @Override

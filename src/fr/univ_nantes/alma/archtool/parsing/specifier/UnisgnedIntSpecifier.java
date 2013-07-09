@@ -30,7 +30,7 @@ public class UnisgnedIntSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.unsignedIntType();
+        return PrimitiveType.unsignedIntType;
     }
     
     @Override

@@ -15,7 +15,7 @@ public class DoubleSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.doubleType();
+        return PrimitiveType.doubleType;
     }
     
     @Override

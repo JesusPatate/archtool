@@ -7527,7 +7527,7 @@ public class CParser extends Parser {
 
 			setState(1436); ((FunctionDefinitionContext)_localctx).cs = compoundStatement(_localctx.arguments);
 
-			    Type returnType = ((FunctionDefinitionContext)_localctx).ds.type == null ? PrimitiveType.voidType() : ((FunctionDefinitionContext)_localctx).ds.type;
+			    Type returnType = ((FunctionDefinitionContext)_localctx).ds.type == null ? PrimitiveType.voidType : ((FunctionDefinitionContext)_localctx).ds.type;
 			    Set<LocalVariable> arguments = 
 			            (((FunctionDefinitionContext)_localctx).dl!=null?_input.getText(((FunctionDefinitionContext)_localctx).dl.start,((FunctionDefinitionContext)_localctx).dl.stop):null) == null ? ((FunctionDefinitionContext)_localctx).d.arguments : ((FunctionDefinitionContext)_localctx).dl.arguments;
 			    

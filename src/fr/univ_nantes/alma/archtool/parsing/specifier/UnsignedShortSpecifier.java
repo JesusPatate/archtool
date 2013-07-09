@@ -20,7 +20,7 @@ public class UnsignedShortSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.unsignedShortType();
+        return PrimitiveType.unsignedShortType;
     }
     
     @Override

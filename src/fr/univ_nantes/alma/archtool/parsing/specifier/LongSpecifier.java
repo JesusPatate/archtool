@@ -40,7 +40,7 @@ public class LongSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.longType();
+        return PrimitiveType.longType;
     }
     
     @Override
