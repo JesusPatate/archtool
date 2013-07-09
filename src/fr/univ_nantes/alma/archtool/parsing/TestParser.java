@@ -12,19 +12,21 @@ public class TestParser
 {
     public static void main(String[] args) throws IOException
     {
-    	CProcessor cp = new CProcessor();
+    	/*CProcessor cp = new CProcessor();
     	Set<Function> functions = new HashSet<Function>();
     	Set<ComplexType> complexTypes = new HashSet<ComplexType>();
     	Set<GlobalVariable> globalVariables = new HashSet<GlobalVariable>();
-    	Context context = new Context(functions, complexTypes, globalVariables);
-    	cp.process("Makefile", context);
-    	System.out.println(cp.getGlobalVariables());
+    	cp.process("/comptes/E071318U/stage/sou/common/include/libtpt_cmn.h", 
+    	        new Context());
+    	System.out.println(cp.getFunctions());*/
         
-        /*CPreprocessor cpp = new CPreprocessor();
-        cpp.process("/comptes/E071318U/dev/projects/archtool/Makefile");
-        System.out.println(cpp.getNonStandardIncludes());
+        CPreprocessor cpp = new CPreprocessor();
+        cpp.process("/comptes/E071318U/stage/sou/hr/include/libtpt_hr.h");
+        //System.out.println(cpp.getNonStandardIncludes());
         
-        cpp.process("/comptes/E071318U/stage/sou/hr/srclib/hrrjou.c");
+        /*cpp.reset();
+        
+        cpp.process("/comptes/E071318U/stage/sou/qhe/hrdabs1.qhe");
         System.out.println(cpp.getNonStandardIncludes());*/
     }
 }

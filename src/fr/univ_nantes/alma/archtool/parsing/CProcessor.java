@@ -46,4 +46,11 @@ public class CProcessor
     {
     	return this.parser.getGlobalVariables();
     }
+    
+    public Context getContext()
+    {
+        return new Context(this.parser.getFunctions(), 
+                this.parser.getComplexTypes(), 
+                this.parser.getGlobalVariables());
+    }
 }

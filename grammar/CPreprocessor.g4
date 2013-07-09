@@ -26,7 +26,7 @@ grammar CPreprocessor;
 
 
 preprocessingFile
-	: group
+	: group? EOF
 	;
 
 group
@@ -34,7 +34,13 @@ group
 	;
 
 groupPart
-	: '#' 'include' h=HeaderName Newline? {if($h.text.charAt(0) != '<') this.nonStandardIncludes.add($h.text.substring(1, $h.text.length() - 1));}
+	: '#' 'include' h=HeaderName Newline? 
+{
+    if($h.text.charAt(0) != '<')
+    {
+        this.nonStandardIncludes.add($h.text.substring(1, $h.text.length() - 1));
+    }
+}
 	| Newline
 	| HeaderName
 	;
@@ -79,6 +85,11 @@ CCode
 		-> skip
 	;
 
+Whitespace
+    : [ \t]+
+	    -> skip
+	;
+
 IgnoredPreprocessingDirective
 	: '#' (IgnoredPreprocessingKeyword ~[\r\n]*)? Newline?
 		-> skip
@@ -88,11 +99,6 @@ fragment
 IgnoredPreprocessingKeyword
     : 'if' | 'ifdef' | 'ifndef' | 'elif' | 'else' | 'endif' 
     | 'define' | 'undef' | 'line' | 'error' | 'pragma'
-    ;
-
-Whitespace
-    : [ \t]+
-    	-> skip
     ;
 
 Newline
