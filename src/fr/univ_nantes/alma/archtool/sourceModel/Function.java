@@ -52,16 +52,6 @@ public class Function
         this.body = new Block();
     }
 
-    public Function(final String name, final Type returnType,
-            final Set<LocalVariable> arguments, final Block body,
-            final File sourceFile)
-    {
-        this(name, returnType);
-        this.arguments = arguments;
-        this.body = body;
-        this.sourceFile = sourceFile;
-    }
-
     public Function(final String name, final Type returnType, boolean isStatic,
             final Set<LocalVariable> arguments, final Block body,
             final File sourceFile)

@@ -2,35 +2,27 @@ package fr.univ_nantes.alma.archtool.objective;
 
 public class Similarity
 {
+    private final static double MIN_RATIO = 0.6;
+
     private String compOne;
     private String compTwo;
     private int[][] matrix;
-    private Boolean calculated = false;
 
-    public Similarity(final String a, final String b)
+    public boolean similar(final String a, final String b)
     {
-        if (((a.length() > 0) || !a.isEmpty())
-                || ((b.length() > 0) || !b.isEmpty()))
-        {
-            this.compOne = a;
-            this.compTwo = b;
-        }
-    }
+        this.compOne = a;
+        this.compTwo = b;
 
-    public int[][] getMatrix()
-    {
         this.setupMatrix();
-        return this.matrix;
-    }
 
-    public int getSimilarity()
-    {
-        if (!this.calculated)
-        {
-            this.setupMatrix();
-        }
+        final double nbDiffs =
+                this.matrix[this.compOne.length()][this.compTwo.length()];
+        final double minLen =
+                this.minimum(this.compOne.length(), this.compTwo.length());
+        
+        final double ratio = 1 - (nbDiffs / minLen);
 
-        return this.matrix[this.compOne.length()][this.compTwo.length()];
+        return (ratio > Similarity.MIN_RATIO);
     }
 
     private void setupMatrix()
@@ -41,19 +33,19 @@ public class Similarity
         this.matrix =
                 new int[this.compOne.length() + 1][this.compTwo.length() + 1];
 
-        for (int i = 0; i <= this.compOne.length(); i++)
+        for (int i = 0 ; i <= this.compOne.length() ; i++)
         {
             this.matrix[i][0] = i;
         }
 
-        for (int i = 0; i <= this.compTwo.length(); i++)
+        for (int i = 0 ; i <= this.compTwo.length() ; i++)
         {
             this.matrix[0][i] = i;
         }
 
-        for (int i = 1; i <= this.compOne.length(); i++)
+        for (int i = 1 ; i <= this.compOne.length() ; i++)
         {
-            for (int j = 1; j <= this.compTwo.length(); j++)
+            for (int j = 1 ; j <= this.compTwo.length() ; j++)
             {
                 if (this.compOne.charAt(i - 1) == this.compTwo.charAt(j - 1))
                 {
@@ -82,63 +74,27 @@ public class Similarity
                 }
             }
         }
-
-        this.calculated = true;
     }
 
-    private void displayMatrix()
+    private int minimum(final int a, final int b, final int c)
     {
-        System.out.println(" " + this.compOne);
-        for (int y = 0; y <= this.compTwo.length(); y++)
-        {
-            if ((y - 1) < 0)
-            {
-                System.out.print(" ");
-            } else
-            {
-                System.out.print(this.compTwo.charAt(y - 1));
-            }
-            for (int x = 0; x <= this.compOne.length(); x++)
-            {
-                System.out.print(this.matrix[x][y]);
-            }
-            System.out.println();
-        }
-    }
+        int m = a;
 
-    private int minimum(final int d, final int i, final int s)
-    {
-        int m = Integer.MAX_VALUE;
+        if (m > b)
+        {
+            m = b;
+        }
 
-        if (d < m)
+        if (m > c)
         {
-            m = d;
-        }
-        if (i < m)
-        {
-            m = i;
-        }
-        if (s < m)
-        {
-            m = s;
+            m = c;
         }
 
         return m;
     }
 
-    private int minimum(final int d, final int t)
+    private int minimum(final int a, final int b)
     {
-        int m = Integer.MAX_VALUE;
-
-        if (d < m)
-        {
-            m = d;
-        }
-        if (t < m)
-        {
-            m = t;
-        }
-
-        return m;
+        return (a < b) ? a : b;
     }
 }

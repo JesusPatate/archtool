@@ -23,7 +23,7 @@ public abstract class StructuredSpecifier extends DeclarationSpecifier
         
         if(this.name == null)
         {
-            type = ComplexType.anonymousType();
+            type = ComplexType.anonymousType;
         }
         else if(this.complextypes.containsKey(name))
         {
@@ -33,7 +33,7 @@ public abstract class StructuredSpecifier extends DeclarationSpecifier
         // We don't know the declaration of the type
         else
         {
-            type = ComplexType.anonymousType();
+            type = ComplexType.anonymousType;
         }
         
         return type;

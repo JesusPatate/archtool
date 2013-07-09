@@ -1668,7 +1668,7 @@ functionDefinition returns [Function result]
         new HashMap<String, LocalVariable>()]
     : ds=declarationSpecifiers? d=declarator dl=declarationList? cs=compoundStatement[$arguments]
 {
-    Type returnType = $ds.type == null ? PrimitiveType.voidType() : $ds.type;
+    Type returnType = $ds.type == null ? PrimitiveType.voidType : $ds.type;
     Set<LocalVariable> arguments = 
             $dl.text == null ? $d.arguments : $dl.arguments;
     

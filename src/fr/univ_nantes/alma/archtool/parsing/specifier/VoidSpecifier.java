@@ -15,7 +15,7 @@ public class VoidSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.voidType();
+        return PrimitiveType.voidType;
     }
     
     @Override

@@ -1,5 +1,6 @@
 package fr.univ_nantes.alma.archtool.objective;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -9,9 +10,11 @@ import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
+import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.LocalVariable;
+import fr.univ_nantes.alma.archtool.sourceModel.PrimitiveType;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
@@ -28,7 +31,45 @@ public class Cohesion
      */
     static final double MAX_COHESION_FCT_FCT = 4.0;
 
+    /**
+     * Poids de la cohésion sur les appels communs dans le calcul de la cohésion
+     * entre 2 fonctions.
+     */
+    static final double WEIGHT_FCT_COHESION_CALLS = 2.0;
+
+    /**
+     * Poids de la cohésion sur les variables globales communes dans le calcul
+     * de la cohésion entre 2 fonctions.
+     */
+    static final double WEIGHT_FCT_COHESION_GLOBALS = 2.0;
+
+    /**
+     * Poids de la cohésion sur les variables locales communes dans le calcul de
+     * la cohésion entre 2 fonctions.
+     */
+    static final double WEIGHT_FCT_COHESION_LOCALS = 1.0;
+
+    /**
+     * Poids de la cohésion sur les types communs dans le calcul de la cohésion
+     * entre 2 fonctions.
+     */
+    static final double WEIGHT_FCT_COHESION_TYPES = 1.0;
+
+    /**
+     * Poids de la cohésion sur les arguments communs dans le calcul de la
+     * cohésion entre 2 fonctions.
+     */
+    static final double WEIGHT_FCT_COHESION_ARGS = 1.0;
+
+    /**
+     * Longueur minimale du nom d'une variable pour qu'elle soit prise en compte
+     * pour la cohésion entre fonction sur les variables locales.
+     */
+    static final int VARNAME_MIN_LEN = 3;
+
     private final COA coa;
+
+    private static final Similarity similarity = new Similarity();
 
     public Cohesion(final COA coa)
     {
@@ -752,12 +793,19 @@ public class Cohesion
     {
         double result = 0.0;
 
-        result += this.cohesionGlobalVars(f1, f2);
-        result += this.cohesionLocalVars(f1, f2);
-        result += this.cohesionTypes(f1, f2);
-        result += this.cohesionCalls(f1, f2);
+        double cc = this.cohesionCalls(f1, f2);
+        double cg = this.cohesionGlobalVars(f1, f2);
+        double cl = this.cohesionLocalVars(f1, f2);
+        double ct = this.cohesionTypes(f1, f2);
+        double ca = this.cohesionArguments(f1, f2);
 
-        if(f1.getSourceFile() != null && f2.getSourceFile() != null)
+        result += WEIGHT_FCT_COHESION_CALLS * cc;
+        result += WEIGHT_FCT_COHESION_GLOBALS * cg;
+        result += WEIGHT_FCT_COHESION_LOCALS * cl;
+        result += WEIGHT_FCT_COHESION_TYPES * ct;
+        result += WEIGHT_FCT_COHESION_ARGS * ca;
+
+        if (f1.getSourceFile() != null && f2.getSourceFile() != null)
         {
             if (f1.getSourceFile().equals(f2.getSourceFile()))
             {
@@ -765,10 +813,16 @@ public class Cohesion
             }
         }
 
-        result /= MAX_COHESION_FCT_FCT;
+        result /= WEIGHT_FCT_COHESION_CALLS + WEIGHT_FCT_COHESION_GLOBALS
+                + WEIGHT_FCT_COHESION_LOCALS + WEIGHT_FCT_COHESION_TYPES
+                + WEIGHT_FCT_COHESION_ARGS;
 
         result = (result > 1.0) ? 1.0 : result;
-        
+
+//        System.out.println(f1.getName() + " - " + f2.getName() + " : "
+//                + "CC=" + cc + " CG=" + cg + " CL=" + cl + " CT=" + ct
+//                + " CA=" + ca + " -- " + result); // DBG
+
         return result;
     }
 
@@ -802,7 +856,7 @@ public class Cohesion
         {
             total += n;
         }
-        
+
         if (fctVars.containsKey(var))
         {
             nbAccessToVar = fctVars.get(var);
@@ -859,7 +913,7 @@ public class Cohesion
 
             total += usedTypes.get(t);
         }
-        
+
         // Same file ?
         if (fct.getSourceFile() != null && type.getSourceFile() != null)
         {
@@ -901,8 +955,8 @@ public class Cohesion
         double nbPGVars = 0;
         double nbCommon = 0;
 
-        Map<GlobalVariable, Integer> globalVars1 = f1.getProgramGlobals();
-        Map<GlobalVariable, Integer> globalVars2 = f2.getProgramGlobals();
+        Map<GlobalVariable, Integer> globalVars1 = f1.getGlobalVariables();
+        Map<GlobalVariable, Integer> globalVars2 = f2.getGlobalVariables();
 
         for (GlobalVariable var : globalVars1.keySet())
         {
@@ -943,29 +997,36 @@ public class Cohesion
     private double cohesionLocalVars(Function f1, Function f2)
     {
         double result = 0.0;
-        double nbLocalVars = 0;
         double nbCommon = 0;
 
         Map<LocalVariable, Integer> localVars1 = f1.getLocals();
         Map<LocalVariable, Integer> localVars2 = f2.getLocals();
+        Set<LocalVariable> localVars = new HashSet<LocalVariable>();
 
         for (LocalVariable var1 : localVars1.keySet())
         {
             for (LocalVariable var2 : localVars2.keySet())
             {
-                if ((var1.getName().compareTo(var2.getName()) == 0)
-                        && (var1.ofType(var2.getType())))
+                if (var1.getName().length() >= VARNAME_MIN_LEN
+                        && var2.getName().length() >= VARNAME_MIN_LEN)
                 {
-                    ++nbCommon;
+                    if (var1.getType().equals(var2.getType()))
+                    {
+                        if (similarity.similar(var1.getName(), var2.getName()))
+                        {
+                            ++nbCommon;
+                        }
+                    }
+
+                    localVars.add(var1);
+                    localVars.add(var2);
                 }
             }
         }
 
-        nbLocalVars = localVars1.size() + localVars2.size() - nbCommon;
-
-        if (nbLocalVars > 0)
+        if (localVars.size() > 0)
         {
-            result = nbCommon / nbLocalVars;
+            result = nbCommon / localVars.size();
         }
 
         return result;
@@ -991,25 +1052,38 @@ public class Cohesion
     private double cohesionTypes(Function f1, Function f2)
     {
         double result = 0.0;
-        double nbUsedTypes = 0;
         double nbCommon = 0;
 
-        Map<Type, Integer> usedTypes1 = f1.getUsedTypes();
-        Map<Type, Integer> usedTypes2 = f2.getUsedTypes();
+        Map<Type, Integer> usedTypesFct1 = f1.getUsedTypes();
+        Map<Type, Integer> usedTypesFct2 = f2.getUsedTypes();
+        Set<Type> usedTypes = new HashSet<Type>();
 
-        for (Type t : usedTypes1.keySet())
+        for (Type t : usedTypesFct1.keySet())
         {
-            if (usedTypes2.containsKey(t))
+            if (t.equals(PrimitiveType.voidType) == false
+                    && t.equals(ComplexType.anonymousType) == false)
             {
-                ++nbCommon;
+                if (usedTypesFct2.containsKey(t))
+                {
+                    ++nbCommon;
+                }
+
+                usedTypes.add(t);
             }
         }
 
-        nbUsedTypes = usedTypes1.size() + usedTypes2.size() - nbCommon;
-
-        if (nbUsedTypes > 0)
+        for (Type t : usedTypesFct2.keySet())
         {
-            result = nbCommon / nbUsedTypes;
+            if (t.equals(PrimitiveType.voidType) == false
+                    && t.equals(ComplexType.anonymousType) == false)
+            {
+                usedTypes.add(t);
+            }
+        }
+
+        if (usedTypes.size() > 0)
+        {
+            result = nbCommon / usedTypes.size();
         }
 
         return result;
@@ -1065,6 +1139,57 @@ public class Cohesion
         if (nbCalls > 0)
         {
             result = nbCommon / nbCalls;
+        }
+
+        return result;
+    }
+
+    /**
+     * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
+     * 
+     * <p>
+     * Calcule le ratio de paramètres similaires entre les deux fonctions sur
+     * l'ensemble des paramètres des deux fonctions.
+     * </p>
+     * 
+     * @param f1
+     *            Une fonction d'un modèle de code source
+     * @param f2
+     *            Une autre fonction d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 1.0
+     * 
+     * @see #cohesion(Function, Function)
+     */
+    private double cohesionArguments(Function f1, Function f2)
+    {
+        double result = 0.0;
+        double nbCommon = 0;
+
+        Set<LocalVariable> argsFct1 = f1.getArguments();
+        Set<LocalVariable> argsFct2 = f2.getArguments();
+        Set<LocalVariable> args = new HashSet<LocalVariable>();
+
+        for (LocalVariable arg1 : argsFct1)
+        {
+            for (LocalVariable arg2 : argsFct2)
+            {
+                if (arg1.getType().equals(arg2.getType()))
+                {
+                    if (similarity.similar(arg1.getName(), arg2.getName()))
+                    {
+                        ++nbCommon;
+                    }
+                }
+
+                args.add(arg1);
+                args.add(arg2);
+            }
+        }
+
+        if (args.size() > 0)
+        {
+            result = nbCommon / args.size();
         }
 
         return result;

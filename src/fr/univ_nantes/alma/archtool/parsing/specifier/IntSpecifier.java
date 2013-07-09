@@ -20,7 +20,7 @@ public class IntSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.intType();
+        return PrimitiveType.intType;
     }
     
     @Override

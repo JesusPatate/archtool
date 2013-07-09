@@ -50,9 +50,9 @@ public class ObjectiveFunctionTest
         sourceCode = new SourceCode();
         
         file = new File("file");
-        v1 = new LocalVariable("x", PrimitiveType.charType());
-        v2 = new LocalVariable("v", PrimitiveType.intType());
-        v3 = new LocalVariable("y", PrimitiveType.intType());
+        v1 = new LocalVariable("x", PrimitiveType.charType);
+        v2 = new LocalVariable("v", PrimitiveType.intType);
+        v3 = new LocalVariable("y", PrimitiveType.intType);
 
         v4 = new GlobalVariable("g", PrimitiveType.charType(), false, file);
         sourceCode.addGlobal(v4);

@@ -30,7 +30,7 @@ public class ShortSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.shortType();
+        return PrimitiveType.shortType;
     }
     
     @Override

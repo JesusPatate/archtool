@@ -19,7 +19,7 @@ public class UnsignedLongLongSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.unsignedLongLongType();
+        return PrimitiveType.unsignedLongLongType;
     }
     
     @Override

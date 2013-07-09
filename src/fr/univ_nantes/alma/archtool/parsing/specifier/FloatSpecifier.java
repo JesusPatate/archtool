@@ -15,7 +15,7 @@ public class FloatSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.floatType();
+        return PrimitiveType.floatType;
     }
     
     @Override

@@ -20,7 +20,7 @@ public class CharSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.charType();
+        return PrimitiveType.charType;
     }
     
     @Override

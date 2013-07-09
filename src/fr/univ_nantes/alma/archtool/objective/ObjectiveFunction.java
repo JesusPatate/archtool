@@ -7,6 +7,10 @@ import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
+import fr.univ_nantes.alma.archtool.sourceModel.Function;
+import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
+import fr.univ_nantes.alma.archtool.sourceModel.Type;
+import fr.univ_nantes.alma.archtool.utils.Graph;
 
 public class ObjectiveFunction
 {
@@ -25,6 +29,12 @@ public class ObjectiveFunction
      * sémantique de l'architecture.
      */
     static final double WEIGHT_COMP_SEM = 1.0;
+    
+    /**
+     * Poids de la sémantique des connecteurs dans le calcul de la validité
+     * sémantique de l'architecture.
+     */
+    static final double WEIGHT_CON_SEM = 1.0;
 
     /**
      * Poids de l'autonomie des composants dans le calcul de la validité
@@ -42,7 +52,7 @@ public class ObjectiveFunction
      * Poids de la composabilité des composants dans le calcul de la validité
      * sémantique des composants.
      */
-    static final double WEIGHT_COMP_COMPO = 1.0;
+    static final double WEIGHT_COMP_COMPO = 3.0;
 
     /**
      * Poids du nombre d'interfaces requises dans le calcul de la composabilité
@@ -115,7 +125,7 @@ public class ObjectiveFunction
         this.coupling = new Coupling(this.coa);
         this.maintainability = new Maintainability(this.coa);
 
-        result += WEIGHT_SEM * this.evaluateArchSemantic();
+        result += WEIGHT_SEM * this.evaluateSemanticArchitecture();
         result +=  WEIGHT_QUAL * this.evaluateArchQuality();
 
         return result;
@@ -124,11 +134,12 @@ public class ObjectiveFunction
     /**
      * Évalue la validité sémantique de l'architecture.
      */
-    private double evaluateArchSemantic()
+    private double evaluateSemanticArchitecture()
     {
         double result = 0.0;
 
-        result += WEIGHT_COMP_SEM * this.evaluateArchSemanticComp();
+        result += WEIGHT_COMP_SEM * this.evaluateSemanticComponent();
+        result += WEIGHT_CON_SEM * this.evaluateSemanticConnector();
 
         return result;
     }
@@ -149,7 +160,7 @@ public class ObjectiveFunction
     /**
      * Évalue la validité sémantique des composant de l'architecture.
      */
-    private double evaluateArchSemanticComp()
+    private double evaluateSemanticComponent()
     {
         double result = 0.0;
 
@@ -160,6 +171,40 @@ public class ObjectiveFunction
             double compo = this.composability(comp);
             subresult = ObjectiveFunction.WEIGHT_COMP_COMPO * compo;
 
+            double inde = this.independence(comp);
+            subresult += ObjectiveFunction.WEIGHT_COMP_INDE * inde;
+
+            double spec = this.specificity(comp);
+            subresult += ObjectiveFunction.WEIGHT_COMP_SPECI * spec;
+
+            subresult /= ObjectiveFunction.WEIGHT_COMP_COMPO
+                    + ObjectiveFunction.WEIGHT_COMP_INDE
+                    + ObjectiveFunction.WEIGHT_COMP_SPECI;
+
+            result += subresult;
+        }
+
+        result /= this.architecture.getComponents().size();
+
+        return result;
+    }
+
+    /**
+     * Évalue la validité sémantique des composant de l'architecture.
+     */
+    private double evaluateSemanticConnector()
+    {
+        double result = 0.0;
+
+        for (Connector comp : this.architecture.getConnectors())
+        {
+            double subresult = 0.0;
+
+            /*
+            double compo = this.composability(comp);
+            subresult = ObjectiveFunction.WEIGHT_COMP_COMPO * compo;
+             */
+            
             double inde = this.independence(comp);
             subresult += ObjectiveFunction.WEIGHT_COMP_INDE * inde;
 
@@ -235,6 +280,74 @@ public class ObjectiveFunction
     }
 
     /**
+     * Évalue l'autonomie d'un connecteur.
+     * 
+     * <p>
+     * Un connecteur est autonome si sa glue est connexe.
+     * </p>
+     * 
+     * @param con
+     *            Le connecteur à évaluer
+     */
+    private double independence(final Connector con)
+    {
+        double result = 0.0;
+
+        Graph<Object> graph = new Graph<Object>();
+        
+        Set<Function> conFcts = this.coa.getConnectorFunctions(con);
+        Set<GlobalVariable> conVars = this.coa.getConnectorVariables(con);
+        Set<Type> conTypes = this.coa.getConnectorTypes(con);
+        
+        for(Function fct : conFcts)
+        {
+            graph.addNode(fct);
+        }
+
+        for(GlobalVariable var : conVars)
+        {
+            graph.addNode(var);
+        }
+
+        for(Type t : conTypes)
+        {
+            graph.addNode(t);
+        }
+        
+        for(Function fct : conFcts)
+        {
+            for(GlobalVariable var : fct.getGlobalVariables().keySet())
+            {
+                graph.addEdge(fct, var);
+            }
+            
+            for(Type t : fct.getUsedTypes().keySet())
+            {
+                graph.addEdge(fct, t);
+            }
+        }
+        
+        for(GlobalVariable var : conVars)
+        {
+            graph.addEdge(var, var.getType());
+        }
+        
+        if(graph.size() > 0)
+        {
+            if(graph.isConnected())
+            {
+                result = 1.0;
+            }
+        }
+        else
+        {
+            result = 1.0;
+        }
+        
+        return result;
+    }
+
+    /**
      * Évalue la spécificité d'un composant.
      * 
      * @param comp
@@ -300,6 +413,26 @@ public class ObjectiveFunction
         // Number of provided interfaces
 
         result -= WEIGHT_SPECI_ITFS_PRO * nbProInterfaces;
+
+        return result;
+    }
+
+    /**
+     * Évalue la composabilité d'un composant.
+     * 
+     * La composabilité d'un composant est évaluée sur le nombre d'interfaces
+     * qu'il requiert et sur la cohésion interne moyenne de ses interfaces
+     * fournies.
+     * 
+     * @param comp
+     *            Le composant à évaluer
+     */
+    private double specificity(final Connector con)
+    {
+        double result = 0.0;
+
+        result += this.cohesion.connectorInternalCohesion(con);
+        result += coupling.connectorCoupling(con);
 
         return result;
     }

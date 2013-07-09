@@ -2,25 +2,34 @@ package fr.univ_nantes.alma.archtool.objective.tests;
 
 import static org.junit.Assert.*;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import fr.univ_nantes.alma.archtool.objective.Similarity;
 
 public class SimilarityTest
 {
+    private static Similarity sim;
+    
+    @BeforeClass
+    public static void setUpBeforeClass()
+    {
+        sim = new Similarity();
+    }
+    
     @Test
     public void equality()
     {
-        Similarity sim = new Similarity("test", "test");
-        
-        assertTrue(sim.getSimilarity() == 0);
+        String str = "mghqqreh";
+        assertTrue(sim.similar(str, str));
     }
     
     @Test
     public void emptyString()
     {
-        Similarity sim = new Similarity("", "pouet");
+        String str1 = "lmkgipipfy";
+        String str2 = "lmkpgipiyf";
         
-        assertTrue(sim.getSimilarity() == 5);
+        assertTrue(sim.similar(str1, str2));
     }
 }

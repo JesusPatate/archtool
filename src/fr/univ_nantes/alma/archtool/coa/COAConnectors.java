@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
@@ -321,7 +320,7 @@ public class COAConnectors
         
         for(Connector con : this.conToFcts.keySet())
         {
-            buf.append("Connecteur(");
+            buf.append(con + " (");
             
             for(Function fct : this.conToFcts.get(con))
             {

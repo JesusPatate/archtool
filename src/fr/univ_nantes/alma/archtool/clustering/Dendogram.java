@@ -212,22 +212,22 @@ public class Dendogram implements Iterable<Dendogram.Node>
     {
         return this.nodes.size();
     }
-    
+
     public Architecture getArchitecture()
     {
-        if(this.architecture == null)
+        if (this.architecture == null)
         {
             this.buildArchitecture();
         }
-        
+
         return this.architecture;
     }
-    
+
     public COA getCOA()
     {
         return this.coa;
     }
-    
+
     /**
      * Génère un nouveau dendogramme en fusionnant deux noeuds.
      * 
@@ -400,6 +400,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
         this.buildInterfaces();
         this.buildConnections();
     }
+
     /**
      * A COMPLETER
      */
@@ -409,7 +410,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
         {
             this.processInterfacesFct(comp);
             this.processInterfacesVar(comp);
-            this.processInterfacesType(comp); // XXX ClusteringTest2 plante ici
+            this.processInterfacesType(comp);
         }
     }
 
@@ -468,7 +469,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
             }
             else
             {
-        	this.coa.removeInterface(itf);
+                this.coa.removeInterface(itf);
             }
         }
     }
@@ -500,21 +501,21 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
             for (Component comp2 : this.architecture.getComponents())
             {
-        	if (comp2.equals(comp) == false)
+                if (comp2.equals(comp) == false)
                 {
                     Iterator<Function> itFcts =
                             this.coa.getComponentFunctions(comp2).iterator();
-    
+
                     Function fct2 = null;
                     boolean found = false;
-    
+
                     while (itFcts.hasNext() && (found == false))
                     {
                         fct2 = itFcts.next();
-                        
+
                         final Map<GlobalVariable, Integer> varsFct2 =
                                 fct2.getGlobalVariables();
-    
+
                         if (varsFct2.containsKey(var))
                         {
                             comp2.addRequiredInterface(itf);
@@ -531,7 +532,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
             }
             else
             {
-        	this.coa.removeInterface(itf);
+                this.coa.removeInterface(itf);
             }
         }
     }
@@ -566,23 +567,23 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
             for (Component comp2 : this.architecture.getComponents())
             {
-        	if (comp2.equals(comp) == false)
+                if (comp2.equals(comp) == false)
                 {
                     boolean found = false;
-    
+
                     Set<Function> fcts = this.coa.getComponentFunctions(comp2);
                     Iterator<Function> itFcts = fcts.iterator();
-    
+
                     // A function of comp2 can use t within its body or it can
                     // have an argument of this type
                     while (itFcts.hasNext() && (found == false))
                     {
                         final Function fct2 = itFcts.next();
-    
+
                         // Body
-    
+
                         final Map<Type, Integer> types = fct2.getUsedTypes();
-    
+
                         if (types.containsKey(t))
                         {
                             comp2.addRequiredInterface(itf);
@@ -590,18 +591,18 @@ public class Dendogram implements Iterable<Dendogram.Node>
                             found = true;
                         }
                     }
-    
+
                     if (found == false)
                     {
                         // comp2 can have a global variable of type t
                         Set<GlobalVariable> vars =
                                 this.coa.getComponentVariables(comp2);
                         Iterator<GlobalVariable> itVars = vars.iterator();
-    
+
                         while (itVars.hasNext() && (found == false))
                         {
                             GlobalVariable v = itVars.next();
-    
+
                             if (v.ofType(t))
                             {
                                 comp2.addRequiredInterface(itf);
@@ -619,54 +620,53 @@ public class Dendogram implements Iterable<Dendogram.Node>
             }
             else
             {
-        	this.coa.removeInterface(itf);
+                this.coa.removeInterface(itf);
             }
         }
     }
 
-    private void buildConnections() {
-	
-	for(Component comp : this.architecture.getComponents())
-	{
-	    for(Interface itf : comp.getProvidedInterfaces())
-	    {
-		Connector con = new Connector();
-		this.architecture.addConnector(con);
-		this.coa.addConnector(con);
-		
-		this.architecture.addConnection(comp, con, itf);
-		
-		for(Component comp2 : this.architecture.getComponents())
-		{
-		    if(comp2.requiresInterface(itf))
-		    {
-			this.architecture.addConnection(comp2, con, itf);
-		    }
-		}
-	    }
-	}
-    }
+    private void buildConnections()
+    {
+        for (Component comp : this.architecture.getComponents())
+        {
+            for (Interface itf : comp.getProvidedInterfaces())
+            {
+                Connector con = new Connector();
+                this.architecture.addConnector(con);
+                this.coa.addConnector(con);
 
+                this.architecture.addConnection(comp, con, itf);
+
+                for (Component comp2 : this.architecture.getComponents())
+                {
+                    if (comp2.requiresInterface(itf))
+                    {
+                        this.architecture.addConnection(comp2, con, itf);
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public String toString()
     {
         StringBuffer buf = new StringBuffer("Dendogram (");
-        
-        for(Node node : this.nodes)
+
+        for (Node node : this.nodes)
         {
             buf.append(node);
             buf.append(", ");
         }
-        
+
         int idx = buf.lastIndexOf(",");
         buf.delete(idx, buf.length());
-        
+
         buf.append(")");
-        
+
         return buf.toString();
     }
-    
+
     @Override
     public Iterator<Node> iterator()
     {

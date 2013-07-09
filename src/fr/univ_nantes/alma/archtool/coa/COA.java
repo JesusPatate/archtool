@@ -484,14 +484,12 @@ public class COA
         buf.append(this.coaInterfaces);
         buf.append(this.coaConnectors);
         
-        /*
         int idx = buf.lastIndexOf(",");
         
         if(idx > 0)
         {
             buf.delete(idx, buf.length());
         }
-        */
         
         buf.append("]");
         

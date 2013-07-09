@@ -15,7 +15,7 @@ public class UnsignedCharSpecifier extends DeclarationSpecifier
     @Override
     public Type getType()
     {
-        return PrimitiveType.unsignedCharType();
+        return PrimitiveType.unsignedCharType;
     }
     
     @Override

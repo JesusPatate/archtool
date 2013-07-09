@@ -1,58 +1,67 @@
 package fr.univ_nantes.alma.archtool.objective.tests;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import junitx.util.PrivateAccessor;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import fr.univ_nantes.alma.archtool.objective.Cohesion;
-import fr.univ_nantes.alma.archtool.sourceModel.File;
+import fr.univ_nantes.alma.archtool.parsing.CProcessor;
+import fr.univ_nantes.alma.archtool.parsing.Context;
+import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
-import fr.univ_nantes.alma.archtool.sourceModel.LocalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.PrimitiveType;
-import fr.univ_nantes.alma.archtool.sourceModel.ProgramGlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
+import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 
 public class CohesionTest
 {
-    private static Cohesion cohesion;
-
-    private static SourceCode sourceCode;
-
-    private static File file;
-
-    private static Function fct1;
-    private static Function fct2;
-
-    private static LocalVariable localVar1;
-    private static LocalVariable localVar2;
-    private static LocalVariable localVar3;
-    private static LocalVariable localVar4;
-    private static LocalVariable localVar5;
-    private static LocalVariable localVar6;
-
-    private static ProgramGlobalVariable globalVar1;
-    private static ProgramGlobalVariable globalVar2;
-    private static ProgramGlobalVariable globalVar3;
+    private static Cohesion cohesion = new Cohesion(null);
+    private static CProcessor cp = new CProcessor();
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
-        file = new File("file");
 
-        localVar1 = new LocalVariable("localVar1", PrimitiveType.charType());
-        localVar2 = new LocalVariable("localVar2", PrimitiveType.intType());
-        localVar3 = new LocalVariable("localVar3", PrimitiveType.intType());
-        localVar4 = new LocalVariable("localVar4", PrimitiveType.charType());
-        localVar5 = new LocalVariable("localVar5", PrimitiveType.intType());
-        localVar6 = new LocalVariable("localVar6", PrimitiveType.intType());
+        Context context = new Context(
+                new HashSet<Function>(),
+                new HashSet<ComplexType>(),
+                new HashSet<GlobalVariable>());
 
-        globalVar1 = new ProgramGlobalVariable("g", PrimitiveType.charType(), file);
-        globalVar2 = new ProgramGlobalVariable("g", PrimitiveType.charType(), file);
-        globalVar3 = new ProgramGlobalVariable("g", PrimitiveType.charType(), file);
+        cp.process("/comptes/E10A345H/Fac/horoquartz/sou/hr/srclib/hrrjou.c",
+                context);
+        
+        System.out.println("Parsing completed");
     }
-    
+
     @Test
     public void testCohesionArguments()
     {
-        
+        Class[] classes = { Function.class, Function.class };
+
+        try
+        {
+            Set<Function> functions = cp.getFunctions();
+
+            Function[] fctArray = new Function[functions.size()];
+            functions.toArray(fctArray);
+
+            for (int i = 0 ; i < functions.size() - 1 ; ++i)
+            {
+                for (int j = i ; j < functions.size() ; ++j)
+                {
+                    Object[] args = {fctArray[i], fctArray[j] };
+
+                    double result = (Double) PrivateAccessor.invoke(
+                            cohesion, "cohesion", classes, args);
+                }
+            }
+        }
+
+        catch (Throwable e)
+        {
+            e.printStackTrace();
+        }
     }
 }

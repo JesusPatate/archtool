@@ -319,7 +319,7 @@ class COAComponents
         
         for(Component comp : this.compToFcts.keySet())
         {
-            buf.append("Composant(");
+            buf.append(comp + " (");
             
             for(Function fct : this.compToFcts.get(comp))
             {
