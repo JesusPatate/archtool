@@ -1363,6 +1363,10 @@ blockItem
                 		$compoundStatement::locals.get(counter.getKey());
                 $compoundStatement::localsUse.add(v, counter.getValue());
             }
+            else
+            {
+                
+            }
         }
         
         // Update calls.
@@ -1661,6 +1665,7 @@ externalDeclaration
 	}
 }
     | ';'
+    | 'extern' '"C"' '{' translationUnit '}' ';'
     ;
 
 functionDefinition returns [Function result] 
@@ -1947,11 +1952,6 @@ SChar
     | EscapeSequence
     ;
 
-PreprocessingDirective
-    : '#' ~[\r\n]*
-        -> skip
-    ;
-
 Whitespace
     : [ \t]+
         -> skip
@@ -1964,12 +1964,35 @@ Newline
         -> skip
     ;
 
+Comment
+    : (BlockComment
+            | LineComment
+      )
+          -> skip
+    ;             
+        
+fragment
 BlockComment
     : '/*' .*? '*/'
-        -> skip
     ;
-
+fragment
 LineComment
     : '//' ~[\r\n]*
+    ;
+ 
+PreprocessingDirective
+    : '#' ~[\r\n/]*
+        -> skip
+    ;
+        
+NewlinePreprocessor
+    : '\\' ( '\r' '\n'?
+        | '\n'
+        )
+        -> skip
+        ;
+        
+Macro
+    : 'COMMON_EXPORT'
         -> skip
     ;
