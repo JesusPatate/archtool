@@ -13,7 +13,7 @@ public class ObjectiveFunction
     /**
      * Poids de la validité sémantique de l'architecture.
      */
-    static final double WEIGHT_SEM = 2.0;
+    static final double WEIGHT_SEM = 1.0;
     
     /**
      * Poids de la qualité de l'architecture.
@@ -36,19 +36,25 @@ public class ObjectiveFunction
      * Poids de la spécificité des composants dans le calcul de la validité
      * sémantique des composants.
      */
-    static final double WEIGHT_COMP_SPECI = 0.5;
-
-    /**
-     * Poids du nombre d'interfaces fournies dans le calcul de la spécificité
-     * des composants
-     */
-    static final double WEIGHT_SPECI_ITFS_PRO = 1.0;
+    static final double WEIGHT_COMP_SPECI = 0.25;
 
     /**
      * Poids de la composabilité des composants dans le calcul de la validité
      * sémantique des composants.
      */
     static final double WEIGHT_COMP_COMPO = 1.0;
+
+    /**
+     * Poids du nombre d'interfaces requises dans le calcul de la composabilité
+     * des composants
+     */
+    static final double WEIGHT_INDE_ITFS_REQ = 5.0;
+
+    /**
+     * Poids du nombre d'interfaces fournies dans le calcul de la spécificité
+     * des composants
+     */
+    static final double WEIGHT_SPECI_ITFS_PRO = 1.0;
 
     /**
      * Poids du nombre d'interfaces requises dans le calcul de la composabilité

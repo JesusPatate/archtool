@@ -1,12 +1,10 @@
 package fr.univ_nantes.alma.archtool.coa;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
@@ -265,14 +263,27 @@ public class COAInterfaces
     public boolean addType(Type t, Interface itf)
     {
         boolean done = false;
-
-        if (this.typeToItf.get(t).contains(itf) == false)
+        
+        Set<Type> itfTypes = this.itfToTypes.get(itf);
+        
+        if (itfTypes.contains(t) == false)
         {
-            Set<Type> itfTypes = this.itfToTypes.get(itf);
             itfTypes.add(t);
-
             this.itfToTypes.put(itf, itfTypes);
-            this.typeToItf.get(t).add(itf);
+            
+            Set<Interface> typeItfs = null;
+            
+            if(this.typeToItf.containsKey(t))
+            {
+                typeItfs = this.typeToItf.get(t);
+            }
+            else
+            {
+                typeItfs = new HashSet<Interface>();
+            }
+            
+            typeItfs.add(itf);
+            this.typeToItf.put(t, typeItfs);
 
             done = true;
         }
@@ -343,7 +354,7 @@ public class COAInterfaces
         
         for(Interface itf : this.itfToFcts.keySet())
         {
-            buf.append("Interface(");
+            buf.append(itf + " (");
             
             for(Function fct : this.itfToFcts.get(itf))
             {
