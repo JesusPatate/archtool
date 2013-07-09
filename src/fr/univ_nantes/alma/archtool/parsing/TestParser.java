@@ -1,8 +1,11 @@
 package fr.univ_nantes.alma.archtool.parsing;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
+
+import org.antlr.v4.runtime.ANTLRFileStream;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -13,20 +16,33 @@ public class TestParser
     public static void main(String[] args) throws IOException
     {
     	/*CProcessor cp = new CProcessor();
-    	Set<Function> functions = new HashSet<Function>();
-    	Set<ComplexType> complexTypes = new HashSet<ComplexType>();
-    	Set<GlobalVariable> globalVariables = new HashSet<GlobalVariable>();
-    	cp.process("/comptes/E071318U/stage/sou/common/include/libtpt_cmn.h", 
+    	cp.process("/home/stan/Documents/development/sou/hr/srclib/hrrjou.c", 
     	        new Context());
-    	System.out.println(cp.getFunctions());*/
+    	Set<Function> functions = cp.getFunctions();
+    	
+    	for(Function f : functions)
+    	{
+    	    System.out.println(f);
+    	}*/
         
-        CPreprocessor cpp = new CPreprocessor();
-        cpp.process("/comptes/E071318U/stage/sou/hr/include/libtpt_hr.h");
+        
+        /*CPreprocessor cpp = new CPreprocessor();
+        cpp.process("/comptes/E071318U/stage/sou/hr/include/libtpt_hr.h");*/
         //System.out.println(cpp.getNonStandardIncludes());
         
         /*cpp.reset();
         
         cpp.process("/comptes/E071318U/stage/sou/qhe/hrdabs1.qhe");
         System.out.println(cpp.getNonStandardIncludes());*/
+        
+        CharStream s = new ANTLRFileStream("/home/stan/Documents/development/sou/hr/srclib/hrrjou.c");
+        CPreprocessorLexer lexer = new CPreprocessorLexer(s);
+        lexer.getToken();
+        
+        /*CLexer cl = new CLexer(lexer.getInputStream());
+        CommonTokenStream tokens = new CommonTokenStream(cl);
+        CParser parser = new CParser(tokens);
+        parser.setContext(new Context());
+        parser.compilationUnit();*/
     }
 }

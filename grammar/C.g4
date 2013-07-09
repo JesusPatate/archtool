@@ -1195,7 +1195,11 @@ designatorList
     ;
 
 designator
-    : '[' constantExpression ']'
+    : '[' ce=constantExpression ']'
+{
+    $initializerList::variablesNameUsed.addAll($ce.variablesNameUsed);
+    $initializerList::calls.addAll($ce.calls);
+}
     | '.' Identifier
     ;
 
@@ -1363,47 +1367,48 @@ blockItem
                 		$compoundStatement::locals.get(counter.getKey());
                 $compoundStatement::localsUse.add(v, counter.getValue());
             }
-            else
-            {
-                
-            }
         }
         
         // Update calls.
         for(Entry<String, Set<Set<String>>> function : 
             $d.calls.getCalls().entrySet())
         {
+            Function f = null;
+            
         	if(this.functions.containsKey(function.getKey()))
         	{
-	            Function f = this.functions.get(function.getKey());
+	            f = this.functions.get(function.getKey());
+        	}
+        	else
+        	{
+        	    f = new Function(function.getKey(), ComplexType.anonymousType);
+        	    this.functions.put(function.getKey(), f);
+        	}
 	            
-	            for(Set<String> functionCall : function.getValue())
+	        for(Set<String> functionCall : function.getValue())
+	        {
+	            Set<Variable> parameters = new HashSet<Variable>();
+	                
+	            for(String parameter : functionCall)
 	            {
-	                Set<Variable> parameters = new HashSet<Variable>();
-	                
-	                for(String parameter : functionCall)
+	                Variable v = null;
+	                    
+	                if(this.globalVariables.containsKey(parameter))
 	                {
-	                    Variable v = null;
-	                    
-	                    if(this.globalVariables.containsKey(function.getKey()))
-	                    {
-	                        v = this.globalVariables.get(function.getKey());
-	                    }
-	                    else if($compoundStatement::locals.containsKey(
-	                    		function.getKey()))
-	                    {
-	                        v = $compoundStatement::locals.get(
-	                        	function.getKey());
-	                    }
-	                    
-	                    if(v != null)
-	                    {
-	                        parameters.add(v);
-	                    }
+	                    v = this.globalVariables.get(parameter);
 	                }
-	                
-	                $compoundStatement::calls.add(new Call(f, parameters));
+	                else if($compoundStatement::locals.containsKey(parameter))
+	                {
+	                    v = $compoundStatement::locals.get(parameter);
+	                }
+	                    
+	                if(v != null)
+	                {
+	                    parameters.add(v);
+	                }
 	            }
+	                
+	            $compoundStatement::calls.add(new Call(f, parameters));
         	}
         }
     }
@@ -1430,36 +1435,42 @@ blockItem
     for(Entry<String, Set<Set<String>>> function : 
     		$s.calls.getCalls().entrySet())
     {
-    	if(this.functions.containsKey(function.getKey()))
-    	{
-	    	Function f = this.functions.get(function.getKey());
+        Function f = null;
+        
+        if(this.functions.containsKey(function.getKey()))
+        {
+            f = this.functions.get(function.getKey());
+        }
+        else
+        {
+            f = new Function(function.getKey(), ComplexType.anonymousType);
+            this.functions.put(function.getKey(), f);
+        }
 	            
-	        for(Set<String> functionCall : function.getValue())
+	    for(Set<String> functionCall : function.getValue())
+	    {
+	        Set<Variable> parameters = new HashSet<Variable>();
+	                
+	        for(String parameter : functionCall)
 	        {
-	        	Set<Variable> parameters = new HashSet<Variable>();
-	                
-	            for(String parameter : functionCall)
+	            Variable v = null;
+	                    
+	            if(this.globalVariables.containsKey(parameter))
 	            {
-	            	Variable v = null;
-	                    
-	                if(this.globalVariables.containsKey(function.getKey()))
-	                {
-	                	v = this.globalVariables.get(function.getKey());
-	                }
-	                else if($compoundStatement::locals.containsKey(
-	                		function.getKey()))
-	                {
-	                	v = $compoundStatement::locals.get(function.getKey());
-	                }
-	                    
-	                if(v != null)
-	                {
-	                	parameters.add(v);
-	                }
+	                v = this.globalVariables.get(parameter);
 	            }
-	                
-	            $compoundStatement::calls.add(new Call(f, parameters));
+	            else if($compoundStatement::locals.containsKey(parameter))
+	            {
+	                v = $compoundStatement::locals.get(parameter);
+	            }
+	                    
+	            if(v != null)
+	            {
+	                parameters.add(v);
+	            }
 	        }
+	                
+	        $compoundStatement::calls.add(new Call(f, parameters));
     	}
     }
     
@@ -1957,6 +1968,11 @@ Whitespace
         -> skip
     ;
 
+NewlinePreprocessor
+    : '\\' Newline
+        -> skip
+    ;
+
 Newline
     : ( '\r' '\n'?
         | '\n'
@@ -1982,17 +1998,5 @@ LineComment
  
 PreprocessingDirective
     : '#' ~[\r\n/]*
-        -> skip
-    ;
-        
-NewlinePreprocessor
-    : '\\' ( '\r' '\n'?
-        | '\n'
-        )
-        -> skip
-        ;
-        
-Macro
-    : 'COMMON_EXPORT'
         -> skip
     ;

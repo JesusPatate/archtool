@@ -1,11 +1,5 @@
-BlockComment=4
-LineComment=5
-HeaderName=3
-Newline=9
-IgnoredPreprocessingDirective=8
-Whitespace=7
-CCode=6
-T__1=1
-T__0=2
-'#'=2
-'include'=1
+Newline=3
+Other=5
+Comment=4
+NewlinePreprocessor=2
+Whitespace=1
