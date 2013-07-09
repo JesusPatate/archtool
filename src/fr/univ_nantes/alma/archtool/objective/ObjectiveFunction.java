@@ -11,6 +11,16 @@ import fr.univ_nantes.alma.archtool.coa.COA;
 public class ObjectiveFunction
 {
     /**
+     * Poids de la validité sémantique de l'architecture.
+     */
+    static final double WEIGHT_SEM = 2.0;
+    
+    /**
+     * Poids de la qualité de l'architecture.
+     */
+    static final double WEIGHT_QUAL = 1.0;
+    
+    /**
      * Poids de la sémantique des composants dans le calcul de la validité
      * sémantique de l'architecture.
      */
@@ -26,13 +36,13 @@ public class ObjectiveFunction
      * Poids de la spécificité des composants dans le calcul de la validité
      * sémantique des composants.
      */
-    static final double WEIGHT_COMP_SPECI = 0.25;
+    static final double WEIGHT_COMP_SPECI = 0.5;
 
     /**
      * Poids du nombre d'interfaces fournies dans le calcul de la spécificité
      * des composants
      */
-    static final double WEIGHT_SPECI_ITFS_PRO = 10.0;
+    static final double WEIGHT_SPECI_ITFS_PRO = 1.0;
 
     /**
      * Poids de la composabilité des composants dans le calcul de la validité
@@ -99,8 +109,8 @@ public class ObjectiveFunction
         this.coupling = new Coupling(this.coa);
         this.maintainability = new Maintainability(this.coa);
 
-        result += this.evaluateArchSemantic();
-        result += this.evaluateArchQuality();
+        result += WEIGHT_SEM * this.evaluateArchSemantic();
+        result +=  WEIGHT_QUAL * this.evaluateArchQuality();
 
         return result;
     }
@@ -141,14 +151,14 @@ public class ObjectiveFunction
         {
             double subresult = 0.0;
 
-            subresult = ObjectiveFunction.WEIGHT_COMP_COMPO
-                    * this.composability(comp);
+            double compo = this.composability(comp);
+            subresult = ObjectiveFunction.WEIGHT_COMP_COMPO * compo;
 
-            subresult += ObjectiveFunction.WEIGHT_COMP_INDE
-                    * this.independence(comp);
+            double inde = this.independence(comp);
+            subresult += ObjectiveFunction.WEIGHT_COMP_INDE * inde;
 
-            subresult += ObjectiveFunction.WEIGHT_COMP_SPECI
-                    * this.specificity(comp);
+            double spec = this.specificity(comp);
+            subresult += ObjectiveFunction.WEIGHT_COMP_SPECI * spec;
 
             subresult /= ObjectiveFunction.WEIGHT_COMP_COMPO
                     + ObjectiveFunction.WEIGHT_COMP_INDE
@@ -261,7 +271,8 @@ public class ObjectiveFunction
                     }
                 }
 
-                final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
+                final double nbPairs =
+                        (nbProInterfaces * (nbProInterfaces - 1)) / 2;
 
                 result += sum / nbPairs;
             }

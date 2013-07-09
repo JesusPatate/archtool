@@ -15,9 +15,23 @@ public class Clustering
 
     private ObjectiveFunction objectiveFct;
 
+    private Architecture resultArch = null;
+    
+    private COA resultCOA = null;
+    
     public Clustering(ObjectiveFunction objFct)
     {
         this.objectiveFct = objFct;
+    }
+    
+    public Architecture getArchitecture()
+    {
+        return this.resultArch;
+    }
+    
+    public COA getCOA()
+    {
+        return this.resultCOA;
     }
 
     /**
@@ -28,14 +42,11 @@ public class Clustering
      * 
      * @return Un ensemble de composants générés par l'algorithme.
      */
-    public Pair<Architecture, COA> process(final SourceCode sourceCode)
+    public void process(final SourceCode sourceCode)
     {
         this.dendogram = new Dendogram(sourceCode);
         this.buildDendogram();
-
-        Pair<Architecture, COA> result = this.phase2();
-
-        return result;
+        this.phase2();
     }
 
     /**
@@ -97,7 +108,7 @@ public class Clustering
     /**
      * Phase 2 : identification des composants à partir du dendogramme.
      */
-    private Pair<Architecture, COA> phase2()
+    private void phase2()
     {
         Architecture currentArch = null;
         COA currentCOA = null;
@@ -146,9 +157,7 @@ public class Clustering
             }
         }
 
-        Architecture resultArch = this.dendogram.getArchitecture();
-        COA resultCOA = this.dendogram.getCOA();
-
-        return new Pair<Architecture, COA>(resultArch, resultCOA);
+        this.resultArch = this.dendogram.getArchitecture();
+        this.resultCOA = this.dendogram.getCOA();
     }
 }

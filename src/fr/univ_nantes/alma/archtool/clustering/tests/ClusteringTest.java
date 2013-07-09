@@ -87,10 +87,13 @@ public class ClusteringTest
     public void test()
     {
 
-        Pair<Architecture, COA> p = this.clustering.process(this.sourceCode);
+        this.clustering.process(this.sourceCode);
 
-        System.out.println(p.getFirst());
-        System.out.println(this.obj.evaluate(p.getFirst(), p.getSecond()));
+        System.out.println(this.clustering.getArchitecture());
+        System.out.println(this.clustering.getCOA());
+        
+        System.out.println(this.obj.evaluate(this.clustering.getArchitecture(),
+                this.clustering.getCOA()));
     }
 
     /**

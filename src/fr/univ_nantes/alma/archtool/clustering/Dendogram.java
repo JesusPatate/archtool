@@ -128,19 +128,19 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
             for (Function fct : this.functions)
             {
-                buf.append(fct);
+                buf.append(fct.getName());
                 buf.append(", ");
             }
 
             for (GlobalVariable var : this.variables)
             {
-                buf.append(var);
+                buf.append(var.getName());
                 buf.append(", ");
             }
 
             for (Type t : this.types)
             {
-                buf.append(t);
+                buf.append(t.getName());
                 buf.append(", ");
             }
 
@@ -409,7 +409,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
         {
             this.processInterfacesFct(comp);
             this.processInterfacesVar(comp);
-            this.processInterfacesType(comp);
+            this.processInterfacesType(comp); // XXX ClusteringTest2 plante ici
         }
     }
 

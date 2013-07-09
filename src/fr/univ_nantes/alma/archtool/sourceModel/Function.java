@@ -25,7 +25,7 @@ public class Function
 
     private final boolean isStatic;
 
-    private Set<LocalVariable> arguments = null;
+    private Set<LocalVariable> arguments = new HashSet<LocalVariable>();
 
     private final Type returnType;
 
@@ -49,6 +49,7 @@ public class Function
         this.name = name;
         this.returnType = returnType;
         this.isStatic = isStatic;
+        this.body = new Block();
     }
 
     public Function(final String name, final Type returnType,
@@ -258,7 +259,9 @@ public class Function
         }
 
         function.append(")");
+        
         function.append("\n" + this.body.getCalls());
+        
         return function.toString();
     }
 }

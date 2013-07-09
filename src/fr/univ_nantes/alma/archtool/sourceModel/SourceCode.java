@@ -26,6 +26,11 @@ public class SourceCode
         this.functions.add(function);
     }
 
+    public void addFunctions(final Set<Function> functions)
+    {
+        this.functions.addAll(functions);
+    }
+
     public Set<GlobalVariable> getProgramGlobals()
     {
         Set<GlobalVariable> programGlobals = 
@@ -68,6 +73,11 @@ public class SourceCode
         this.globals.add(var);
     }
 
+    public void addGlobals(final Set<GlobalVariable> vars)
+    {
+        this.globals.addAll(vars);
+    }
+
     public Set<Type> getTypes()
     {
         return new HashSet<Type>(this.types);
@@ -76,6 +86,11 @@ public class SourceCode
     public void addType(final ComplexType t1)
     {
         this.types.add(t1);
+    }
+
+    public void addTypes(final Set<ComplexType> types)
+    {
+        this.types.addAll(types);
     }
 
     public boolean isComplexType(final Type type)

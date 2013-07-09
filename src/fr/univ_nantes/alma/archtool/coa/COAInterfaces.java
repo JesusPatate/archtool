@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
@@ -334,5 +335,44 @@ public class COAInterfaces
     public boolean knows(final Interface itf)
     {
         return this.itfToFcts.containsKey(itf);
+    }
+    
+    public String toString()
+    {
+        StringBuffer buf = new StringBuffer();
+        
+        for(Interface itf : this.itfToFcts.keySet())
+        {
+            buf.append("Interface(");
+            
+            for(Function fct : this.itfToFcts.get(itf))
+            {
+                buf.append(fct.getName());
+                buf.append(", ");
+            }
+            
+            for(GlobalVariable var : this.itfToVars.get(itf))
+            {
+                buf.append(var.getName());
+                buf.append(", ");
+            }
+            
+            for(Type type : this.itfToTypes.get(itf))
+            {
+                buf.append(type.getName());
+                buf.append(", ");
+            }
+            
+            int idx = buf.lastIndexOf(",");
+            
+            if(idx > 0)
+            {
+                buf.delete(idx, buf.length());
+            }
+            
+            buf.append("), ");
+        }
+        
+        return buf.toString();
     }
 }

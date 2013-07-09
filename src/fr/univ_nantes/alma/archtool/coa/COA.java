@@ -475,4 +475,26 @@ public class COA
     {
         return this.coaInterfaces.knows(itf);
     }
+    
+    public String toString()
+    {
+        StringBuffer buf = new StringBuffer("COA [");
+        
+        buf.append(this.coaComponents);
+        buf.append(this.coaInterfaces);
+        buf.append(this.coaConnectors);
+        
+        /*
+        int idx = buf.lastIndexOf(",");
+        
+        if(idx > 0)
+        {
+            buf.delete(idx, buf.length());
+        }
+        */
+        
+        buf.append("]");
+        
+        return buf.toString();
+    }
 }

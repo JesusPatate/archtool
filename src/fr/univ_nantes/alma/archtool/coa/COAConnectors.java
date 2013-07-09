@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
@@ -312,5 +313,51 @@ public class COAConnectors
     public boolean knows(final Connector con)
     {
         return this.conToFcts.containsKey(con);
+    }
+    
+    public String toString()
+    {
+        StringBuffer buf = new StringBuffer();
+        
+        for(Connector con : this.conToFcts.keySet())
+        {
+            buf.append("Connecteur(");
+            
+            for(Function fct : this.conToFcts.get(con))
+            {
+                buf.append(fct.getName());
+                buf.append(", ");
+            }
+            
+            for(GlobalVariable var : this.conToVars.get(con))
+            {
+                buf.append(var.getName());
+                buf.append(", ");
+            }
+            
+            for(Type type : this.conToTypes.get(con))
+            {
+                buf.append(type.getName());
+                buf.append(", ");
+            }
+            
+            int idx = buf.lastIndexOf(",");
+            
+            if(idx > 0)
+            {
+                buf.delete(idx, buf.length());
+            }
+            
+            buf.append("), ");
+        }
+        
+        int idx = buf.lastIndexOf(",");
+        
+        if(idx > 0)
+        {
+            buf.delete(idx, buf.length());
+        }
+        
+        return buf.toString();
     }
 }

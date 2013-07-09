@@ -312,4 +312,43 @@ class COAComponents
     {
         return this.compToFcts.containsKey(comp);
     }
+    
+    public String toString()
+    {
+        StringBuffer buf = new StringBuffer();
+        
+        for(Component comp : this.compToFcts.keySet())
+        {
+            buf.append("Composant(");
+            
+            for(Function fct : this.compToFcts.get(comp))
+            {
+                buf.append(fct.getName());
+                buf.append(", ");
+            }
+            
+            for(GlobalVariable var : this.compToVars.get(comp))
+            {
+                buf.append(var.getName());
+                buf.append(", ");
+            }
+            
+            for(Type type : this.compToTypes.get(comp))
+            {
+                buf.append(type.getName());
+                buf.append(", ");
+            }
+            
+            int idx = buf.lastIndexOf(",");
+            
+            if(idx > 0)
+            {
+                buf.delete(idx, buf.length());
+            }
+            
+            buf.append("), ");
+        }
+        
+        return buf.toString();
+    }
 }
