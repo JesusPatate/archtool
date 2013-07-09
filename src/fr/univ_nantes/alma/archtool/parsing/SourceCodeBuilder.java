@@ -43,7 +43,7 @@ public class SourceCodeBuilder
 	
 	public void build()
 	{
-		this.includesScanner.scann();
+		//this.includesScanner.scann();
 		this.includeFiles = this.includesScanner.getPathsFoundByName();
 		this.sourcesScanner.scann();	
 		Set<String> sourceFiles = this.sourcesScanner.getPathsFound();
@@ -52,12 +52,12 @@ public class SourceCodeBuilder
 		{
 		    System.out.println(sourceFile);
 			this.preprocess(sourceFile);
-			Context context = this.createContext();
+			//Context context = this.createContext();
 			
 			try
 			{    
 			    System.out.println("starting parse source: " + sourceFile);
-			    this.cProcessor.process(sourceFile, context);
+			    this.cProcessor.process(sourceFile, new Context());
 			    System.out.println("finishing parse source: " + sourceFile);
 			    this.sourceCode.addFunctions(this.cProcessor.getFunctions());
 			    this.sourceCode.addTypes(this.cProcessor.getComplexTypes());

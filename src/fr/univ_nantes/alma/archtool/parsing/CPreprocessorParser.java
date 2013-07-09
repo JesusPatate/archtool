@@ -21,10 +21,10 @@ public class CPreprocessorParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		T__1=1, T__0=2, HeaderName=3, BlockComment=4, LineComment=5, CCode=6, 
-		IgnoredPreprocessingDirective=7, Whitespace=8, Newline=9;
+		Whitespace=7, IgnoredPreprocessingDirective=8, Newline=9;
 	public static final String[] tokenNames = {
 		"<INVALID>", "'include'", "'#'", "HeaderName", "BlockComment", "LineComment", 
-		"CCode", "IgnoredPreprocessingDirective", "Whitespace", "Newline"
+		"CCode", "Whitespace", "IgnoredPreprocessingDirective", "Newline"
 	};
 	public static final int
 		RULE_preprocessingFile = 0, RULE_group = 1, RULE_groupPart = 2;

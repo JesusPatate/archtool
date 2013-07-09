@@ -1363,6 +1363,10 @@ blockItem
                 		$compoundStatement::locals.get(counter.getKey());
                 $compoundStatement::localsUse.add(v, counter.getValue());
             }
+            else
+            {
+                
+            }
         }
         
         // Update calls.

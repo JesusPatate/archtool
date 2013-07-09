@@ -33,7 +33,8 @@ public abstract class StructuredSpecifier extends DeclarationSpecifier
         // We don't know the declaration of the type
         else
         {
-            type = ComplexType.anonymousType;
+            type = new ComplexType(this.name, null);
+            this.complextypes.put(name, (ComplexType) type);
         }
         
         return type;
