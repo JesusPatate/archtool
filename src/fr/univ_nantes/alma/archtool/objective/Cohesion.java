@@ -21,7 +21,7 @@ public class Cohesion
      * Bonus accordé pour la mesure de la cohésion lorsque deux éléments
      * appartiennent au même fichier.
      */
-    static final double BONUS_SAME_FILE = 1.5;
+    static final double BONUS_SAME_FILE = 1.2;
 
     /**
      * Valeur maximale de cohésion entre 2 fonctions.
@@ -757,16 +757,17 @@ public class Cohesion
         result += this.cohesionTypes(f1, f2);
         result += this.cohesionCalls(f1, f2);
 
-        if (f1.getSourceFile().equals(f2.getSourceFile()))
+        if(f1.getSourceFile() != null && f2.getSourceFile() != null)
         {
-            result *= BONUS_SAME_FILE;
+            if (f1.getSourceFile().equals(f2.getSourceFile()))
+            {
+                result *= BONUS_SAME_FILE;
+            }
         }
 
         result /= MAX_COHESION_FCT_FCT;
 
         result = (result > 1.0) ? 1.0 : result;
-
-//        System.out.println("Cohesion " + f1 + " " + f2 + " : " + result); // DBG
         
         return result;
     }
@@ -795,22 +796,24 @@ public class Cohesion
         double total = 0.0; // Total accesses
         double nbAccessToVar = 0.0;
 
-        Map<GlobalVariable, Integer> pgVars = fct.getGlobalVariables();
+        Map<GlobalVariable, Integer> fctVars = fct.getGlobalVariables();
 
-        for (Integer n : pgVars.values())
+        for (Integer n : fctVars.values())
         {
             total += n;
         }
         
-        // File global variable
-        if (pgVars.containsKey(var))
+        if (fctVars.containsKey(var))
         {
-            nbAccessToVar = pgVars.get(var);
+            nbAccessToVar = fctVars.get(var);
 
             // Same file ?
-            if (fct.getSourceFile().equals(var.getSourceFile()))
+            if (fct.getSourceFile() != null && var.getSourceFile() != null)
             {
-                nbAccessToVar *= BONUS_SAME_FILE;
+                if (fct.getSourceFile().equals(var.getSourceFile()))
+                {
+                    nbAccessToVar *= BONUS_SAME_FILE;
+                }
             }
         }
 
@@ -818,8 +821,6 @@ public class Cohesion
         {
             result = nbAccessToVar / total;
         }
-
-//        System.out.println("Cohesion " + fct + " - " + var + " : " + result); // DBG
 
         return result;
     }
@@ -858,13 +859,20 @@ public class Cohesion
 
             total += usedTypes.get(t);
         }
+        
+        // Same file ?
+        if (fct.getSourceFile() != null && type.getSourceFile() != null)
+        {
+            if (fct.getSourceFile().equals(type.getSourceFile()))
+            {
+                nbUsesOfType *= BONUS_SAME_FILE;
+            }
+        }
 
         if (total > 0)
         {
             result = nbUsesOfType / total;
         }
-
-//        System.out.println("Cohesion " + fct + " " + type + " : " + result); // DBG
 
         return result;
     }
