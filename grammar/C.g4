@@ -698,12 +698,16 @@ constantExpression returns [MultiCounter<String> variablesNameUsed =
 declaration returns [List<String> variableNames = new ArrayList<String>(),
         MultiCounter<String> variablesNameUsed = new MultiCounter<String>(), 
         CallCounter calls = new CallCounter(), String name = null,
-		Type type = null, boolean isStatic, boolean isFunction, 
-		boolean isDeclarationType, boolean isAnonymousTypeDeclaration]
+		Type type = null, boolean isStatic, boolean isExtern, 
+		boolean isFunction, boolean isDeclarationType, 
+		boolean isAnonymousTypeDeclaration]
     : ds=declarationSpecifiers initDeclaratorList? ';'  
 {    
 	$name = $ds.name;
 	$type = $ds.type;
+	$type = $ds.type;
+	$isStatic = $ds.isStatic;
+	$isExtern = $ds.isExtern;
 	$isDeclarationType = $ds.isDeclarationType;
 	$isAnonymousTypeDeclaration = $ds.isAnonymousTypeDeclaration;
 	          
@@ -729,8 +733,9 @@ declaration returns [List<String> variableNames = new ArrayList<String>(),
 
 declarationSpecifiers 
     returns [Type type, String name = null, boolean isStatic = false,
-        boolean isTypedef = false, boolean isDeclarationType = false,
-        boolean isAnonymousTypeDeclaration = false]
+        boolean isExtern = false, boolean isTypedef = false, 
+        boolean isDeclarationType = false, boolean isAnonymousTypeDeclaration =
+        false]
     locals [DeclarationSpecifier specifier = new NullSpecifier()]
     : declarationSpecifier+
 {
@@ -799,6 +804,9 @@ storageClassSpecifier
     $declarationSpecifiers::isDeclarationType = true;
 }
     | 'extern'
+{
+    $declarationSpecifiers::isExtern = true;
+}
     | 'static'
 {
     $declarationSpecifiers::isStatic = true;
@@ -994,8 +1002,9 @@ declarator returns [String name, Set<LocalVariable> arguments,
 }
     ;
 
-directDeclarator returns [String name, Set<LocalVariable> arguments, 
-          boolean isFunction = false, Set<String> names]
+directDeclarator returns [String name, Set<LocalVariable> arguments = 
+        new HashSet<LocalVariable>(), boolean isFunction = false, 
+        Set<String> names = new HashSet<String>()]
     : i=Identifier
 {
     $name = $i.text;
@@ -1024,13 +1033,18 @@ directDeclarator returns [String name, Set<LocalVariable> arguments,
     | dd=directDeclarator '(' ptl=parameterTypeList ')' 
 {
     $name = $dd.name;
-    $arguments = $ptl.arguments;
+    $arguments.addAll($ptl.arguments);
     $isFunction = true;
 }
     | dd=directDeclarator '(' il=identifierList? ')' 
 {
     $name = $dd.name;
-    $names = $il.names;
+    
+    if($il.text != null)
+    {
+        $names.addAll($il.names);
+    }
+    
     $isFunction = true;
 }
     ;
@@ -1617,9 +1631,32 @@ externalDeclaration
 	{    
 		for(String variableName : $d.variableNames)
 		{	
-			GlobalVariable variable = new GlobalVariable(variableName, $d.type,
-					$d.isStatic, this.currentFile);
-		    this.globalVariables.put(variable.getName(), variable);
+		    GlobalVariable variable = null;
+		    
+		    if(this.globalVariables.containsKey(variableName))
+		    {
+		        variable = this.globalVariables.get(variableName);
+		        
+		        if(!$d.isExtern)
+		        {
+		            variable.setSourceFile(this.currentFile);
+		        }
+		    }
+		    else
+		    {    		    
+    		    if($d.isExtern)
+    		    {
+    		        variable = new GlobalVariable(variableName, $d.type,
+    	                    $d.isStatic);
+    		    }
+    		    else
+    		    {
+    		        variable = new GlobalVariable(variableName, $d.type,
+    					$d.isStatic, this.currentFile);
+    		    }
+    		    
+    		    this.globalVariables.put(variable.getName(), variable);
+		    }
 		}
 	}
 }
@@ -1634,6 +1671,12 @@ functionDefinition returns [Function result]
     Type returnType = $ds.type == null ? PrimitiveType.voidType() : $ds.type;
     Set<LocalVariable> arguments = 
             $dl.text == null ? $d.arguments : $dl.arguments;
+    
+    if(arguments == null)
+    {
+        System.out.println("KO : " + $d.name);
+        
+    }
     
     for(LocalVariable argument : arguments)
     {
