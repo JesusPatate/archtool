@@ -3,7 +3,10 @@ package fr.univ_nantes.alma.archtool.sourceModel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+
+import fr.univ_nantes.alma.archtool.utils.MultiCounter;
 
 /**
  * Classe du modèle de code source représentant un bloc de code d'une fonction.
@@ -65,25 +68,16 @@ public class Block
      */
     public Map<GlobalVariable, Integer> getGlobalVariables()
     {
-        final Map<GlobalVariable, Integer> total =
-                new HashMap<GlobalVariable, Integer>(this.globals);
+        MultiCounter<GlobalVariable> globalsUse =
+                new MultiCounter<GlobalVariable>();
+        globalsUse.incrementAll(this.globals);
 
-        for (final Block b : this.subBlocks)
+        for (final Block block : this.subBlocks)
         {
-            for (final GlobalVariable v : b.getGlobalVariables().keySet())
-            {
-                if(total.containsKey(v))
-                {
-                    total.put(v, total.get(v) + b.getGlobalVariables().get(v));
-                }
-                else
-                {
-                    total.put(v, b.getGlobalVariables().get(v));
-                }
-            }
+            globalsUse.incrementAll(block.globals);
         }
 
-        return total;
+        return globalsUse.getCounters();
     }
 
     /**
@@ -95,37 +89,23 @@ public class Block
      */
     public Map<GlobalVariable, Integer> getProgramGlobals()
     {
-        final Map<GlobalVariable, Integer> total =
-                new HashMap<GlobalVariable, Integer>();
+        MultiCounter<GlobalVariable> globalsUse =
+                new MultiCounter<GlobalVariable>();
 
-        for (GlobalVariable v : this.globals.keySet())
+        for (GlobalVariable global : this.globals.keySet())
         {
-            if (!v.isStatic())
+            if (!global.isStatic())
             {
-                total.put(v, this.globals.get(v));
+                globalsUse.increment(global, this.globals.get(global));
             }
         }
 
-        for (final Block b : this.subBlocks)
+        for (final Block block : this.subBlocks)
         {
-            for (final GlobalVariable v : b.getProgramGlobals().keySet())
-            {
-                if (!v.isStatic())
-                {
-                    if (total.containsKey(v))
-                    {
-                        total.put(v, total.get(v)
-                                + b.getProgramGlobals().get(v));
-                    }
-                    else
-                    {
-                        total.put(v, b.getProgramGlobals().get(v));
-                    }
-                }
-            }
+            globalsUse.incrementAll(block.getProgramGlobals());
         }
 
-        return total;
+        return globalsUse.getCounters();
     }
 
     /**
@@ -137,37 +117,23 @@ public class Block
      */
     public Map<GlobalVariable, Integer> getFileGlobals()
     {
-        final Map<GlobalVariable, Integer> total =
-                new HashMap<GlobalVariable, Integer>();
+        MultiCounter<GlobalVariable> globalsUse =
+                new MultiCounter<GlobalVariable>();
 
-        for (GlobalVariable v : this.globals.keySet())
+        for (GlobalVariable global : this.globals.keySet())
         {
-            if (v.isStatic())
+            if (global.isStatic())
             {
-                total.put(v, this.globals.get(v));
+                globalsUse.increment(global, this.globals.get(global));
             }
         }
 
-        for (final Block b : this.subBlocks)
+        for (final Block block : this.subBlocks)
         {
-            for (final GlobalVariable v : b.getProgramGlobals().keySet())
-            {
-                if (v.isStatic())
-                {
-                    if (total.containsKey(v))
-                    {
-                        total.put(v, total.get(v)
-                                + b.getProgramGlobals().get(v));
-                    }
-                    else
-                    {
-                        total.put(v, b.getProgramGlobals().get(v));
-                    }
-                }
-            }
+            globalsUse.incrementAll(block.getProgramGlobals());
         }
 
-        return total;
+        return globalsUse.getCounters();
     }
 
     /**
@@ -178,26 +144,16 @@ public class Block
      */
     public Map<LocalVariable, Integer> getLocals()
     {
-        final Map<LocalVariable, Integer> total =
-                new HashMap<LocalVariable, Integer>(
-                        this.locals);
+        MultiCounter<LocalVariable> localsUse =
+                new MultiCounter<LocalVariable>();
+        localsUse.incrementAll(this.locals);
 
-        for (final Block b : this.subBlocks)
+        for (final Block block : this.subBlocks)
         {
-            for (final LocalVariable v : b.getLocals().keySet())
-            {
-                if (total.containsKey(v))
-                {
-                    total.put(v, total.get(v) + b.getLocals().get(v));
-                }
-                else
-                {
-                    total.put(v, b.getLocals().get(v));
-                }
-            }
+            localsUse.incrementAll(block.getLocals());
         }
 
-        return total;
+        return localsUse.getCounters();
     }
 
     /**
@@ -209,9 +165,9 @@ public class Block
     {
         final Set<Call> total = new HashSet<Call>(this.calls);
 
-        for (final Block b : this.subBlocks)
+        for (final Block block : this.subBlocks)
         {
-            total.addAll(b.getCalls());
+            total.addAll(block.getCalls());
         }
 
         return total;
@@ -224,29 +180,37 @@ public class Block
      * @return Une map contenant l'ensemble des types utilisés dans le bloc et
      *         pour chacun d'eux, le nombre d'utilisations.
      */
-    public Map<Type, Integer> getUsedTypes()
+    public Map<ComplexType, Integer> getUsedTypes()
     {
-        // TODO Ne pas prendre en compte le type anonyme !!
+        MultiCounter<ComplexType> typesUse =
+                new MultiCounter<ComplexType>();
         
-        final Map<Type, Integer> usedTypes = new HashMap<Type, Integer>();
-
-        for (final Variable var : this.globals.keySet())
+        for(Entry<GlobalVariable, Integer> variableUse : 
+            this.globals.entrySet())
         {
-            if(var.getType().isComplex)
-            {
-                
-                
-                
-                
-                usedTypes.put(var.getType(), this.globals.get(var));
+            ComplexType type = (ComplexType) variableUse.getKey().getType();
+            
+            if(type.isComplex && type != ComplexType.anonymousType)
+            {          
+                typesUse.increment(type, variableUse.getValue());
             }
         }
-
-        for (final Variable var : this.locals.keySet())
+        
+        for(Entry<LocalVariable, Integer> variableUse : this.locals.entrySet())
         {
-            usedTypes.put(var.getType(), this.locals.get(var));
+            ComplexType type = (ComplexType) variableUse.getKey().getType();
+            
+            if(type.isComplex && type != ComplexType.anonymousType)
+            {          
+                typesUse.increment(type, variableUse.getValue());
+            }
+        }
+        
+        for (final Block block : this.subBlocks)
+        {
+            typesUse.incrementAll(block.getUsedTypes());
         }
 
-        return usedTypes;
+        return typesUse.getCounters();
     }
 }

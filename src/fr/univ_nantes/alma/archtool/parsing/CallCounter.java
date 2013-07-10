@@ -6,13 +6,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import fr.univ_nantes.alma.archtool.utils.MultiCounter;
+
 public class CallCounter
 {
     private MultiCounter<String> use = new MultiCounter<String>();
     private Map<String, Set<Set<String>>> parameters = 
             new HashMap<String, Set<Set<String>>>();
     
-    public void addCall(String function, Set<String> parameters)
+    public void increment(String function, Set<String> parameters)
     {        
         if(!this.use.containsCounter(function))
         {
@@ -28,7 +30,7 @@ public class CallCounter
         this.use.increment(function);
     }
     
-    public void addAll(CallCounter callCounter)
+    public void incrementAll(CallCounter callCounter)
     {        
         for(Entry<String, Set<Set<String>>> function : 
             callCounter.parameters.entrySet())
@@ -46,7 +48,7 @@ public class CallCounter
             }
         }
         
-        this.use.addAll(callCounter.use);
+        this.use.incrementAll(callCounter.use);
     }
     
     public Map<String, Set<Set<String>>> getCalls()

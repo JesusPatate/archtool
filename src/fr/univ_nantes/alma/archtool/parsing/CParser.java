@@ -7,6 +7,7 @@
 	import java.util.HashMap;
 	import java.util.HashSet;
 	import java.util.Set;
+	import fr.univ_nantes.alma.archtool.utils.MultiCounter;
 	import fr.univ_nantes.alma.archtool.sourceModel.*;
 	import fr.univ_nantes.alma.archtool.parsing.specifier.*;
 
@@ -46,7 +47,7 @@ public class CParser extends Parser {
 		"'__extension__'", "'char'", "'do'", "'_Alignas'", "'auto'", "'*='", "')'", 
 		"'__stdcall'", "'inline'", "'unsigned'", "'goto'", "'__asm__'", "'__declspec'", 
 		"'restrict'", "'|'", "'_Atomic'", "'!'", "'long'", "'sizeof'", "'short'", 
-		"'\"C\"'", "'-='", "','", "'while'", "'-'", "'if'", "'_Bool'", "'int'", 
+		"'\"C\"'", "'-='", "','", "'-'", "'while'", "'if'", "'_Bool'", "'int'", 
 		"'__asm'", "'?'", "'void'", "'>>='", "'...'", "'__inline__'", "'break'", 
 		"'+='", "'^='", "'else'", "'struct'", "'++'", "'__builtin_va_arg'", "'extern'", 
 		"'.'", "'+'", "'&&'", "'||'", "'>'", "'%='", "'switch'", "'/='", "'/'", 
@@ -276,8 +277,8 @@ public class CParser extends Parser {
 				setState(176); match(13);
 
 				    _localctx.parameters.addAll(((PrimaryExpressionContext)_localctx).e.parameters);
-				    _localctx.variablesNameUsed.addAll(((PrimaryExpressionContext)_localctx).e.variablesNameUsed);
-				    _localctx.calls.addAll(((PrimaryExpressionContext)_localctx).e.calls);
+				    _localctx.variablesNameUsed.incrementAll(((PrimaryExpressionContext)_localctx).e.variablesNameUsed);
+				    _localctx.calls.incrementAll(((PrimaryExpressionContext)_localctx).e.calls);
 
 				}
 				break;
@@ -288,8 +289,8 @@ public class CParser extends Parser {
 				setState(179); ((PrimaryExpressionContext)_localctx).gs = genericSelection();
 
 				    _localctx.parameters.addAll(((PrimaryExpressionContext)_localctx).gs.parameters);
-				    _localctx.variablesNameUsed.addAll(((PrimaryExpressionContext)_localctx).gs.variablesNameUsed);
-				    _localctx.calls.addAll(((PrimaryExpressionContext)_localctx).gs.calls); 
+				    _localctx.variablesNameUsed.incrementAll(((PrimaryExpressionContext)_localctx).gs.variablesNameUsed);
+				    _localctx.calls.incrementAll(((PrimaryExpressionContext)_localctx).gs.calls); 
 
 				}
 				break;
@@ -325,8 +326,8 @@ public class CParser extends Parser {
 				setState(195); match(13);
 
 				    _localctx.parameters.addAll(((PrimaryExpressionContext)_localctx).ue.parameters);
-				    _localctx.variablesNameUsed.addAll(((PrimaryExpressionContext)_localctx).ue.variablesNameUsed);
-				    _localctx.calls.addAll(((PrimaryExpressionContext)_localctx).ue.calls);
+				    _localctx.variablesNameUsed.incrementAll(((PrimaryExpressionContext)_localctx).ue.variablesNameUsed);
+				    _localctx.calls.incrementAll(((PrimaryExpressionContext)_localctx).ue.calls);
 
 				}
 				break;
@@ -342,8 +343,8 @@ public class CParser extends Parser {
 				setState(203); match(13);
 
 				    _localctx.parameters.addAll(((PrimaryExpressionContext)_localctx).ue.parameters);
-				    _localctx.variablesNameUsed.addAll(((PrimaryExpressionContext)_localctx).ue.variablesNameUsed);
-				    _localctx.calls.addAll(((PrimaryExpressionContext)_localctx).ue.calls);
+				    _localctx.variablesNameUsed.incrementAll(((PrimaryExpressionContext)_localctx).ue.variablesNameUsed);
+				    _localctx.calls.incrementAll(((PrimaryExpressionContext)_localctx).ue.calls);
 
 				}
 				break;
@@ -393,11 +394,11 @@ public class CParser extends Parser {
 			setState(213); match(13);
 
 			    _localctx.parameters.addAll(((GenericSelectionContext)_localctx).ae.parameters);
-			    _localctx.variablesNameUsed.addAll(((GenericSelectionContext)_localctx).ae.variablesNameUsed);
-			    _localctx.calls.addAll(((GenericSelectionContext)_localctx).ae.calls);
+			    _localctx.variablesNameUsed.incrementAll(((GenericSelectionContext)_localctx).ae.variablesNameUsed);
+			    _localctx.calls.incrementAll(((GenericSelectionContext)_localctx).ae.calls);
 			    _localctx.parameters.addAll(((GenericSelectionContext)_localctx).gal.parameters);
-			    _localctx.variablesNameUsed.addAll(((GenericSelectionContext)_localctx).gal.variablesNameUsed);
-			    _localctx.calls.addAll(((GenericSelectionContext)_localctx).gal.calls);
+			    _localctx.variablesNameUsed.incrementAll(((GenericSelectionContext)_localctx).gal.variablesNameUsed);
+			    _localctx.calls.incrementAll(((GenericSelectionContext)_localctx).gal.calls);
 
 			}
 		}
@@ -449,8 +450,8 @@ public class CParser extends Parser {
 			setState(217); ((GenericAssocListContext)_localctx).ga = genericAssociation();
 
 			    _localctx.parameters.addAll(((GenericAssocListContext)_localctx).ga.parameters);
-			    _localctx.variablesNameUsed.addAll(((GenericAssocListContext)_localctx).ga.variablesNameUsed);
-			    _localctx.calls.addAll(((GenericAssocListContext)_localctx).ga.calls);  
+			    _localctx.variablesNameUsed.incrementAll(((GenericAssocListContext)_localctx).ga.variablesNameUsed);
+			    _localctx.calls.incrementAll(((GenericAssocListContext)_localctx).ga.calls);  
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -472,11 +473,11 @@ public class CParser extends Parser {
 					setState(222); ((GenericAssocListContext)_localctx).ga = genericAssociation();
 
 					              _localctx.parameters.addAll(((GenericAssocListContext)_localctx).gal.parameters);
-					              _localctx.variablesNameUsed.addAll(((GenericAssocListContext)_localctx).gal.variablesNameUsed);
-					              _localctx.calls.addAll(((GenericAssocListContext)_localctx).gal.calls);
+					              _localctx.variablesNameUsed.incrementAll(((GenericAssocListContext)_localctx).gal.variablesNameUsed);
+					              _localctx.calls.incrementAll(((GenericAssocListContext)_localctx).gal.calls);
 					              _localctx.parameters.addAll(((GenericAssocListContext)_localctx).ga.parameters);
-					              _localctx.variablesNameUsed.addAll(((GenericAssocListContext)_localctx).ga.variablesNameUsed);
-					              _localctx.calls.addAll(((GenericAssocListContext)_localctx).ga.calls);    
+					              _localctx.variablesNameUsed.incrementAll(((GenericAssocListContext)_localctx).ga.variablesNameUsed);
+					              _localctx.calls.incrementAll(((GenericAssocListContext)_localctx).ga.calls);    
 					          
 					}
 					} 
@@ -553,8 +554,8 @@ public class CParser extends Parser {
 				setState(232); ((GenericAssociationContext)_localctx).ae = assignmentExpression();
 
 				    _localctx.parameters.addAll(((GenericAssociationContext)_localctx).ae.parameters);
-				    _localctx.variablesNameUsed.addAll(((GenericAssociationContext)_localctx).ae.variablesNameUsed);
-				    _localctx.calls.addAll(((GenericAssociationContext)_localctx).ae.calls);     
+				    _localctx.variablesNameUsed.incrementAll(((GenericAssociationContext)_localctx).ae.variablesNameUsed);
+				    _localctx.calls.incrementAll(((GenericAssociationContext)_localctx).ae.calls);     
 
 				}
 				break;
@@ -566,8 +567,8 @@ public class CParser extends Parser {
 				setState(237); ((GenericAssociationContext)_localctx).ae = assignmentExpression();
 
 				    _localctx.parameters.addAll(((GenericAssociationContext)_localctx).ae.parameters);
-				    _localctx.variablesNameUsed.addAll(((GenericAssociationContext)_localctx).ae.variablesNameUsed);
-				    _localctx.calls.addAll(((GenericAssociationContext)_localctx).ae.calls);     
+				    _localctx.variablesNameUsed.incrementAll(((GenericAssociationContext)_localctx).ae.variablesNameUsed);
+				    _localctx.calls.incrementAll(((GenericAssociationContext)_localctx).ae.calls);     
 
 				}
 				break;
@@ -645,8 +646,8 @@ public class CParser extends Parser {
 
 				    ((PostfixExpressionContext)_localctx).name =  ((PostfixExpressionContext)_localctx).px.name;
 				    _localctx.parameters.addAll(((PostfixExpressionContext)_localctx).px.parameters);
-				    _localctx.variablesNameUsed.addAll(((PostfixExpressionContext)_localctx).px.variablesNameUsed);
-				    _localctx.calls.addAll(((PostfixExpressionContext)_localctx).px.calls);
+				    _localctx.variablesNameUsed.incrementAll(((PostfixExpressionContext)_localctx).px.variablesNameUsed);
+				    _localctx.calls.incrementAll(((PostfixExpressionContext)_localctx).px.calls);
 
 				}
 				break;
@@ -738,11 +739,11 @@ public class CParser extends Parser {
 
 						              ((PostfixExpressionContext)_localctx).name =  ((PostfixExpressionContext)_localctx).pe.name;
 						              _localctx.parameters.addAll(((PostfixExpressionContext)_localctx).pe.parameters);
-						              _localctx.variablesNameUsed.addAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
-						              _localctx.calls.addAll(((PostfixExpressionContext)_localctx).pe.calls);
+						              _localctx.variablesNameUsed.incrementAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
+						              _localctx.calls.incrementAll(((PostfixExpressionContext)_localctx).pe.calls);
 						              _localctx.parameters.addAll(((PostfixExpressionContext)_localctx).e.parameters);
-						              _localctx.variablesNameUsed.addAll(((PostfixExpressionContext)_localctx).e.variablesNameUsed);
-						              _localctx.calls.addAll(((PostfixExpressionContext)_localctx).e.calls);
+						              _localctx.variablesNameUsed.incrementAll(((PostfixExpressionContext)_localctx).e.variablesNameUsed);
+						              _localctx.calls.incrementAll(((PostfixExpressionContext)_localctx).e.calls);
 						          
 						}
 						break;
@@ -757,7 +758,7 @@ public class CParser extends Parser {
 						setState(291); match(87);
 						setState(293);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 							{
 							setState(292); ((PostfixExpressionContext)_localctx).ag = argumentExpressionList(0);
 							}
@@ -769,17 +770,17 @@ public class CParser extends Parser {
 						              Set<String> parameters = new HashSet<String>();
 						              ((PostfixExpressionContext)_localctx).name =  ((PostfixExpressionContext)_localctx).pe.name;
 						              _localctx.parameters.addAll(((PostfixExpressionContext)_localctx).pe.parameters);
-						              _localctx.variablesNameUsed.addAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
-						              _localctx.calls.addAll(((PostfixExpressionContext)_localctx).pe.calls);
+						              _localctx.variablesNameUsed.incrementAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
+						              _localctx.calls.incrementAll(((PostfixExpressionContext)_localctx).pe.calls);
 						              
 						              if((((PostfixExpressionContext)_localctx).ag!=null?_input.getText(((PostfixExpressionContext)_localctx).ag.start,((PostfixExpressionContext)_localctx).ag.stop):null) != null)
 						              {
-						                  _localctx.variablesNameUsed.addAll(((PostfixExpressionContext)_localctx).ag.variablesNameUsed);
-						                  _localctx.calls.addAll(((PostfixExpressionContext)_localctx).ag.calls);
+						                  _localctx.variablesNameUsed.incrementAll(((PostfixExpressionContext)_localctx).ag.variablesNameUsed);
+						                  _localctx.calls.incrementAll(((PostfixExpressionContext)_localctx).ag.calls);
 						                  parameters = ((PostfixExpressionContext)_localctx).ag.parameters;
 						              }
 						              
-						              _localctx.calls.addCall(_localctx.name, parameters);
+						              _localctx.calls.increment(_localctx.name, parameters);
 						          
 						}
 						break;
@@ -796,8 +797,8 @@ public class CParser extends Parser {
 
 						              ((PostfixExpressionContext)_localctx).name =  ((PostfixExpressionContext)_localctx).pe.name;
 						              _localctx.parameters.addAll(((PostfixExpressionContext)_localctx).pe.parameters);
-						              _localctx.variablesNameUsed.addAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
-						              _localctx.calls.addAll(((PostfixExpressionContext)_localctx).pe.calls);
+						              _localctx.variablesNameUsed.incrementAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
+						              _localctx.calls.incrementAll(((PostfixExpressionContext)_localctx).pe.calls);
 						          
 						}
 						break;
@@ -814,8 +815,8 @@ public class CParser extends Parser {
 
 						              ((PostfixExpressionContext)_localctx).name =  ((PostfixExpressionContext)_localctx).pe.name;
 						              _localctx.parameters.addAll(((PostfixExpressionContext)_localctx).pe.parameters);
-						              _localctx.variablesNameUsed.addAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
-						              _localctx.calls.addAll(((PostfixExpressionContext)_localctx).pe.calls);
+						              _localctx.variablesNameUsed.incrementAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
+						              _localctx.calls.incrementAll(((PostfixExpressionContext)_localctx).pe.calls);
 						          
 						}
 						break;
@@ -831,8 +832,8 @@ public class CParser extends Parser {
 
 						              ((PostfixExpressionContext)_localctx).name =  ((PostfixExpressionContext)_localctx).pe.name;
 						              _localctx.parameters.addAll(((PostfixExpressionContext)_localctx).pe.parameters);
-						              _localctx.variablesNameUsed.addAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
-						              _localctx.calls.addAll(((PostfixExpressionContext)_localctx).pe.calls);
+						              _localctx.variablesNameUsed.incrementAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
+						              _localctx.calls.incrementAll(((PostfixExpressionContext)_localctx).pe.calls);
 						          
 						}
 						break;
@@ -848,8 +849,8 @@ public class CParser extends Parser {
 						            
 						              ((PostfixExpressionContext)_localctx).name =  ((PostfixExpressionContext)_localctx).pe.name;
 						              _localctx.parameters.addAll(((PostfixExpressionContext)_localctx).pe.parameters);
-						              _localctx.variablesNameUsed.addAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
-						              _localctx.calls.addAll(((PostfixExpressionContext)_localctx).pe.calls);
+						              _localctx.variablesNameUsed.incrementAll(((PostfixExpressionContext)_localctx).pe.variablesNameUsed);
+						              _localctx.calls.incrementAll(((PostfixExpressionContext)_localctx).pe.calls);
 						          
 						}
 						break;
@@ -917,8 +918,8 @@ public class CParser extends Parser {
 			setState(317); ((ArgumentExpressionListContext)_localctx).ae = assignmentExpression();
 
 			    _localctx.parameters.addAll(((ArgumentExpressionListContext)_localctx).ae.parameters);
-			    _localctx.variablesNameUsed.addAll(((ArgumentExpressionListContext)_localctx).ae.variablesNameUsed);
-			    _localctx.calls.addAll(((ArgumentExpressionListContext)_localctx).ae.calls);
+			    _localctx.variablesNameUsed.incrementAll(((ArgumentExpressionListContext)_localctx).ae.variablesNameUsed);
+			    _localctx.calls.incrementAll(((ArgumentExpressionListContext)_localctx).ae.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -940,11 +941,11 @@ public class CParser extends Parser {
 					setState(322); ((ArgumentExpressionListContext)_localctx).ae = assignmentExpression();
 
 					              _localctx.parameters.addAll(((ArgumentExpressionListContext)_localctx).ael.parameters);
-					              _localctx.variablesNameUsed.addAll(((ArgumentExpressionListContext)_localctx).ael.variablesNameUsed);
-					              _localctx.calls.addAll(((ArgumentExpressionListContext)_localctx).ael.calls);
+					              _localctx.variablesNameUsed.incrementAll(((ArgumentExpressionListContext)_localctx).ael.variablesNameUsed);
+					              _localctx.calls.incrementAll(((ArgumentExpressionListContext)_localctx).ael.calls);
 					              _localctx.parameters.addAll(((ArgumentExpressionListContext)_localctx).ae.parameters);
-					              _localctx.variablesNameUsed.addAll(((ArgumentExpressionListContext)_localctx).ae.variablesNameUsed);
-					              _localctx.calls.addAll(((ArgumentExpressionListContext)_localctx).ae.calls);
+					              _localctx.variablesNameUsed.incrementAll(((ArgumentExpressionListContext)_localctx).ae.variablesNameUsed);
+					              _localctx.calls.incrementAll(((ArgumentExpressionListContext)_localctx).ae.calls);
 					          
 					}
 					} 
@@ -1009,8 +1010,8 @@ public class CParser extends Parser {
 				setState(330); ((UnaryExpressionContext)_localctx).pe = postfixExpression(0);
 
 				    _localctx.parameters.addAll(((UnaryExpressionContext)_localctx).pe.parameters);
-				    _localctx.variablesNameUsed.addAll(((UnaryExpressionContext)_localctx).pe.variablesNameUsed);
-				    _localctx.calls.addAll(((UnaryExpressionContext)_localctx).pe.calls);
+				    _localctx.variablesNameUsed.incrementAll(((UnaryExpressionContext)_localctx).pe.variablesNameUsed);
+				    _localctx.calls.incrementAll(((UnaryExpressionContext)_localctx).pe.calls);
 
 				}
 				break;
@@ -1022,8 +1023,8 @@ public class CParser extends Parser {
 				setState(334); ((UnaryExpressionContext)_localctx).ue = unaryExpression();
 
 				    _localctx.parameters.addAll(((UnaryExpressionContext)_localctx).ue.parameters);    
-				    _localctx.variablesNameUsed.addAll(((UnaryExpressionContext)_localctx).ue.variablesNameUsed);
-				    _localctx.calls.addAll(((UnaryExpressionContext)_localctx).ue.calls);    
+				    _localctx.variablesNameUsed.incrementAll(((UnaryExpressionContext)_localctx).ue.variablesNameUsed);
+				    _localctx.calls.incrementAll(((UnaryExpressionContext)_localctx).ue.calls);    
 
 				}
 				break;
@@ -1035,8 +1036,8 @@ public class CParser extends Parser {
 				setState(338); ((UnaryExpressionContext)_localctx).ue = unaryExpression();
 
 				    _localctx.parameters.addAll(((UnaryExpressionContext)_localctx).ue.parameters);
-				    _localctx.variablesNameUsed.addAll(((UnaryExpressionContext)_localctx).ue.variablesNameUsed);
-				    _localctx.calls.addAll(((UnaryExpressionContext)_localctx).ue.calls);    
+				    _localctx.variablesNameUsed.incrementAll(((UnaryExpressionContext)_localctx).ue.variablesNameUsed);
+				    _localctx.calls.incrementAll(((UnaryExpressionContext)_localctx).ue.calls);    
 
 				}
 				break;
@@ -1048,8 +1049,8 @@ public class CParser extends Parser {
 				setState(342); ((UnaryExpressionContext)_localctx).ce = castExpression();
 
 				    _localctx.parameters.addAll(((UnaryExpressionContext)_localctx).ce.parameters);
-				    _localctx.variablesNameUsed.addAll(((UnaryExpressionContext)_localctx).ce.variablesNameUsed);
-				    _localctx.calls.addAll(((UnaryExpressionContext)_localctx).ce.calls);  
+				    _localctx.variablesNameUsed.incrementAll(((UnaryExpressionContext)_localctx).ce.variablesNameUsed);
+				    _localctx.calls.incrementAll(((UnaryExpressionContext)_localctx).ce.calls);  
 
 				}
 				break;
@@ -1061,8 +1062,8 @@ public class CParser extends Parser {
 				setState(346); ((UnaryExpressionContext)_localctx).ue = unaryExpression();
 
 				    _localctx.parameters.addAll(((UnaryExpressionContext)_localctx).ue.parameters);
-				    _localctx.variablesNameUsed.addAll(((UnaryExpressionContext)_localctx).ue.variablesNameUsed);
-				    _localctx.calls.addAll(((UnaryExpressionContext)_localctx).ue.calls);   
+				    _localctx.variablesNameUsed.incrementAll(((UnaryExpressionContext)_localctx).ue.variablesNameUsed);
+				    _localctx.calls.incrementAll(((UnaryExpressionContext)_localctx).ue.calls);   
 
 				}
 				break;
@@ -1127,7 +1128,7 @@ public class CParser extends Parser {
 			{
 			setState(364);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 23) | (1L << 31) | (1L << 50) | (1L << 58) | (1L << 59))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 23) | (1L << 30) | (1L << 50) | (1L << 58) | (1L << 59))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
@@ -1178,8 +1179,8 @@ public class CParser extends Parser {
 				setState(366); ((CastExpressionContext)_localctx).ue = unaryExpression();
 
 				    _localctx.parameters.addAll(((CastExpressionContext)_localctx).ue.parameters);
-				    _localctx.variablesNameUsed.addAll(((CastExpressionContext)_localctx).ue.variablesNameUsed);
-				    _localctx.calls.addAll(((CastExpressionContext)_localctx).ue.calls);
+				    _localctx.variablesNameUsed.incrementAll(((CastExpressionContext)_localctx).ue.variablesNameUsed);
+				    _localctx.calls.incrementAll(((CastExpressionContext)_localctx).ue.calls);
 
 				}
 				break;
@@ -1193,8 +1194,8 @@ public class CParser extends Parser {
 				setState(372); ((CastExpressionContext)_localctx).ce = castExpression();
 
 				    _localctx.parameters.addAll(((CastExpressionContext)_localctx).ce.parameters);
-				    _localctx.variablesNameUsed.addAll(((CastExpressionContext)_localctx).ce.variablesNameUsed);
-				    _localctx.calls.addAll(((CastExpressionContext)_localctx).ce.calls);    
+				    _localctx.variablesNameUsed.incrementAll(((CastExpressionContext)_localctx).ce.variablesNameUsed);
+				    _localctx.calls.incrementAll(((CastExpressionContext)_localctx).ce.calls);    
 
 				}
 				break;
@@ -1209,8 +1210,8 @@ public class CParser extends Parser {
 				setState(379); ((CastExpressionContext)_localctx).ce = castExpression();
 
 				    _localctx.parameters.addAll(((CastExpressionContext)_localctx).ce.parameters);
-				    _localctx.variablesNameUsed.addAll(((CastExpressionContext)_localctx).ce.variablesNameUsed);
-				    _localctx.calls.addAll(((CastExpressionContext)_localctx).ce.calls);    
+				    _localctx.variablesNameUsed.incrementAll(((CastExpressionContext)_localctx).ce.variablesNameUsed);
+				    _localctx.calls.incrementAll(((CastExpressionContext)_localctx).ce.calls);    
 
 				}
 				break;
@@ -1264,8 +1265,8 @@ public class CParser extends Parser {
 			setState(385); ((MultiplicativeExpressionContext)_localctx).ce = castExpression();
 
 			    _localctx.parameters.addAll(((MultiplicativeExpressionContext)_localctx).ce.parameters);
-			    _localctx.variablesNameUsed.addAll(((MultiplicativeExpressionContext)_localctx).ce.variablesNameUsed);
-			    _localctx.calls.addAll(((MultiplicativeExpressionContext)_localctx).ce.calls);
+			    _localctx.variablesNameUsed.incrementAll(((MultiplicativeExpressionContext)_localctx).ce.variablesNameUsed);
+			    _localctx.calls.incrementAll(((MultiplicativeExpressionContext)_localctx).ce.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -1290,11 +1291,11 @@ public class CParser extends Parser {
 						setState(390); ((MultiplicativeExpressionContext)_localctx).ce = castExpression();
 
 						              _localctx.parameters.addAll(((MultiplicativeExpressionContext)_localctx).me.parameters);
-						              _localctx.variablesNameUsed.addAll(((MultiplicativeExpressionContext)_localctx).me.variablesNameUsed);
-						              _localctx.calls.addAll(((MultiplicativeExpressionContext)_localctx).me.calls);
+						              _localctx.variablesNameUsed.incrementAll(((MultiplicativeExpressionContext)_localctx).me.variablesNameUsed);
+						              _localctx.calls.incrementAll(((MultiplicativeExpressionContext)_localctx).me.calls);
 						              _localctx.parameters.addAll(((MultiplicativeExpressionContext)_localctx).ce.parameters);
-						              _localctx.variablesNameUsed.addAll(((MultiplicativeExpressionContext)_localctx).ce.variablesNameUsed);
-						              _localctx.calls.addAll(((MultiplicativeExpressionContext)_localctx).ce.calls);
+						              _localctx.variablesNameUsed.incrementAll(((MultiplicativeExpressionContext)_localctx).ce.variablesNameUsed);
+						              _localctx.calls.incrementAll(((MultiplicativeExpressionContext)_localctx).ce.calls);
 						          
 						}
 						break;
@@ -1310,11 +1311,11 @@ public class CParser extends Parser {
 						setState(395); ((MultiplicativeExpressionContext)_localctx).ce = castExpression();
 
 						              _localctx.parameters.addAll(((MultiplicativeExpressionContext)_localctx).me.parameters);
-						              _localctx.variablesNameUsed.addAll(((MultiplicativeExpressionContext)_localctx).me.variablesNameUsed);
-						              _localctx.calls.addAll(((MultiplicativeExpressionContext)_localctx).me.calls);
+						              _localctx.variablesNameUsed.incrementAll(((MultiplicativeExpressionContext)_localctx).me.variablesNameUsed);
+						              _localctx.calls.incrementAll(((MultiplicativeExpressionContext)_localctx).me.calls);
 						              _localctx.parameters.addAll(((MultiplicativeExpressionContext)_localctx).ce.parameters);
-						              _localctx.variablesNameUsed.addAll(((MultiplicativeExpressionContext)_localctx).ce.variablesNameUsed);
-						              _localctx.calls.addAll(((MultiplicativeExpressionContext)_localctx).ce.calls);
+						              _localctx.variablesNameUsed.incrementAll(((MultiplicativeExpressionContext)_localctx).ce.variablesNameUsed);
+						              _localctx.calls.incrementAll(((MultiplicativeExpressionContext)_localctx).ce.calls);
 						          
 						}
 						break;
@@ -1330,11 +1331,11 @@ public class CParser extends Parser {
 						setState(400); ((MultiplicativeExpressionContext)_localctx).ce = castExpression();
 
 						              _localctx.parameters.addAll(((MultiplicativeExpressionContext)_localctx).me.parameters);
-						              _localctx.variablesNameUsed.addAll(((MultiplicativeExpressionContext)_localctx).me.variablesNameUsed);
-						              _localctx.calls.addAll(((MultiplicativeExpressionContext)_localctx).me.calls);
+						              _localctx.variablesNameUsed.incrementAll(((MultiplicativeExpressionContext)_localctx).me.variablesNameUsed);
+						              _localctx.calls.incrementAll(((MultiplicativeExpressionContext)_localctx).me.calls);
 						              _localctx.parameters.addAll(((MultiplicativeExpressionContext)_localctx).ce.parameters);
-						              _localctx.variablesNameUsed.addAll(((MultiplicativeExpressionContext)_localctx).ce.variablesNameUsed);
-						              _localctx.calls.addAll(((MultiplicativeExpressionContext)_localctx).ce.calls);
+						              _localctx.variablesNameUsed.incrementAll(((MultiplicativeExpressionContext)_localctx).ce.variablesNameUsed);
+						              _localctx.calls.incrementAll(((MultiplicativeExpressionContext)_localctx).ce.calls);
 						          
 						}
 						break;
@@ -1395,8 +1396,8 @@ public class CParser extends Parser {
 			setState(409); ((AdditiveExpressionContext)_localctx).me = multiplicativeExpression(0);
 
 			    _localctx.parameters.addAll(((AdditiveExpressionContext)_localctx).me.parameters);
-			    _localctx.variablesNameUsed.addAll(((AdditiveExpressionContext)_localctx).me.variablesNameUsed);
-			    _localctx.calls.addAll(((AdditiveExpressionContext)_localctx).me.calls);
+			    _localctx.variablesNameUsed.incrementAll(((AdditiveExpressionContext)_localctx).me.variablesNameUsed);
+			    _localctx.calls.incrementAll(((AdditiveExpressionContext)_localctx).me.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -1421,11 +1422,11 @@ public class CParser extends Parser {
 						setState(414); ((AdditiveExpressionContext)_localctx).me = multiplicativeExpression(0);
 
 						              _localctx.parameters.addAll(((AdditiveExpressionContext)_localctx).ae.parameters);
-						              _localctx.variablesNameUsed.addAll(((AdditiveExpressionContext)_localctx).ae.variablesNameUsed);
-						              _localctx.calls.addAll(((AdditiveExpressionContext)_localctx).ae.calls);
+						              _localctx.variablesNameUsed.incrementAll(((AdditiveExpressionContext)_localctx).ae.variablesNameUsed);
+						              _localctx.calls.incrementAll(((AdditiveExpressionContext)_localctx).ae.calls);
 						              _localctx.parameters.addAll(((AdditiveExpressionContext)_localctx).me.parameters);
-						              _localctx.variablesNameUsed.addAll(((AdditiveExpressionContext)_localctx).me.variablesNameUsed);
-						              _localctx.calls.addAll(((AdditiveExpressionContext)_localctx).me.calls);
+						              _localctx.variablesNameUsed.incrementAll(((AdditiveExpressionContext)_localctx).me.variablesNameUsed);
+						              _localctx.calls.incrementAll(((AdditiveExpressionContext)_localctx).me.calls);
 						          
 						}
 						break;
@@ -1437,15 +1438,15 @@ public class CParser extends Parser {
 						pushNewRecursionContext(_localctx, _startState, RULE_additiveExpression);
 						setState(417);
 						if (!(1 >= _localctx._p)) throw new FailedPredicateException(this, "1 >= $_p");
-						setState(418); match(31);
+						setState(418); match(30);
 						setState(419); ((AdditiveExpressionContext)_localctx).me = multiplicativeExpression(0);
 
 						              _localctx.parameters.addAll(((AdditiveExpressionContext)_localctx).ae.parameters);
-						              _localctx.variablesNameUsed.addAll(((AdditiveExpressionContext)_localctx).ae.variablesNameUsed);
-						              _localctx.calls.addAll(((AdditiveExpressionContext)_localctx).ae.calls);
+						              _localctx.variablesNameUsed.incrementAll(((AdditiveExpressionContext)_localctx).ae.variablesNameUsed);
+						              _localctx.calls.incrementAll(((AdditiveExpressionContext)_localctx).ae.calls);
 						              _localctx.parameters.addAll(((AdditiveExpressionContext)_localctx).me.parameters);
-						              _localctx.variablesNameUsed.addAll(((AdditiveExpressionContext)_localctx).me.variablesNameUsed);
-						              _localctx.calls.addAll(((AdditiveExpressionContext)_localctx).me.calls);
+						              _localctx.variablesNameUsed.incrementAll(((AdditiveExpressionContext)_localctx).me.variablesNameUsed);
+						              _localctx.calls.incrementAll(((AdditiveExpressionContext)_localctx).me.calls);
 						          
 						}
 						break;
@@ -1506,8 +1507,8 @@ public class CParser extends Parser {
 			setState(428); ((ShiftExpressionContext)_localctx).ae = additiveExpression(0);
 
 			    _localctx.parameters.addAll(((ShiftExpressionContext)_localctx).ae.parameters);
-			    _localctx.variablesNameUsed.addAll(((ShiftExpressionContext)_localctx).ae.variablesNameUsed);
-			    _localctx.calls.addAll(((ShiftExpressionContext)_localctx).ae.calls);
+			    _localctx.variablesNameUsed.incrementAll(((ShiftExpressionContext)_localctx).ae.variablesNameUsed);
+			    _localctx.calls.incrementAll(((ShiftExpressionContext)_localctx).ae.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -1532,11 +1533,11 @@ public class CParser extends Parser {
 						setState(433); ((ShiftExpressionContext)_localctx).ae = additiveExpression(0);
 
 						              _localctx.parameters.addAll(((ShiftExpressionContext)_localctx).se.parameters);
-						              _localctx.variablesNameUsed.addAll(((ShiftExpressionContext)_localctx).se.variablesNameUsed);
-						              _localctx.calls.addAll(((ShiftExpressionContext)_localctx).se.calls);
+						              _localctx.variablesNameUsed.incrementAll(((ShiftExpressionContext)_localctx).se.variablesNameUsed);
+						              _localctx.calls.incrementAll(((ShiftExpressionContext)_localctx).se.calls);
 						              _localctx.parameters.addAll(((ShiftExpressionContext)_localctx).ae.parameters);
-						              _localctx.variablesNameUsed.addAll(((ShiftExpressionContext)_localctx).ae.variablesNameUsed);
-						              _localctx.calls.addAll(((ShiftExpressionContext)_localctx).ae.calls);
+						              _localctx.variablesNameUsed.incrementAll(((ShiftExpressionContext)_localctx).ae.variablesNameUsed);
+						              _localctx.calls.incrementAll(((ShiftExpressionContext)_localctx).ae.calls);
 						          
 						}
 						break;
@@ -1552,11 +1553,11 @@ public class CParser extends Parser {
 						setState(438); ((ShiftExpressionContext)_localctx).ae = additiveExpression(0);
 
 						              _localctx.parameters.addAll(((ShiftExpressionContext)_localctx).se.parameters);
-						              _localctx.variablesNameUsed.addAll(((ShiftExpressionContext)_localctx).se.variablesNameUsed);
-						              _localctx.calls.addAll(((ShiftExpressionContext)_localctx).se.calls);
+						              _localctx.variablesNameUsed.incrementAll(((ShiftExpressionContext)_localctx).se.variablesNameUsed);
+						              _localctx.calls.incrementAll(((ShiftExpressionContext)_localctx).se.calls);
 						              _localctx.parameters.addAll(((ShiftExpressionContext)_localctx).ae.parameters);
-						              _localctx.variablesNameUsed.addAll(((ShiftExpressionContext)_localctx).ae.variablesNameUsed);
-						              _localctx.calls.addAll(((ShiftExpressionContext)_localctx).ae.calls);
+						              _localctx.variablesNameUsed.incrementAll(((ShiftExpressionContext)_localctx).ae.variablesNameUsed);
+						              _localctx.calls.incrementAll(((ShiftExpressionContext)_localctx).ae.calls);
 						          
 						}
 						break;
@@ -1617,8 +1618,8 @@ public class CParser extends Parser {
 			setState(447); ((RelationalExpressionContext)_localctx).se = shiftExpression(0);
 
 			    _localctx.parameters.addAll(((RelationalExpressionContext)_localctx).se.parameters);
-			    _localctx.variablesNameUsed.addAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
-			    _localctx.calls.addAll(((RelationalExpressionContext)_localctx).se.calls);
+			    _localctx.variablesNameUsed.incrementAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
+			    _localctx.calls.incrementAll(((RelationalExpressionContext)_localctx).se.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -1643,11 +1644,11 @@ public class CParser extends Parser {
 						setState(452); ((RelationalExpressionContext)_localctx).se = shiftExpression(0);
 
 						              _localctx.parameters.addAll(((RelationalExpressionContext)_localctx).re.parameters);
-						              _localctx.variablesNameUsed.addAll(((RelationalExpressionContext)_localctx).re.variablesNameUsed);
-						              _localctx.calls.addAll(((RelationalExpressionContext)_localctx).re.calls);
+						              _localctx.variablesNameUsed.incrementAll(((RelationalExpressionContext)_localctx).re.variablesNameUsed);
+						              _localctx.calls.incrementAll(((RelationalExpressionContext)_localctx).re.calls);
 						              _localctx.parameters.addAll(((RelationalExpressionContext)_localctx).se.parameters);
-						              _localctx.variablesNameUsed.addAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
-						              _localctx.calls.addAll(((RelationalExpressionContext)_localctx).se.calls);
+						              _localctx.variablesNameUsed.incrementAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
+						              _localctx.calls.incrementAll(((RelationalExpressionContext)_localctx).se.calls);
 						          
 						}
 						break;
@@ -1663,11 +1664,11 @@ public class CParser extends Parser {
 						setState(457); ((RelationalExpressionContext)_localctx).se = shiftExpression(0);
 
 						              _localctx.parameters.addAll(((RelationalExpressionContext)_localctx).re.parameters);
-						              _localctx.variablesNameUsed.addAll(((RelationalExpressionContext)_localctx).re.variablesNameUsed);
-						              _localctx.calls.addAll(((RelationalExpressionContext)_localctx).re.calls);
+						              _localctx.variablesNameUsed.incrementAll(((RelationalExpressionContext)_localctx).re.variablesNameUsed);
+						              _localctx.calls.incrementAll(((RelationalExpressionContext)_localctx).re.calls);
 						              _localctx.parameters.addAll(((RelationalExpressionContext)_localctx).se.parameters);
-						              _localctx.variablesNameUsed.addAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
-						              _localctx.calls.addAll(((RelationalExpressionContext)_localctx).se.calls);
+						              _localctx.variablesNameUsed.incrementAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
+						              _localctx.calls.incrementAll(((RelationalExpressionContext)_localctx).se.calls);
 						          
 						}
 						break;
@@ -1683,11 +1684,11 @@ public class CParser extends Parser {
 						setState(462); ((RelationalExpressionContext)_localctx).se = shiftExpression(0);
 
 						              _localctx.parameters.addAll(((RelationalExpressionContext)_localctx).re.parameters);
-						              _localctx.variablesNameUsed.addAll(((RelationalExpressionContext)_localctx).re.variablesNameUsed);
-						              _localctx.calls.addAll(((RelationalExpressionContext)_localctx).re.calls);
+						              _localctx.variablesNameUsed.incrementAll(((RelationalExpressionContext)_localctx).re.variablesNameUsed);
+						              _localctx.calls.incrementAll(((RelationalExpressionContext)_localctx).re.calls);
 						              _localctx.parameters.addAll(((RelationalExpressionContext)_localctx).se.parameters);
-						              _localctx.variablesNameUsed.addAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
-						              _localctx.calls.addAll(((RelationalExpressionContext)_localctx).se.calls);
+						              _localctx.variablesNameUsed.incrementAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
+						              _localctx.calls.incrementAll(((RelationalExpressionContext)_localctx).se.calls);
 						          
 						}
 						break;
@@ -1703,11 +1704,11 @@ public class CParser extends Parser {
 						setState(467); ((RelationalExpressionContext)_localctx).se = shiftExpression(0);
 
 						              _localctx.parameters.addAll(((RelationalExpressionContext)_localctx).re.parameters);
-						              _localctx.variablesNameUsed.addAll(((RelationalExpressionContext)_localctx).re.variablesNameUsed);
-						              _localctx.calls.addAll(((RelationalExpressionContext)_localctx).re.calls);
+						              _localctx.variablesNameUsed.incrementAll(((RelationalExpressionContext)_localctx).re.variablesNameUsed);
+						              _localctx.calls.incrementAll(((RelationalExpressionContext)_localctx).re.calls);
 						              _localctx.parameters.addAll(((RelationalExpressionContext)_localctx).se.parameters);
-						              _localctx.variablesNameUsed.addAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
-						              _localctx.calls.addAll(((RelationalExpressionContext)_localctx).se.calls);
+						              _localctx.variablesNameUsed.incrementAll(((RelationalExpressionContext)_localctx).se.variablesNameUsed);
+						              _localctx.calls.incrementAll(((RelationalExpressionContext)_localctx).se.calls);
 						          
 						}
 						break;
@@ -1768,8 +1769,8 @@ public class CParser extends Parser {
 			setState(476); ((EqualityExpressionContext)_localctx).re = relationalExpression(0);
 
 			    _localctx.parameters.addAll(((EqualityExpressionContext)_localctx).re.parameters);
-			    _localctx.variablesNameUsed.addAll(((EqualityExpressionContext)_localctx).re.variablesNameUsed);
-			    _localctx.calls.addAll(((EqualityExpressionContext)_localctx).re.calls);
+			    _localctx.variablesNameUsed.incrementAll(((EqualityExpressionContext)_localctx).re.variablesNameUsed);
+			    _localctx.calls.incrementAll(((EqualityExpressionContext)_localctx).re.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -1794,11 +1795,11 @@ public class CParser extends Parser {
 						setState(481); ((EqualityExpressionContext)_localctx).re = relationalExpression(0);
 
 						              _localctx.parameters.addAll(((EqualityExpressionContext)_localctx).ee.parameters);
-						              _localctx.variablesNameUsed.addAll(((EqualityExpressionContext)_localctx).ee.variablesNameUsed);
-						              _localctx.calls.addAll(((EqualityExpressionContext)_localctx).ee.calls);
+						              _localctx.variablesNameUsed.incrementAll(((EqualityExpressionContext)_localctx).ee.variablesNameUsed);
+						              _localctx.calls.incrementAll(((EqualityExpressionContext)_localctx).ee.calls);
 						              _localctx.parameters.addAll(((EqualityExpressionContext)_localctx).re.parameters);
-						              _localctx.variablesNameUsed.addAll(((EqualityExpressionContext)_localctx).re.variablesNameUsed);
-						              _localctx.calls.addAll(((EqualityExpressionContext)_localctx).re.calls);
+						              _localctx.variablesNameUsed.incrementAll(((EqualityExpressionContext)_localctx).re.variablesNameUsed);
+						              _localctx.calls.incrementAll(((EqualityExpressionContext)_localctx).re.calls);
 						          
 						}
 						break;
@@ -1814,11 +1815,11 @@ public class CParser extends Parser {
 						setState(486); ((EqualityExpressionContext)_localctx).re = relationalExpression(0);
 
 						              _localctx.parameters.addAll(((EqualityExpressionContext)_localctx).ee.parameters);
-						              _localctx.variablesNameUsed.addAll(((EqualityExpressionContext)_localctx).ee.variablesNameUsed);
-						              _localctx.calls.addAll(((EqualityExpressionContext)_localctx).ee.calls);
+						              _localctx.variablesNameUsed.incrementAll(((EqualityExpressionContext)_localctx).ee.variablesNameUsed);
+						              _localctx.calls.incrementAll(((EqualityExpressionContext)_localctx).ee.calls);
 						              _localctx.parameters.addAll(((EqualityExpressionContext)_localctx).re.parameters);
-						              _localctx.variablesNameUsed.addAll(((EqualityExpressionContext)_localctx).re.variablesNameUsed);
-						              _localctx.calls.addAll(((EqualityExpressionContext)_localctx).re.calls);
+						              _localctx.variablesNameUsed.incrementAll(((EqualityExpressionContext)_localctx).re.variablesNameUsed);
+						              _localctx.calls.incrementAll(((EqualityExpressionContext)_localctx).re.calls);
 						          
 						}
 						break;
@@ -1879,8 +1880,8 @@ public class CParser extends Parser {
 			setState(495); ((AndExpressionContext)_localctx).ee = equalityExpression(0);
 
 			    _localctx.parameters.addAll(((AndExpressionContext)_localctx).ee.parameters);
-			    _localctx.variablesNameUsed.addAll(((AndExpressionContext)_localctx).ee.variablesNameUsed);
-			    _localctx.calls.addAll(((AndExpressionContext)_localctx).ee.calls);
+			    _localctx.variablesNameUsed.incrementAll(((AndExpressionContext)_localctx).ee.variablesNameUsed);
+			    _localctx.calls.incrementAll(((AndExpressionContext)_localctx).ee.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -1902,11 +1903,11 @@ public class CParser extends Parser {
 					setState(500); ((AndExpressionContext)_localctx).ee = equalityExpression(0);
 
 					              _localctx.parameters.addAll(((AndExpressionContext)_localctx).ae.parameters);
-					              _localctx.variablesNameUsed.addAll(((AndExpressionContext)_localctx).ae.variablesNameUsed);
-					              _localctx.calls.addAll(((AndExpressionContext)_localctx).ae.calls);
+					              _localctx.variablesNameUsed.incrementAll(((AndExpressionContext)_localctx).ae.variablesNameUsed);
+					              _localctx.calls.incrementAll(((AndExpressionContext)_localctx).ae.calls);
 					              _localctx.parameters.addAll(((AndExpressionContext)_localctx).ee.parameters);
-					              _localctx.variablesNameUsed.addAll(((AndExpressionContext)_localctx).ee.variablesNameUsed);
-					              _localctx.calls.addAll(((AndExpressionContext)_localctx).ee.calls);
+					              _localctx.variablesNameUsed.incrementAll(((AndExpressionContext)_localctx).ee.variablesNameUsed);
+					              _localctx.calls.incrementAll(((AndExpressionContext)_localctx).ee.calls);
 					          
 					}
 					} 
@@ -1965,8 +1966,8 @@ public class CParser extends Parser {
 			setState(509); ((ExclusiveOrExpressionContext)_localctx).ae = andExpression(0);
 
 			    _localctx.parameters.addAll(((ExclusiveOrExpressionContext)_localctx).ae.parameters);
-			    _localctx.variablesNameUsed.addAll(((ExclusiveOrExpressionContext)_localctx).ae.variablesNameUsed);
-			    _localctx.calls.addAll(((ExclusiveOrExpressionContext)_localctx).ae.calls);
+			    _localctx.variablesNameUsed.incrementAll(((ExclusiveOrExpressionContext)_localctx).ae.variablesNameUsed);
+			    _localctx.calls.incrementAll(((ExclusiveOrExpressionContext)_localctx).ae.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -1988,11 +1989,11 @@ public class CParser extends Parser {
 					setState(514); ((ExclusiveOrExpressionContext)_localctx).ae = andExpression(0);
 
 					              _localctx.parameters.addAll(((ExclusiveOrExpressionContext)_localctx).eoe.parameters);
-					              _localctx.variablesNameUsed.addAll(((ExclusiveOrExpressionContext)_localctx).eoe.variablesNameUsed);
-					              _localctx.calls.addAll(((ExclusiveOrExpressionContext)_localctx).eoe.calls);
+					              _localctx.variablesNameUsed.incrementAll(((ExclusiveOrExpressionContext)_localctx).eoe.variablesNameUsed);
+					              _localctx.calls.incrementAll(((ExclusiveOrExpressionContext)_localctx).eoe.calls);
 					              _localctx.parameters.addAll(((ExclusiveOrExpressionContext)_localctx).ae.parameters);
-					              _localctx.variablesNameUsed.addAll(((ExclusiveOrExpressionContext)_localctx).ae.variablesNameUsed);
-					              _localctx.calls.addAll(((ExclusiveOrExpressionContext)_localctx).ae.calls);
+					              _localctx.variablesNameUsed.incrementAll(((ExclusiveOrExpressionContext)_localctx).ae.variablesNameUsed);
+					              _localctx.calls.incrementAll(((ExclusiveOrExpressionContext)_localctx).ae.calls);
 					          
 					}
 					} 
@@ -2051,8 +2052,8 @@ public class CParser extends Parser {
 			setState(523); ((InclusiveOrExpressionContext)_localctx).eoe = exclusiveOrExpression(0);
 
 			    _localctx.parameters.addAll(((InclusiveOrExpressionContext)_localctx).eoe.parameters);
-			    _localctx.variablesNameUsed.addAll(((InclusiveOrExpressionContext)_localctx).eoe.variablesNameUsed);
-			    _localctx.calls.addAll(((InclusiveOrExpressionContext)_localctx).eoe.calls);
+			    _localctx.variablesNameUsed.incrementAll(((InclusiveOrExpressionContext)_localctx).eoe.variablesNameUsed);
+			    _localctx.calls.incrementAll(((InclusiveOrExpressionContext)_localctx).eoe.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -2074,11 +2075,11 @@ public class CParser extends Parser {
 					setState(528); ((InclusiveOrExpressionContext)_localctx).eoe = exclusiveOrExpression(0);
 
 					              _localctx.parameters.addAll(((InclusiveOrExpressionContext)_localctx).ioe.parameters);
-					              _localctx.variablesNameUsed.addAll(((InclusiveOrExpressionContext)_localctx).ioe.variablesNameUsed);
-					              _localctx.calls.addAll(((InclusiveOrExpressionContext)_localctx).ioe.calls);
+					              _localctx.variablesNameUsed.incrementAll(((InclusiveOrExpressionContext)_localctx).ioe.variablesNameUsed);
+					              _localctx.calls.incrementAll(((InclusiveOrExpressionContext)_localctx).ioe.calls);
 					              _localctx.parameters.addAll(((InclusiveOrExpressionContext)_localctx).eoe.parameters);
-					              _localctx.variablesNameUsed.addAll(((InclusiveOrExpressionContext)_localctx).eoe.variablesNameUsed);
-					              _localctx.calls.addAll(((InclusiveOrExpressionContext)_localctx).eoe.calls);
+					              _localctx.variablesNameUsed.incrementAll(((InclusiveOrExpressionContext)_localctx).eoe.variablesNameUsed);
+					              _localctx.calls.incrementAll(((InclusiveOrExpressionContext)_localctx).eoe.calls);
 					          
 					}
 					} 
@@ -2137,8 +2138,8 @@ public class CParser extends Parser {
 			setState(537); ((LogicalAndExpressionContext)_localctx).ioe = inclusiveOrExpression(0);
 
 			    _localctx.parameters.addAll(((LogicalAndExpressionContext)_localctx).ioe.parameters);
-			    _localctx.variablesNameUsed.addAll(((LogicalAndExpressionContext)_localctx).ioe.variablesNameUsed);
-			    _localctx.calls.addAll(((LogicalAndExpressionContext)_localctx).ioe.calls);
+			    _localctx.variablesNameUsed.incrementAll(((LogicalAndExpressionContext)_localctx).ioe.variablesNameUsed);
+			    _localctx.calls.incrementAll(((LogicalAndExpressionContext)_localctx).ioe.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -2160,11 +2161,11 @@ public class CParser extends Parser {
 					setState(542); ((LogicalAndExpressionContext)_localctx).ioe = inclusiveOrExpression(0);
 
 					              _localctx.parameters.addAll(((LogicalAndExpressionContext)_localctx).lae.parameters);
-					              _localctx.variablesNameUsed.addAll(((LogicalAndExpressionContext)_localctx).lae.variablesNameUsed);
-					              _localctx.calls.addAll(((LogicalAndExpressionContext)_localctx).lae.calls);
+					              _localctx.variablesNameUsed.incrementAll(((LogicalAndExpressionContext)_localctx).lae.variablesNameUsed);
+					              _localctx.calls.incrementAll(((LogicalAndExpressionContext)_localctx).lae.calls);
 					              _localctx.parameters.addAll(((LogicalAndExpressionContext)_localctx).ioe.parameters);
-					              _localctx.variablesNameUsed.addAll(((LogicalAndExpressionContext)_localctx).ioe.variablesNameUsed);
-					              _localctx.calls.addAll(((LogicalAndExpressionContext)_localctx).ioe.calls);
+					              _localctx.variablesNameUsed.incrementAll(((LogicalAndExpressionContext)_localctx).ioe.variablesNameUsed);
+					              _localctx.calls.incrementAll(((LogicalAndExpressionContext)_localctx).ioe.calls);
 					          
 					}
 					} 
@@ -2223,8 +2224,8 @@ public class CParser extends Parser {
 			setState(551); ((LogicalOrExpressionContext)_localctx).lae = logicalAndExpression(0);
 
 			    _localctx.parameters.addAll(((LogicalOrExpressionContext)_localctx).lae.parameters);
-			    _localctx.variablesNameUsed.addAll(((LogicalOrExpressionContext)_localctx).lae.variablesNameUsed);
-			    _localctx.calls.addAll(((LogicalOrExpressionContext)_localctx).lae.calls);
+			    _localctx.variablesNameUsed.incrementAll(((LogicalOrExpressionContext)_localctx).lae.variablesNameUsed);
+			    _localctx.calls.incrementAll(((LogicalOrExpressionContext)_localctx).lae.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -2246,11 +2247,11 @@ public class CParser extends Parser {
 					setState(556); ((LogicalOrExpressionContext)_localctx).lae = logicalAndExpression(0);
 
 					              _localctx.parameters.addAll(((LogicalOrExpressionContext)_localctx).loe.parameters);
-					              _localctx.variablesNameUsed.addAll(((LogicalOrExpressionContext)_localctx).loe.variablesNameUsed);
-					              _localctx.calls.addAll(((LogicalOrExpressionContext)_localctx).loe.calls);
+					              _localctx.variablesNameUsed.incrementAll(((LogicalOrExpressionContext)_localctx).loe.variablesNameUsed);
+					              _localctx.calls.incrementAll(((LogicalOrExpressionContext)_localctx).loe.calls);
 					              _localctx.parameters.addAll(((LogicalOrExpressionContext)_localctx).lae.parameters);
-					              _localctx.variablesNameUsed.addAll(((LogicalOrExpressionContext)_localctx).lae.variablesNameUsed);
-					              _localctx.calls.addAll(((LogicalOrExpressionContext)_localctx).lae.calls);
+					              _localctx.variablesNameUsed.incrementAll(((LogicalOrExpressionContext)_localctx).lae.variablesNameUsed);
+					              _localctx.calls.incrementAll(((LogicalOrExpressionContext)_localctx).lae.calls);
 					          
 					}
 					} 
@@ -2315,17 +2316,17 @@ public class CParser extends Parser {
 			}
 
 			    _localctx.parameters.addAll(((ConditionalExpressionContext)_localctx).loe.parameters);
-			    _localctx.variablesNameUsed.addAll(((ConditionalExpressionContext)_localctx).loe.variablesNameUsed);
-			    _localctx.calls.addAll(((ConditionalExpressionContext)_localctx).loe.calls);
+			    _localctx.variablesNameUsed.incrementAll(((ConditionalExpressionContext)_localctx).loe.variablesNameUsed);
+			    _localctx.calls.incrementAll(((ConditionalExpressionContext)_localctx).loe.calls);
 			    
 			    if((((ConditionalExpressionContext)_localctx).e!=null?_input.getText(((ConditionalExpressionContext)_localctx).e.start,((ConditionalExpressionContext)_localctx).e.stop):null) != null)
 			    {
 			        _localctx.parameters.addAll(((ConditionalExpressionContext)_localctx).e.parameters);
-			        _localctx.variablesNameUsed.addAll(((ConditionalExpressionContext)_localctx).e.variablesNameUsed);
-			        _localctx.calls.addAll(((ConditionalExpressionContext)_localctx).e.calls);
+			        _localctx.variablesNameUsed.incrementAll(((ConditionalExpressionContext)_localctx).e.variablesNameUsed);
+			        _localctx.calls.incrementAll(((ConditionalExpressionContext)_localctx).e.calls);
 			        _localctx.parameters.addAll(((ConditionalExpressionContext)_localctx).ce.parameters);
-			        _localctx.variablesNameUsed.addAll(((ConditionalExpressionContext)_localctx).ce.variablesNameUsed);
-			        _localctx.calls.addAll(((ConditionalExpressionContext)_localctx).ce.calls);
+			        _localctx.variablesNameUsed.incrementAll(((ConditionalExpressionContext)_localctx).ce.variablesNameUsed);
+			        _localctx.calls.incrementAll(((ConditionalExpressionContext)_localctx).ce.calls);
 			    }
 
 			}
@@ -2379,8 +2380,8 @@ public class CParser extends Parser {
 				setState(574); ((AssignmentExpressionContext)_localctx).ce = conditionalExpression();
 
 				    _localctx.parameters.addAll(((AssignmentExpressionContext)_localctx).ce.parameters);    
-				    _localctx.variablesNameUsed.addAll(((AssignmentExpressionContext)_localctx).ce.variablesNameUsed);
-				    _localctx.calls.addAll(((AssignmentExpressionContext)_localctx).ce.calls);
+				    _localctx.variablesNameUsed.incrementAll(((AssignmentExpressionContext)_localctx).ce.variablesNameUsed);
+				    _localctx.calls.incrementAll(((AssignmentExpressionContext)_localctx).ce.calls);
 
 				}
 				break;
@@ -2393,11 +2394,11 @@ public class CParser extends Parser {
 				setState(579); ((AssignmentExpressionContext)_localctx).ae = assignmentExpression();
 
 				    _localctx.parameters.addAll(((AssignmentExpressionContext)_localctx).ue.parameters);
-				    _localctx.variablesNameUsed.addAll(((AssignmentExpressionContext)_localctx).ue.variablesNameUsed);
-				    _localctx.calls.addAll(((AssignmentExpressionContext)_localctx).ue.calls);
+				    _localctx.variablesNameUsed.incrementAll(((AssignmentExpressionContext)_localctx).ue.variablesNameUsed);
+				    _localctx.calls.incrementAll(((AssignmentExpressionContext)_localctx).ue.calls);
 				    _localctx.parameters.addAll(((AssignmentExpressionContext)_localctx).ae.parameters);
-				    _localctx.variablesNameUsed.addAll(((AssignmentExpressionContext)_localctx).ae.variablesNameUsed);
-				    _localctx.calls.addAll(((AssignmentExpressionContext)_localctx).ae.calls);
+				    _localctx.variablesNameUsed.incrementAll(((AssignmentExpressionContext)_localctx).ae.variablesNameUsed);
+				    _localctx.calls.incrementAll(((AssignmentExpressionContext)_localctx).ae.calls);
 
 				}
 				break;
@@ -2484,8 +2485,8 @@ public class CParser extends Parser {
 			setState(587); ((ExpressionContext)_localctx).ae = assignmentExpression();
 
 			    _localctx.parameters.addAll(((ExpressionContext)_localctx).ae.parameters);
-			    _localctx.variablesNameUsed.addAll(((ExpressionContext)_localctx).ae.variablesNameUsed);
-			    _localctx.calls.addAll(((ExpressionContext)_localctx).ae.calls);
+			    _localctx.variablesNameUsed.incrementAll(((ExpressionContext)_localctx).ae.variablesNameUsed);
+			    _localctx.calls.incrementAll(((ExpressionContext)_localctx).ae.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -2507,11 +2508,11 @@ public class CParser extends Parser {
 					setState(592); ((ExpressionContext)_localctx).ae = assignmentExpression();
 
 					              _localctx.parameters.addAll(((ExpressionContext)_localctx).e.parameters);
-					              _localctx.variablesNameUsed.addAll(((ExpressionContext)_localctx).e.variablesNameUsed);
-					              _localctx.calls.addAll(((ExpressionContext)_localctx).e.calls);
+					              _localctx.variablesNameUsed.incrementAll(((ExpressionContext)_localctx).e.variablesNameUsed);
+					              _localctx.calls.incrementAll(((ExpressionContext)_localctx).e.calls);
 					              _localctx.parameters.addAll(((ExpressionContext)_localctx).ae.parameters);
-					              _localctx.variablesNameUsed.addAll(((ExpressionContext)_localctx).ae.variablesNameUsed);
-					              _localctx.calls.addAll(((ExpressionContext)_localctx).ae.calls);
+					              _localctx.variablesNameUsed.incrementAll(((ExpressionContext)_localctx).ae.variablesNameUsed);
+					              _localctx.calls.incrementAll(((ExpressionContext)_localctx).ae.calls);
 					          
 					}
 					} 
@@ -2555,8 +2556,8 @@ public class CParser extends Parser {
 			{
 			setState(600); ((ConstantExpressionContext)_localctx).ce = conditionalExpression();
 
-			    _localctx.variablesNameUsed.addAll(((ConstantExpressionContext)_localctx).ce.variablesNameUsed);
-			    _localctx.calls.addAll(((ConstantExpressionContext)_localctx).ce.calls);
+			    _localctx.variablesNameUsed.incrementAll(((ConstantExpressionContext)_localctx).ce.variablesNameUsed);
+			    _localctx.calls.incrementAll(((ConstantExpressionContext)_localctx).ce.calls);
 
 			}
 		}
@@ -2976,8 +2977,8 @@ public class CParser extends Parser {
 				setState(645); ((InitDeclaratorContext)_localctx).i = initializer();
 
 				    ((DeclarationContext)getInvokingContext(24)).variableNames.add(((InitDeclaratorContext)_localctx).d.name);
-				    ((DeclarationContext)getInvokingContext(24)).variablesNameUsed.addAll(((InitDeclaratorContext)_localctx).i.variablesNameUsed);
-				    ((DeclarationContext)getInvokingContext(24)).calls.addAll(((InitDeclaratorContext)_localctx).i.calls);
+				    ((DeclarationContext)getInvokingContext(24)).variablesNameUsed.incrementAll(((InitDeclaratorContext)_localctx).i.variablesNameUsed);
+				    ((DeclarationContext)getInvokingContext(24)).calls.incrementAll(((InitDeclaratorContext)_localctx).i.calls);
 
 				}
 				break;
@@ -4329,7 +4330,7 @@ public class CParser extends Parser {
 
 						setState(865);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 							{
 							setState(864); assignmentExpression();
 							}
@@ -4774,7 +4775,7 @@ public class CParser extends Parser {
 					setState(943); match(87);
 					setState(945);
 					_la = _input.LA(1);
-					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 						{
 						setState(944); argumentExpressionList(0);
 						}
@@ -5588,7 +5589,7 @@ public class CParser extends Parser {
 
 				setState(1066);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1065); assignmentExpression();
 					}
@@ -5691,7 +5692,7 @@ public class CParser extends Parser {
 
 						setState(1105);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 							{
 							setState(1104); assignmentExpression();
 							}
@@ -5865,8 +5866,8 @@ public class CParser extends Parser {
 				{
 				setState(1148); ((InitializerContext)_localctx).ae = assignmentExpression();
 
-				    _localctx.variablesNameUsed.addAll(((InitializerContext)_localctx).ae.variablesNameUsed);
-				    _localctx.calls.addAll(((InitializerContext)_localctx).ae.calls);
+				    _localctx.variablesNameUsed.incrementAll(((InitializerContext)_localctx).ae.variablesNameUsed);
+				    _localctx.calls.incrementAll(((InitializerContext)_localctx).ae.calls);
 
 				}
 				break;
@@ -5878,8 +5879,8 @@ public class CParser extends Parser {
 				setState(1152); ((InitializerContext)_localctx).il = initializerList(0);
 				setState(1153); match(5);
 
-				    _localctx.variablesNameUsed.addAll(((InitializerContext)_localctx).il.variablesNameUsed);
-				    _localctx.calls.addAll(((InitializerContext)_localctx).il.calls);    
+				    _localctx.variablesNameUsed.incrementAll(((InitializerContext)_localctx).il.variablesNameUsed);
+				    _localctx.calls.incrementAll(((InitializerContext)_localctx).il.calls);    
 
 				}
 				break;
@@ -5892,8 +5893,8 @@ public class CParser extends Parser {
 				setState(1158); match(29);
 				setState(1159); match(5);
 
-				    _localctx.variablesNameUsed.addAll(((InitializerContext)_localctx).il.variablesNameUsed);
-				    _localctx.calls.addAll(((InitializerContext)_localctx).il.calls);   
+				    _localctx.variablesNameUsed.incrementAll(((InitializerContext)_localctx).il.variablesNameUsed);
+				    _localctx.calls.incrementAll(((InitializerContext)_localctx).il.calls);   
 
 				}
 				break;
@@ -5957,8 +5958,8 @@ public class CParser extends Parser {
 
 			setState(1168); ((InitializerListContext)_localctx).i = initializer();
 
-			    _localctx.variablesNameUsed.addAll(((InitializerListContext)_localctx).i.variablesNameUsed);
-			    _localctx.calls.addAll(((InitializerListContext)_localctx).i.calls);
+			    _localctx.variablesNameUsed.incrementAll(((InitializerListContext)_localctx).i.variablesNameUsed);
+			    _localctx.calls.incrementAll(((InitializerListContext)_localctx).i.calls);
 
 			}
 			_ctx.stop = _input.LT(-1);
@@ -5987,10 +5988,10 @@ public class CParser extends Parser {
 
 					setState(1176); ((InitializerListContext)_localctx).i = initializer();
 
-					              _localctx.variablesNameUsed.addAll(((InitializerListContext)_localctx).il.variablesNameUsed);
-					              _localctx.calls.addAll(((InitializerListContext)_localctx).il.calls);
-					              _localctx.variablesNameUsed.addAll(((InitializerListContext)_localctx).i.variablesNameUsed);
-					              _localctx.calls.addAll(((InitializerListContext)_localctx).i.calls);    
+					              _localctx.variablesNameUsed.incrementAll(((InitializerListContext)_localctx).il.variablesNameUsed);
+					              _localctx.calls.incrementAll(((InitializerListContext)_localctx).il.calls);
+					              _localctx.variablesNameUsed.incrementAll(((InitializerListContext)_localctx).i.variablesNameUsed);
+					              _localctx.calls.incrementAll(((InitializerListContext)_localctx).i.calls);    
 					          
 					}
 					} 
@@ -6133,8 +6134,8 @@ public class CParser extends Parser {
 				setState(1198); ((DesignatorContext)_localctx).ce = constantExpression();
 				setState(1199); match(83);
 
-				    ((InitializerListContext)getInvokingContext(64)).variablesNameUsed.addAll(((DesignatorContext)_localctx).ce.variablesNameUsed);
-				    ((InitializerListContext)getInvokingContext(64)).calls.addAll(((DesignatorContext)_localctx).ce.calls);
+				    ((InitializerListContext)getInvokingContext(64)).variablesNameUsed.incrementAll(((DesignatorContext)_localctx).ce.variablesNameUsed);
+				    ((InitializerListContext)getInvokingContext(64)).calls.incrementAll(((DesignatorContext)_localctx).ce.calls);
 
 				}
 				break;
@@ -6279,8 +6280,8 @@ public class CParser extends Parser {
 				{
 				setState(1218); ((StatementContext)_localctx).ls = labeledStatement();
 
-					_localctx.variablesNameUsed.addAll(((StatementContext)_localctx).ls.variablesNameUsed);
-					_localctx.calls.addAll(((StatementContext)_localctx).ls.calls);
+					_localctx.variablesNameUsed.incrementAll(((StatementContext)_localctx).ls.variablesNameUsed);
+					_localctx.calls.incrementAll(((StatementContext)_localctx).ls.calls);
 					_localctx.blocks.addAll(((StatementContext)_localctx).ls.blocks);
 
 				}
@@ -6301,8 +6302,8 @@ public class CParser extends Parser {
 				{
 				setState(1224); ((StatementContext)_localctx).es = expressionStatement();
 
-				    _localctx.variablesNameUsed.addAll(((StatementContext)_localctx).es.variablesNameUsed);
-				    _localctx.calls.addAll(((StatementContext)_localctx).es.calls);
+				    _localctx.variablesNameUsed.incrementAll(((StatementContext)_localctx).es.variablesNameUsed);
+				    _localctx.calls.incrementAll(((StatementContext)_localctx).es.calls);
 				    _localctx.blocks.addAll(((StatementContext)_localctx).es.blocks);
 
 				}
@@ -6313,8 +6314,8 @@ public class CParser extends Parser {
 				{
 				setState(1227); ((StatementContext)_localctx).ss = selectionStatement();
 
-				    _localctx.variablesNameUsed.addAll(((StatementContext)_localctx).ss.variablesNameUsed);
-				    _localctx.calls.addAll(((StatementContext)_localctx).ss.calls);
+				    _localctx.variablesNameUsed.incrementAll(((StatementContext)_localctx).ss.variablesNameUsed);
+				    _localctx.calls.incrementAll(((StatementContext)_localctx).ss.calls);
 				    _localctx.blocks.addAll(((StatementContext)_localctx).ss.blocks);
 
 				}
@@ -6325,8 +6326,8 @@ public class CParser extends Parser {
 				{
 				setState(1230); ((StatementContext)_localctx).is = iterationStatement();
 
-				    _localctx.variablesNameUsed.addAll(((StatementContext)_localctx).is.variablesNameUsed);
-				    _localctx.calls.addAll(((StatementContext)_localctx).is.calls);
+				    _localctx.variablesNameUsed.incrementAll(((StatementContext)_localctx).is.variablesNameUsed);
+				    _localctx.calls.incrementAll(((StatementContext)_localctx).is.calls);
 				    _localctx.blocks.addAll(((StatementContext)_localctx).is.blocks);
 
 				}
@@ -6337,8 +6338,8 @@ public class CParser extends Parser {
 				{
 				setState(1233); ((StatementContext)_localctx).js = jumpStatement();
 
-				    _localctx.variablesNameUsed.addAll(((StatementContext)_localctx).js.variablesNameUsed);
-				    _localctx.calls.addAll(((StatementContext)_localctx).js.calls);
+				    _localctx.variablesNameUsed.incrementAll(((StatementContext)_localctx).js.variablesNameUsed);
+				    _localctx.calls.incrementAll(((StatementContext)_localctx).js.calls);
 				    _localctx.blocks.addAll(((StatementContext)_localctx).js.blocks);
 
 				}
@@ -6362,7 +6363,7 @@ public class CParser extends Parser {
 				setState(1238); match(87);
 				setState(1247);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1239); ((StatementContext)_localctx).loe1 = logicalOrExpression(0);
 					setState(1244);
@@ -6391,7 +6392,7 @@ public class CParser extends Parser {
 					setState(1249); match(88);
 					setState(1258);
 					_la = _input.LA(1);
-					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 						{
 						setState(1250); ((StatementContext)_localctx).loe3 = logicalOrExpression(0);
 						setState(1255);
@@ -6478,8 +6479,8 @@ public class CParser extends Parser {
 				setState(1275); match(88);
 				setState(1276); ((LabeledStatementContext)_localctx).s = statement();
 
-					_localctx.variablesNameUsed.addAll(((LabeledStatementContext)_localctx).s.variablesNameUsed);
-				    _localctx.calls.addAll(((LabeledStatementContext)_localctx).s.calls);
+					_localctx.variablesNameUsed.incrementAll(((LabeledStatementContext)_localctx).s.variablesNameUsed);
+				    _localctx.calls.incrementAll(((LabeledStatementContext)_localctx).s.calls);
 				    _localctx.blocks.addAll(((LabeledStatementContext)_localctx).s.blocks);
 
 				}
@@ -6491,8 +6492,8 @@ public class CParser extends Parser {
 				setState(1280); match(88);
 				setState(1281); ((LabeledStatementContext)_localctx).s = statement();
 
-				    _localctx.variablesNameUsed.addAll(((LabeledStatementContext)_localctx).s.variablesNameUsed);
-				    _localctx.calls.addAll(((LabeledStatementContext)_localctx).s.calls);
+				    _localctx.variablesNameUsed.incrementAll(((LabeledStatementContext)_localctx).s.variablesNameUsed);
+				    _localctx.calls.incrementAll(((LabeledStatementContext)_localctx).s.calls);
 				    _localctx.blocks.addAll(((LabeledStatementContext)_localctx).s.blocks);
 
 				}
@@ -6722,13 +6723,13 @@ public class CParser extends Parser {
 				            if(this.globalVariables.containsKey(counter.getKey()))
 				            {
 				                GlobalVariable v = this.globalVariables.get(counter.getKey());
-				                ((CompoundStatementContext)getInvokingContext(71)).globalsUse.add(v, counter.getValue());
+				                ((CompoundStatementContext)getInvokingContext(71)).globalsUse.increment(v, counter.getValue());
 				            }
 				            else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(counter.getKey()))
 				            {
 				                LocalVariable v = 
 				                		((CompoundStatementContext)getInvokingContext(71)).locals.get(counter.getKey());
-				                ((CompoundStatementContext)getInvokingContext(71)).localsUse.add(v, counter.getValue());
+				                ((CompoundStatementContext)getInvokingContext(71)).localsUse.increment(v, counter.getValue());
 				            }
 				        }
 				        
@@ -6795,12 +6796,12 @@ public class CParser extends Parser {
 				        if(this.globalVariables.containsKey(counter.getKey()))
 				        {
 				        	GlobalVariable v = this.globalVariables.get(counter.getKey());
-				            ((CompoundStatementContext)getInvokingContext(71)).globalsUse.add(v, counter.getValue());
+				            ((CompoundStatementContext)getInvokingContext(71)).globalsUse.increment(v, counter.getValue());
 				        }
 				        else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(counter.getKey()))
 				        {
 				            LocalVariable v = ((CompoundStatementContext)getInvokingContext(71)).locals.get(counter.getKey());
-				            ((CompoundStatementContext)getInvokingContext(71)).localsUse.add(v, counter.getValue());
+				            ((CompoundStatementContext)getInvokingContext(71)).localsUse.increment(v, counter.getValue());
 				        }
 				    }
 				        
@@ -6892,7 +6893,7 @@ public class CParser extends Parser {
 			{
 			setState(1311);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 				{
 				setState(1310); ((ExpressionStatementContext)_localctx).e = expression(0);
 				}
@@ -6902,8 +6903,8 @@ public class CParser extends Parser {
 
 				if((((ExpressionStatementContext)_localctx).e!=null?_input.getText(((ExpressionStatementContext)_localctx).e.start,((ExpressionStatementContext)_localctx).e.stop):null) != null)
 				{
-					_localctx.variablesNameUsed.addAll(((ExpressionStatementContext)_localctx).e.variablesNameUsed);
-					_localctx.calls.addAll(((ExpressionStatementContext)_localctx).e.calls);
+					_localctx.variablesNameUsed.incrementAll(((ExpressionStatementContext)_localctx).e.variablesNameUsed);
+					_localctx.calls.incrementAll(((ExpressionStatementContext)_localctx).e.calls);
 				}
 
 			}
@@ -6967,16 +6968,16 @@ public class CParser extends Parser {
 					break;
 				}
 
-				    _localctx.variablesNameUsed.addAll(((SelectionStatementContext)_localctx).e.variablesNameUsed);
-				    _localctx.calls.addAll(((SelectionStatementContext)_localctx).e.calls);
-				    _localctx.variablesNameUsed.addAll(((SelectionStatementContext)_localctx).s1.variablesNameUsed);
-				    _localctx.calls.addAll(((SelectionStatementContext)_localctx).s1.calls);
+				    _localctx.variablesNameUsed.incrementAll(((SelectionStatementContext)_localctx).e.variablesNameUsed);
+				    _localctx.calls.incrementAll(((SelectionStatementContext)_localctx).e.calls);
+				    _localctx.variablesNameUsed.incrementAll(((SelectionStatementContext)_localctx).s1.variablesNameUsed);
+				    _localctx.calls.incrementAll(((SelectionStatementContext)_localctx).s1.calls);
 				    _localctx.blocks.addAll(((SelectionStatementContext)_localctx).s1.blocks);
 				    
 				    if((((SelectionStatementContext)_localctx).s2!=null?_input.getText(((SelectionStatementContext)_localctx).s2.start,((SelectionStatementContext)_localctx).s2.stop):null) != null)
 					{
-				    	_localctx.variablesNameUsed.addAll(((SelectionStatementContext)_localctx).s2.variablesNameUsed);
-				        _localctx.calls.addAll(((SelectionStatementContext)_localctx).s2.calls);
+				    	_localctx.variablesNameUsed.incrementAll(((SelectionStatementContext)_localctx).s2.variablesNameUsed);
+				        _localctx.calls.incrementAll(((SelectionStatementContext)_localctx).s2.calls);
 				        _localctx.blocks.addAll(((SelectionStatementContext)_localctx).s2.blocks);
 					}
 				 	
@@ -6992,10 +6993,10 @@ public class CParser extends Parser {
 				setState(1330); match(13);
 				setState(1331); ((SelectionStatementContext)_localctx).s = statement();
 
-				    _localctx.variablesNameUsed.addAll(((SelectionStatementContext)_localctx).e.variablesNameUsed);
-				    _localctx.calls.addAll(((SelectionStatementContext)_localctx).e.calls);
-				    _localctx.variablesNameUsed.addAll(((SelectionStatementContext)_localctx).s.variablesNameUsed);
-				    _localctx.calls.addAll(((SelectionStatementContext)_localctx).s.calls);
+				    _localctx.variablesNameUsed.incrementAll(((SelectionStatementContext)_localctx).e.variablesNameUsed);
+				    _localctx.calls.incrementAll(((SelectionStatementContext)_localctx).e.calls);
+				    _localctx.variablesNameUsed.incrementAll(((SelectionStatementContext)_localctx).s.variablesNameUsed);
+				    _localctx.calls.incrementAll(((SelectionStatementContext)_localctx).s.calls);
 				    _localctx.blocks.addAll(((SelectionStatementContext)_localctx).s.blocks);	
 
 				}
@@ -7054,16 +7055,16 @@ public class CParser extends Parser {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1336); match(30);
+				setState(1336); match(31);
 				setState(1337); match(87);
 				setState(1338); ((IterationStatementContext)_localctx).e = expression(0);
 				setState(1339); match(13);
 				setState(1340); ((IterationStatementContext)_localctx).s = statement();
 
-					_localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).e.variablesNameUsed);
-				    _localctx.calls.addAll(((IterationStatementContext)_localctx).e.calls);
-				    _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).s.variablesNameUsed);
-				    _localctx.calls.addAll(((IterationStatementContext)_localctx).s.calls);
+					_localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).e.variablesNameUsed);
+				    _localctx.calls.incrementAll(((IterationStatementContext)_localctx).e.calls);
+				    _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).s.variablesNameUsed);
+				    _localctx.calls.incrementAll(((IterationStatementContext)_localctx).s.calls);
 				    _localctx.blocks.addAll(((IterationStatementContext)_localctx).s.blocks);
 
 				}
@@ -7074,17 +7075,17 @@ public class CParser extends Parser {
 				{
 				setState(1343); match(9);
 				setState(1344); ((IterationStatementContext)_localctx).s = statement();
-				setState(1345); match(30);
+				setState(1345); match(31);
 				setState(1346); match(87);
 				setState(1347); ((IterationStatementContext)_localctx).e = expression(0);
 				setState(1348); match(13);
 				setState(1349); match(101);
 
-				    _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).s.variablesNameUsed);
-				    _localctx.calls.addAll(((IterationStatementContext)_localctx).s.calls);
+				    _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).s.variablesNameUsed);
+				    _localctx.calls.incrementAll(((IterationStatementContext)_localctx).s.calls);
 				    _localctx.blocks.addAll(((IterationStatementContext)_localctx).s.blocks);
-				    _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).e.variablesNameUsed);
-				    _localctx.calls.addAll(((IterationStatementContext)_localctx).e.calls);
+				    _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).e.variablesNameUsed);
+				    _localctx.calls.incrementAll(((IterationStatementContext)_localctx).e.calls);
 
 				}
 				break;
@@ -7096,7 +7097,7 @@ public class CParser extends Parser {
 				setState(1353); match(87);
 				setState(1355);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1354); ((IterationStatementContext)_localctx).e1 = expression(0);
 					}
@@ -7105,7 +7106,7 @@ public class CParser extends Parser {
 				setState(1357); match(101);
 				setState(1359);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1358); ((IterationStatementContext)_localctx).e2 = expression(0);
 					}
@@ -7114,7 +7115,7 @@ public class CParser extends Parser {
 				setState(1361); match(101);
 				setState(1363);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1362); ((IterationStatementContext)_localctx).e3 = expression(0);
 					}
@@ -7125,24 +7126,24 @@ public class CParser extends Parser {
 
 				    if((((IterationStatementContext)_localctx).e1!=null?_input.getText(((IterationStatementContext)_localctx).e1.start,((IterationStatementContext)_localctx).e1.stop):null) != null)
 				    {
-				        _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).e1.variablesNameUsed);
-				        _localctx.calls.addAll(((IterationStatementContext)_localctx).e1.calls);
+				        _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).e1.variablesNameUsed);
+				        _localctx.calls.incrementAll(((IterationStatementContext)_localctx).e1.calls);
 				    }
 				    
 				    if((((IterationStatementContext)_localctx).e2!=null?_input.getText(((IterationStatementContext)_localctx).e2.start,((IterationStatementContext)_localctx).e2.stop):null) != null)
 				    {
-				        _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).e2.variablesNameUsed);
-				        _localctx.calls.addAll(((IterationStatementContext)_localctx).e2.calls);
+				        _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).e2.variablesNameUsed);
+				        _localctx.calls.incrementAll(((IterationStatementContext)_localctx).e2.calls);
 				    }
 				    
 				    if((((IterationStatementContext)_localctx).e3!=null?_input.getText(((IterationStatementContext)_localctx).e3.start,((IterationStatementContext)_localctx).e3.stop):null) != null)
 				    {
-				        _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).e3.variablesNameUsed);
-				        _localctx.calls.addAll(((IterationStatementContext)_localctx).e3.calls);
+				        _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).e3.variablesNameUsed);
+				        _localctx.calls.incrementAll(((IterationStatementContext)_localctx).e3.calls);
 				    }
 				    	
-				    _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).s.variablesNameUsed);
-				    _localctx.calls.addAll(((IterationStatementContext)_localctx).s.calls);
+				    _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).s.variablesNameUsed);
+				    _localctx.calls.incrementAll(((IterationStatementContext)_localctx).s.calls);
 				    _localctx.blocks.addAll(((IterationStatementContext)_localctx).s.blocks);
 
 				}
@@ -7156,7 +7157,7 @@ public class CParser extends Parser {
 				setState(1371); ((IterationStatementContext)_localctx).d = declaration();
 				setState(1373);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1372); ((IterationStatementContext)_localctx).e1 = expression(0);
 					}
@@ -7165,7 +7166,7 @@ public class CParser extends Parser {
 				setState(1375); match(101);
 				setState(1377);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1376); ((IterationStatementContext)_localctx).e2 = expression(0);
 					}
@@ -7176,18 +7177,18 @@ public class CParser extends Parser {
 
 				    if((((IterationStatementContext)_localctx).e1!=null?_input.getText(((IterationStatementContext)_localctx).e1.start,((IterationStatementContext)_localctx).e1.stop):null) != null)
 				    {
-				        _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).e1.variablesNameUsed);
-				        _localctx.calls.addAll(((IterationStatementContext)_localctx).e1.calls);
+				        _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).e1.variablesNameUsed);
+				        _localctx.calls.incrementAll(((IterationStatementContext)_localctx).e1.calls);
 				    }
 				        
 				    if((((IterationStatementContext)_localctx).e2!=null?_input.getText(((IterationStatementContext)_localctx).e2.start,((IterationStatementContext)_localctx).e2.stop):null) != null)
 				    {
-				        _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).e2.variablesNameUsed);
-				        _localctx.calls.addAll(((IterationStatementContext)_localctx).e2.calls);
+				        _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).e2.variablesNameUsed);
+				        _localctx.calls.incrementAll(((IterationStatementContext)_localctx).e2.calls);
 				    }
 				        	
-				    _localctx.variablesNameUsed.addAll(((IterationStatementContext)_localctx).s.variablesNameUsed);
-				    _localctx.calls.addAll(((IterationStatementContext)_localctx).s.calls);
+				    _localctx.variablesNameUsed.incrementAll(((IterationStatementContext)_localctx).s.variablesNameUsed);
+				    _localctx.calls.incrementAll(((IterationStatementContext)_localctx).s.calls);
 				    _localctx.blocks.addAll(((IterationStatementContext)_localctx).s.blocks);	
 
 				}
@@ -7263,7 +7264,7 @@ public class CParser extends Parser {
 				setState(1392); match(99);
 				setState(1394);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1393); ((JumpStatementContext)_localctx).e = expression(0);
 					}
@@ -7273,8 +7274,8 @@ public class CParser extends Parser {
 
 				    if((((JumpStatementContext)_localctx).e!=null?_input.getText(((JumpStatementContext)_localctx).e.start,((JumpStatementContext)_localctx).e.stop):null) != null)
 				    {
-				        _localctx.variablesNameUsed.addAll(((JumpStatementContext)_localctx).e.variablesNameUsed);
-				        _localctx.calls.addAll(((JumpStatementContext)_localctx).e.calls);
+				        _localctx.variablesNameUsed.incrementAll(((JumpStatementContext)_localctx).e.variablesNameUsed);
+				        _localctx.calls.incrementAll(((JumpStatementContext)_localctx).e.calls);
 				    }	
 
 				}
@@ -7287,8 +7288,8 @@ public class CParser extends Parser {
 				setState(1399); ((JumpStatementContext)_localctx).ue = unaryExpression();
 				setState(1400); match(101);
 
-				    _localctx.variablesNameUsed.addAll(((JumpStatementContext)_localctx).ue.variablesNameUsed);
-				    _localctx.calls.addAll(((JumpStatementContext)_localctx).ue.calls);	
+				    _localctx.variablesNameUsed.incrementAll(((JumpStatementContext)_localctx).ue.variablesNameUsed);
+				    _localctx.calls.incrementAll(((JumpStatementContext)_localctx).ue.calls);	
 
 				}
 				break;
@@ -7912,12 +7913,6 @@ public class CParser extends Parser {
 		}
 		return true;
 	}
-	private boolean logicalOrExpression_sempred(LogicalOrExpressionContext _localctx, int predIndex) {
-		switch (predIndex) {
-		case 25: return 1 >= _localctx._p;
-		}
-		return true;
-	}
 	private boolean inclusiveOrExpression_sempred(InclusiveOrExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 23: return 1 >= _localctx._p;
@@ -7933,6 +7928,12 @@ public class CParser extends Parser {
 	private boolean genericAssocList_sempred(GenericAssocListContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 0: return 1 >= _localctx._p;
+		}
+		return true;
+	}
+	private boolean logicalOrExpression_sempred(LogicalOrExpressionContext _localctx, int predIndex) {
+		switch (predIndex) {
+		case 25: return 1 >= _localctx._p;
 		}
 		return true;
 	}
@@ -8079,7 +8080,7 @@ public class CParser extends Parser {
 		"\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtv"+
 		"xz|~\u0080\u0082\u0084\u0086\u0088\u008a\u008c\u008e\u0090\u0092\u0094"+
 		"\u0096\u0098\u009a\u009c\u009e\u00a0\u00a2\u00a4\u00a6\2\f\7\4\4\31\31"+
-		"!!\64\64<=\f\16\16\36\36((,-88::NNRRVV[[\5\5\5JJbb\4//LL\6\26\26\30\30"+
+		"  \64\64<=\f\16\16\36\36((,-88::NNRRVV[[\5\5\5JJbb\4//LL\6\26\26\30\30"+
 		"QQff\5\20\21**KK\5\17\17\37\37YY\4\17\17YY\4\24\24%%\4``ff\u063a\2\u00d0"+
 		"\3\2\2\2\4\u00d2\3\2\2\2\6\u00da\3\2\2\2\b\u00f2\3\2\2\2\n\u011c\3\2\2"+
 		"\2\f\u013e\3\2\2\2\16\u016c\3\2\2\2\20\u016e\3\2\2\2\22\u0180\3\2\2\2"+
@@ -8181,7 +8182,7 @@ public class CParser extends Parser {
 		"\3\2\2\2\u019a\u019b\b\f\1\2\u019b\u019c\5\24\13\2\u019c\u019d\b\f\1\2"+
 		"\u019d\u01aa\3\2\2\2\u019e\u019f\6\f\r\3\u019f\u01a0\7\64\2\2\u01a0\u01a1"+
 		"\5\24\13\2\u01a1\u01a2\b\f\1\2\u01a2\u01a9\3\2\2\2\u01a3\u01a4\6\f\16"+
-		"\3\u01a4\u01a5\7!\2\2\u01a5\u01a6\5\24\13\2\u01a6\u01a7\b\f\1\2\u01a7"+
+		"\3\u01a4\u01a5\7 \2\2\u01a5\u01a6\5\24\13\2\u01a6\u01a7\b\f\1\2\u01a7"+
 		"\u01a9\3\2\2\2\u01a8\u019e\3\2\2\2\u01a8\u01a3\3\2\2\2\u01a9\u01ac\3\2"+
 		"\2\2\u01aa\u01a8\3\2\2\2\u01aa\u01ab\3\2\2\2\u01ab\27\3\2\2\2\u01ac\u01aa"+
 		"\3\2\2\2\u01ad\u01ae\b\r\1\2\u01ae\u01af\5\26\f\2\u01af\u01b0\b\r\1\2"+
@@ -8481,10 +8482,10 @@ public class CParser extends Parser {
 		"\u052f\3\2\2\2\u052f\u0530\bM\1\2\u0530\u0539\3\2\2\2\u0531\u0532\79\2"+
 		"\2\u0532\u0533\7Y\2\2\u0533\u0534\5.\30\2\u0534\u0535\7\17\2\2\u0535\u0536"+
 		"\5\u008cG\2\u0536\u0537\bM\1\2\u0537\u0539\3\2\2\2\u0538\u0526\3\2\2\2"+
-		"\u0538\u0531\3\2\2\2\u0539\u0099\3\2\2\2\u053a\u053b\7 \2\2\u053b\u053c"+
+		"\u0538\u0531\3\2\2\2\u0539\u0099\3\2\2\2\u053a\u053b\7!\2\2\u053b\u053c"+
 		"\7Y\2\2\u053c\u053d\5.\30\2\u053d\u053e\7\17\2\2\u053e\u053f\5\u008cG"+
 		"\2\u053f\u0540\bN\1\2\u0540\u056a\3\2\2\2\u0541\u0542\7\13\2\2\u0542\u0543"+
-		"\5\u008cG\2\u0543\u0544\7 \2\2\u0544\u0545\7Y\2\2\u0545\u0546\5.\30\2"+
+		"\5\u008cG\2\u0543\u0544\7!\2\2\u0544\u0545\7Y\2\2\u0545\u0546\5.\30\2"+
 		"\u0546\u0547\7\17\2\2\u0547\u0548\7g\2\2\u0548\u0549\bN\1\2\u0549\u056a"+
 		"\3\2\2\2\u054a\u054b\7c\2\2\u054b\u054d\7Y\2\2\u054c\u054e\5.\30\2\u054d"+
 		"\u054c\3\2\2\2\u054d\u054e\3\2\2\2\u054e\u054f\3\2\2\2\u054f\u0551\7g"+

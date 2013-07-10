@@ -10,6 +10,7 @@ grammar C;
 	import java.util.HashMap;
 	import java.util.HashSet;
 	import java.util.Set;
+	import fr.univ_nantes.alma.archtool.utils.MultiCounter;
 	import fr.univ_nantes.alma.archtool.sourceModel.*;
 	import fr.univ_nantes.alma.archtool.parsing.specifier.*;
 }
@@ -83,14 +84,14 @@ primaryExpression returns [String name = null,
     | '(' e=expression ')'
 {
     $parameters.addAll($e.parameters);
-    $variablesNameUsed.addAll($e.variablesNameUsed);
-    $calls.addAll($e.calls);
+    $variablesNameUsed.incrementAll($e.variablesNameUsed);
+    $calls.incrementAll($e.calls);
 }
     | gs=genericSelection
 {
     $parameters.addAll($gs.parameters);
-    $variablesNameUsed.addAll($gs.variablesNameUsed);
-    $calls.addAll($gs.calls); 
+    $variablesNameUsed.incrementAll($gs.variablesNameUsed);
+    $calls.incrementAll($gs.calls); 
 }
     | '__extension__'? '(' cs=compoundStatement[null] ')'
 {
@@ -99,14 +100,14 @@ primaryExpression returns [String name = null,
     | '__builtin_va_arg' '(' ue=unaryExpression ',' typeName ')'
 {
     $parameters.addAll($ue.parameters);
-    $variablesNameUsed.addAll($ue.variablesNameUsed);
-    $calls.addAll($ue.calls);
+    $variablesNameUsed.incrementAll($ue.variablesNameUsed);
+    $calls.incrementAll($ue.calls);
 }
     | '__builtin_offsetof' '(' typeName ',' ue=unaryExpression ')'
 {
     $parameters.addAll($ue.parameters);
-    $variablesNameUsed.addAll($ue.variablesNameUsed);
-    $calls.addAll($ue.calls);
+    $variablesNameUsed.incrementAll($ue.variablesNameUsed);
+    $calls.incrementAll($ue.calls);
 }
     ;
 
@@ -116,11 +117,11 @@ genericSelection returns [MultiCounter variablesNameUsed = new MultiCounter(),
     : '_Generic' '(' ae=assignmentExpression ',' gal=genericAssocList ')'
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
     $parameters.addAll($gal.parameters);
-    $variablesNameUsed.addAll($gal.variablesNameUsed);
-    $calls.addAll($gal.calls);
+    $variablesNameUsed.incrementAll($gal.variablesNameUsed);
+    $calls.incrementAll($gal.calls);
 }
     ;
 
@@ -130,17 +131,17 @@ genericAssocList returns [MultiCounter variablesNameUsed = new MultiCounter(),
     : ga=genericAssociation
 {
     $parameters.addAll($ga.parameters);
-    $variablesNameUsed.addAll($ga.variablesNameUsed);
-    $calls.addAll($ga.calls);  
+    $variablesNameUsed.incrementAll($ga.variablesNameUsed);
+    $calls.incrementAll($ga.calls);  
 }
     | gal=genericAssocList ',' ga=genericAssociation
 {
     $parameters.addAll($gal.parameters);
-    $variablesNameUsed.addAll($gal.variablesNameUsed);
-    $calls.addAll($gal.calls);
+    $variablesNameUsed.incrementAll($gal.variablesNameUsed);
+    $calls.incrementAll($gal.calls);
     $parameters.addAll($ga.parameters);
-    $variablesNameUsed.addAll($ga.variablesNameUsed);
-    $calls.addAll($ga.calls);    
+    $variablesNameUsed.incrementAll($ga.variablesNameUsed);
+    $calls.incrementAll($ga.calls);    
 }
     ;
 
@@ -150,14 +151,14 @@ genericAssociation returns [MultiCounter<String> variablesNameUsed =
     : typeName ':' ae=assignmentExpression
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);     
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);     
 }
     | 'default' ':' ae=assignmentExpression
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);     
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);     
 }
     ;
 
@@ -178,18 +179,18 @@ postfixExpression returns [String name = null,
 {
     $name = $px.name;
     $parameters.addAll($px.parameters);
-    $variablesNameUsed.addAll($px.variablesNameUsed);
-    $calls.addAll($px.calls);
+    $variablesNameUsed.incrementAll($px.variablesNameUsed);
+    $calls.incrementAll($px.calls);
 }
     | pe=postfixExpression '[' e=expression ']'
 {
     $name = $pe.name;
     $parameters.addAll($pe.parameters);
-    $variablesNameUsed.addAll($pe.variablesNameUsed);
-    $calls.addAll($pe.calls);
+    $variablesNameUsed.incrementAll($pe.variablesNameUsed);
+    $calls.incrementAll($pe.calls);
     $parameters.addAll($e.parameters);
-    $variablesNameUsed.addAll($e.variablesNameUsed);
-    $calls.addAll($e.calls);
+    $variablesNameUsed.incrementAll($e.variablesNameUsed);
+    $calls.incrementAll($e.calls);
 }
     | pe=postfixExpression '(' ag=argumentExpressionList? ')'
 {
@@ -197,45 +198,45 @@ postfixExpression returns [String name = null,
     Set<String> parameters = new HashSet<String>();
     $name = $pe.name;
     $parameters.addAll($pe.parameters);
-    $variablesNameUsed.addAll($pe.variablesNameUsed);
-    $calls.addAll($pe.calls);
+    $variablesNameUsed.incrementAll($pe.variablesNameUsed);
+    $calls.incrementAll($pe.calls);
     
     if($ag.text != null)
     {
-        $variablesNameUsed.addAll($ag.variablesNameUsed);
-        $calls.addAll($ag.calls);
+        $variablesNameUsed.incrementAll($ag.variablesNameUsed);
+        $calls.incrementAll($ag.calls);
         parameters = $ag.parameters;
     }
     
-    $calls.addCall($name, parameters);
+    $calls.increment($name, parameters);
 }
     | pe=postfixExpression '.' Identifier
 {
     $name = $pe.name;
     $parameters.addAll($pe.parameters);
-    $variablesNameUsed.addAll($pe.variablesNameUsed);
-    $calls.addAll($pe.calls);
+    $variablesNameUsed.incrementAll($pe.variablesNameUsed);
+    $calls.incrementAll($pe.calls);
 }
     | pe=postfixExpression '->' Identifier
 {
     $name = $pe.name;
     $parameters.addAll($pe.parameters);
-    $variablesNameUsed.addAll($pe.variablesNameUsed);
-    $calls.addAll($pe.calls);
+    $variablesNameUsed.incrementAll($pe.variablesNameUsed);
+    $calls.incrementAll($pe.calls);
 }
     | pe=postfixExpression '++'
 {
     $name = $pe.name;
     $parameters.addAll($pe.parameters);
-    $variablesNameUsed.addAll($pe.variablesNameUsed);
-    $calls.addAll($pe.calls);
+    $variablesNameUsed.incrementAll($pe.variablesNameUsed);
+    $calls.incrementAll($pe.calls);
 }
     | pe=postfixExpression '--'
 {            
     $name = $pe.name;
     $parameters.addAll($pe.parameters);
-    $variablesNameUsed.addAll($pe.variablesNameUsed);
-    $calls.addAll($pe.calls);
+    $variablesNameUsed.incrementAll($pe.variablesNameUsed);
+    $calls.incrementAll($pe.calls);
 }
                 
     | '(' typeName ')' '{' il=initializerList '}'
@@ -265,17 +266,17 @@ argumentExpressionList returns [MultiCounter<String> variablesNameUsed =
     : ae=assignmentExpression
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 }
     | ael=argumentExpressionList ',' ae=assignmentExpression
 {
     $parameters.addAll($ael.parameters);
-    $variablesNameUsed.addAll($ael.variablesNameUsed);
-    $calls.addAll($ael.calls);
+    $variablesNameUsed.incrementAll($ael.variablesNameUsed);
+    $calls.incrementAll($ael.calls);
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 }
     ;
 
@@ -285,32 +286,32 @@ unaryExpression returns [MultiCounter<String> variablesNameUsed =
     : pe=postfixExpression
 {
     $parameters.addAll($pe.parameters);
-    $variablesNameUsed.addAll($pe.variablesNameUsed);
-    $calls.addAll($pe.calls);
+    $variablesNameUsed.incrementAll($pe.variablesNameUsed);
+    $calls.incrementAll($pe.calls);
 }
     | '++' ue=unaryExpression
 {
     $parameters.addAll($ue.parameters);    
-    $variablesNameUsed.addAll($ue.variablesNameUsed);
-    $calls.addAll($ue.calls);    
+    $variablesNameUsed.incrementAll($ue.variablesNameUsed);
+    $calls.incrementAll($ue.calls);    
 }
     | '--' ue=unaryExpression
 {
     $parameters.addAll($ue.parameters);
-    $variablesNameUsed.addAll($ue.variablesNameUsed);
-    $calls.addAll($ue.calls);    
+    $variablesNameUsed.incrementAll($ue.variablesNameUsed);
+    $calls.incrementAll($ue.calls);    
 }
     | unaryOperator ce=castExpression
 {
     $parameters.addAll($ce.parameters);
-    $variablesNameUsed.addAll($ce.variablesNameUsed);
-    $calls.addAll($ce.calls);  
+    $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $calls.incrementAll($ce.calls);  
 }
     | 'sizeof' ue=unaryExpression
 {
     $parameters.addAll($ue.parameters);
-    $variablesNameUsed.addAll($ue.variablesNameUsed);
-    $calls.addAll($ue.calls);   
+    $variablesNameUsed.incrementAll($ue.variablesNameUsed);
+    $calls.incrementAll($ue.calls);   
 }
     | 'sizeof' '(' typeName ')'
     | '_Alignof' '(' typeName ')'
@@ -331,20 +332,20 @@ castExpression returns [MultiCounter<String> variablesNameUsed =
     : ue=unaryExpression
 {
     $parameters.addAll($ue.parameters);
-    $variablesNameUsed.addAll($ue.variablesNameUsed);
-    $calls.addAll($ue.calls);
+    $variablesNameUsed.incrementAll($ue.variablesNameUsed);
+    $calls.incrementAll($ue.calls);
 }
     | '(' typeName ')' ce=castExpression
 {
     $parameters.addAll($ce.parameters);
-    $variablesNameUsed.addAll($ce.variablesNameUsed);
-    $calls.addAll($ce.calls);    
+    $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $calls.incrementAll($ce.calls);    
 }
     | '__extension__' '(' typeName ')' ce=castExpression
 {
     $parameters.addAll($ce.parameters);
-    $variablesNameUsed.addAll($ce.variablesNameUsed);
-    $calls.addAll($ce.calls);    
+    $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $calls.incrementAll($ce.calls);    
 }
     ;
 
@@ -354,35 +355,35 @@ multiplicativeExpression returns [MultiCounter<String> variablesNameUsed =
     : ce=castExpression
 {
     $parameters.addAll($ce.parameters);
-    $variablesNameUsed.addAll($ce.variablesNameUsed);
-    $calls.addAll($ce.calls);
+    $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $calls.incrementAll($ce.calls);
 }
     | me=multiplicativeExpression '*' ce=castExpression
 {
     $parameters.addAll($me.parameters);
-    $variablesNameUsed.addAll($me.variablesNameUsed);
-    $calls.addAll($me.calls);
+    $variablesNameUsed.incrementAll($me.variablesNameUsed);
+    $calls.incrementAll($me.calls);
     $parameters.addAll($ce.parameters);
-    $variablesNameUsed.addAll($ce.variablesNameUsed);
-    $calls.addAll($ce.calls);
+    $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $calls.incrementAll($ce.calls);
 } 
     | me=multiplicativeExpression '/' ce=castExpression
 {
     $parameters.addAll($me.parameters);
-    $variablesNameUsed.addAll($me.variablesNameUsed);
-    $calls.addAll($me.calls);
+    $variablesNameUsed.incrementAll($me.variablesNameUsed);
+    $calls.incrementAll($me.calls);
     $parameters.addAll($ce.parameters);
-    $variablesNameUsed.addAll($ce.variablesNameUsed);
-    $calls.addAll($ce.calls);
+    $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $calls.incrementAll($ce.calls);
 } 
     | me=multiplicativeExpression '%' ce=castExpression
 {
     $parameters.addAll($me.parameters);
-    $variablesNameUsed.addAll($me.variablesNameUsed);
-    $calls.addAll($me.calls);
+    $variablesNameUsed.incrementAll($me.variablesNameUsed);
+    $calls.incrementAll($me.calls);
     $parameters.addAll($ce.parameters);
-    $variablesNameUsed.addAll($ce.variablesNameUsed);
-    $calls.addAll($ce.calls);
+    $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $calls.incrementAll($ce.calls);
 } 
     ;
 
@@ -392,26 +393,26 @@ additiveExpression returns [MultiCounter<String> variablesNameUsed =
     : me=multiplicativeExpression
 {
     $parameters.addAll($me.parameters);
-    $variablesNameUsed.addAll($me.variablesNameUsed);
-    $calls.addAll($me.calls);
+    $variablesNameUsed.incrementAll($me.variablesNameUsed);
+    $calls.incrementAll($me.calls);
 }
     | ae=additiveExpression '+' me=multiplicativeExpression
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
     $parameters.addAll($me.parameters);
-    $variablesNameUsed.addAll($me.variablesNameUsed);
-    $calls.addAll($me.calls);
+    $variablesNameUsed.incrementAll($me.variablesNameUsed);
+    $calls.incrementAll($me.calls);
 } 
     | ae=additiveExpression '-' me=multiplicativeExpression
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
     $parameters.addAll($me.parameters);
-    $variablesNameUsed.addAll($me.variablesNameUsed);
-    $calls.addAll($me.calls);
+    $variablesNameUsed.incrementAll($me.variablesNameUsed);
+    $calls.incrementAll($me.calls);
 } 
     ;
 
@@ -421,26 +422,26 @@ shiftExpression returns [MultiCounter<String> variablesNameUsed =
     : ae=additiveExpression
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 }
     | se=shiftExpression '<<' ae=additiveExpression
 {
     $parameters.addAll($se.parameters);
-    $variablesNameUsed.addAll($se.variablesNameUsed);
-    $calls.addAll($se.calls);
+    $variablesNameUsed.incrementAll($se.variablesNameUsed);
+    $calls.incrementAll($se.calls);
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 } 
     | se=shiftExpression '>>' ae=additiveExpression
 {
     $parameters.addAll($se.parameters);
-    $variablesNameUsed.addAll($se.variablesNameUsed);
-    $calls.addAll($se.calls);
+    $variablesNameUsed.incrementAll($se.variablesNameUsed);
+    $calls.incrementAll($se.calls);
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 } 
     ;
 
@@ -450,44 +451,44 @@ relationalExpression returns [MultiCounter<String> variablesNameUsed =
     : se=shiftExpression
 {
     $parameters.addAll($se.parameters);
-    $variablesNameUsed.addAll($se.variablesNameUsed);
-    $calls.addAll($se.calls);
+    $variablesNameUsed.incrementAll($se.variablesNameUsed);
+    $calls.incrementAll($se.calls);
 }
     | re=relationalExpression '<' se=shiftExpression
 {
     $parameters.addAll($re.parameters);
-    $variablesNameUsed.addAll($re.variablesNameUsed);
-    $calls.addAll($re.calls);
+    $variablesNameUsed.incrementAll($re.variablesNameUsed);
+    $calls.incrementAll($re.calls);
     $parameters.addAll($se.parameters);
-    $variablesNameUsed.addAll($se.variablesNameUsed);
-    $calls.addAll($se.calls);
+    $variablesNameUsed.incrementAll($se.variablesNameUsed);
+    $calls.incrementAll($se.calls);
 } 
     | re=relationalExpression '>' se=shiftExpression
 {
     $parameters.addAll($re.parameters);
-    $variablesNameUsed.addAll($re.variablesNameUsed);
-    $calls.addAll($re.calls);
+    $variablesNameUsed.incrementAll($re.variablesNameUsed);
+    $calls.incrementAll($re.calls);
     $parameters.addAll($se.parameters);
-    $variablesNameUsed.addAll($se.variablesNameUsed);
-    $calls.addAll($se.calls);
+    $variablesNameUsed.incrementAll($se.variablesNameUsed);
+    $calls.incrementAll($se.calls);
 } 
     | re=relationalExpression '<=' se=shiftExpression
 {
     $parameters.addAll($re.parameters);
-    $variablesNameUsed.addAll($re.variablesNameUsed);
-    $calls.addAll($re.calls);
+    $variablesNameUsed.incrementAll($re.variablesNameUsed);
+    $calls.incrementAll($re.calls);
     $parameters.addAll($se.parameters);
-    $variablesNameUsed.addAll($se.variablesNameUsed);
-    $calls.addAll($se.calls);
+    $variablesNameUsed.incrementAll($se.variablesNameUsed);
+    $calls.incrementAll($se.calls);
 } 
     | re=relationalExpression '>=' se=shiftExpression
 {
     $parameters.addAll($re.parameters);
-    $variablesNameUsed.addAll($re.variablesNameUsed);
-    $calls.addAll($re.calls);
+    $variablesNameUsed.incrementAll($re.variablesNameUsed);
+    $calls.incrementAll($re.calls);
     $parameters.addAll($se.parameters);
-    $variablesNameUsed.addAll($se.variablesNameUsed);
-    $calls.addAll($se.calls);
+    $variablesNameUsed.incrementAll($se.variablesNameUsed);
+    $calls.incrementAll($se.calls);
 } 
     ;
 
@@ -497,26 +498,26 @@ equalityExpression returns [MultiCounter<String> variablesNameUsed =
     : re=relationalExpression
 {
     $parameters.addAll($re.parameters);
-    $variablesNameUsed.addAll($re.variablesNameUsed);
-    $calls.addAll($re.calls);
+    $variablesNameUsed.incrementAll($re.variablesNameUsed);
+    $calls.incrementAll($re.calls);
 }
     | ee=equalityExpression '==' re=relationalExpression
 {
     $parameters.addAll($ee.parameters);
-    $variablesNameUsed.addAll($ee.variablesNameUsed);
-    $calls.addAll($ee.calls);
+    $variablesNameUsed.incrementAll($ee.variablesNameUsed);
+    $calls.incrementAll($ee.calls);
     $parameters.addAll($re.parameters);
-    $variablesNameUsed.addAll($re.variablesNameUsed);
-    $calls.addAll($re.calls);
+    $variablesNameUsed.incrementAll($re.variablesNameUsed);
+    $calls.incrementAll($re.calls);
 } 
     | ee=equalityExpression '!=' re=relationalExpression
 {
     $parameters.addAll($ee.parameters);
-    $variablesNameUsed.addAll($ee.variablesNameUsed);
-    $calls.addAll($ee.calls);
+    $variablesNameUsed.incrementAll($ee.variablesNameUsed);
+    $calls.incrementAll($ee.calls);
     $parameters.addAll($re.parameters);
-    $variablesNameUsed.addAll($re.variablesNameUsed);
-    $calls.addAll($re.calls);
+    $variablesNameUsed.incrementAll($re.variablesNameUsed);
+    $calls.incrementAll($re.calls);
 } 
     ;
 
@@ -526,17 +527,17 @@ andExpression returns [MultiCounter<String> variablesNameUsed =
     : ee=equalityExpression
 {
     $parameters.addAll($ee.parameters);
-    $variablesNameUsed.addAll($ee.variablesNameUsed);
-    $calls.addAll($ee.calls);
+    $variablesNameUsed.incrementAll($ee.variablesNameUsed);
+    $calls.incrementAll($ee.calls);
 } 
     | ae=andExpression '&' ee=equalityExpression
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
     $parameters.addAll($ee.parameters);
-    $variablesNameUsed.addAll($ee.variablesNameUsed);
-    $calls.addAll($ee.calls);
+    $variablesNameUsed.incrementAll($ee.variablesNameUsed);
+    $calls.incrementAll($ee.calls);
 } 
     ;
 
@@ -546,17 +547,17 @@ exclusiveOrExpression returns [MultiCounter<String> variablesNameUsed =
     : ae=andExpression
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 }  
     | eoe=exclusiveOrExpression '^' ae=andExpression
 {
     $parameters.addAll($eoe.parameters);
-    $variablesNameUsed.addAll($eoe.variablesNameUsed);
-    $calls.addAll($eoe.calls);
+    $variablesNameUsed.incrementAll($eoe.variablesNameUsed);
+    $calls.incrementAll($eoe.calls);
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 }            
     ;
 
@@ -566,17 +567,17 @@ inclusiveOrExpression returns [MultiCounter<String> variablesNameUsed =
     : eoe=exclusiveOrExpression
 {
     $parameters.addAll($eoe.parameters);
-    $variablesNameUsed.addAll($eoe.variablesNameUsed);
-    $calls.addAll($eoe.calls);
+    $variablesNameUsed.incrementAll($eoe.variablesNameUsed);
+    $calls.incrementAll($eoe.calls);
 }
     | ioe=inclusiveOrExpression '|' eoe=exclusiveOrExpression
 {
     $parameters.addAll($ioe.parameters);
-    $variablesNameUsed.addAll($ioe.variablesNameUsed);
-    $calls.addAll($ioe.calls);
+    $variablesNameUsed.incrementAll($ioe.variablesNameUsed);
+    $calls.incrementAll($ioe.calls);
     $parameters.addAll($eoe.parameters);
-    $variablesNameUsed.addAll($eoe.variablesNameUsed);
-    $calls.addAll($eoe.calls);
+    $variablesNameUsed.incrementAll($eoe.variablesNameUsed);
+    $calls.incrementAll($eoe.calls);
 }
     ;
 
@@ -586,17 +587,17 @@ logicalAndExpression returns [MultiCounter<String> variablesNameUsed =
     : ioe=inclusiveOrExpression
 {
     $parameters.addAll($ioe.parameters);
-    $variablesNameUsed.addAll($ioe.variablesNameUsed);
-    $calls.addAll($ioe.calls);
+    $variablesNameUsed.incrementAll($ioe.variablesNameUsed);
+    $calls.incrementAll($ioe.calls);
 }
     | lae=logicalAndExpression '&&' ioe=inclusiveOrExpression
 {
     $parameters.addAll($lae.parameters);
-    $variablesNameUsed.addAll($lae.variablesNameUsed);
-    $calls.addAll($lae.calls);
+    $variablesNameUsed.incrementAll($lae.variablesNameUsed);
+    $calls.incrementAll($lae.calls);
     $parameters.addAll($ioe.parameters);
-    $variablesNameUsed.addAll($ioe.variablesNameUsed);
-    $calls.addAll($ioe.calls);
+    $variablesNameUsed.incrementAll($ioe.variablesNameUsed);
+    $calls.incrementAll($ioe.calls);
 }
     ;
 
@@ -606,17 +607,17 @@ logicalOrExpression returns [MultiCounter<String> variablesNameUsed =
     : lae=logicalAndExpression
 {
     $parameters.addAll($lae.parameters);
-    $variablesNameUsed.addAll($lae.variablesNameUsed);
-    $calls.addAll($lae.calls);
+    $variablesNameUsed.incrementAll($lae.variablesNameUsed);
+    $calls.incrementAll($lae.calls);
 }
     | loe=logicalOrExpression '||' lae=logicalAndExpression
 {
     $parameters.addAll($loe.parameters);
-    $variablesNameUsed.addAll($loe.variablesNameUsed);
-    $calls.addAll($loe.calls);
+    $variablesNameUsed.incrementAll($loe.variablesNameUsed);
+    $calls.incrementAll($loe.calls);
     $parameters.addAll($lae.parameters);
-    $variablesNameUsed.addAll($lae.variablesNameUsed);
-    $calls.addAll($lae.calls);
+    $variablesNameUsed.incrementAll($lae.variablesNameUsed);
+    $calls.incrementAll($lae.calls);
 }
     ;
 
@@ -626,17 +627,17 @@ conditionalExpression returns [MultiCounter<String> variablesNameUsed =
     : loe=logicalOrExpression ('?' e=expression ':' ce=conditionalExpression)?
 {
     $parameters.addAll($loe.parameters);
-    $variablesNameUsed.addAll($loe.variablesNameUsed);
-    $calls.addAll($loe.calls);
+    $variablesNameUsed.incrementAll($loe.variablesNameUsed);
+    $calls.incrementAll($loe.calls);
     
     if($e.text != null)
     {
         $parameters.addAll($e.parameters);
-        $variablesNameUsed.addAll($e.variablesNameUsed);
-        $calls.addAll($e.calls);
+        $variablesNameUsed.incrementAll($e.variablesNameUsed);
+        $calls.incrementAll($e.calls);
         $parameters.addAll($ce.parameters);
-        $variablesNameUsed.addAll($ce.variablesNameUsed);
-        $calls.addAll($ce.calls);
+        $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+        $calls.incrementAll($ce.calls);
     }
 }
     ;
@@ -647,17 +648,17 @@ assignmentExpression returns [MultiCounter<String> variablesNameUsed =
     : ce=conditionalExpression
 {
     $parameters.addAll($ce.parameters);    
-    $variablesNameUsed.addAll($ce.variablesNameUsed);
-    $calls.addAll($ce.calls);
+    $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $calls.incrementAll($ce.calls);
 }
     | ue=unaryExpression assignmentOperator ae=assignmentExpression
 {
     $parameters.addAll($ue.parameters);
-    $variablesNameUsed.addAll($ue.variablesNameUsed);
-    $calls.addAll($ue.calls);
+    $variablesNameUsed.incrementAll($ue.variablesNameUsed);
+    $calls.incrementAll($ue.calls);
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 }
     ;
 
@@ -671,17 +672,17 @@ expression returns [MultiCounter<String> variablesNameUsed =
     : ae=assignmentExpression
 {
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 }
     | e=expression ',' ae=assignmentExpression
 {
     $parameters.addAll($e.parameters);
-    $variablesNameUsed.addAll($e.variablesNameUsed);
-    $calls.addAll($e.calls);
+    $variablesNameUsed.incrementAll($e.variablesNameUsed);
+    $calls.incrementAll($e.calls);
     $parameters.addAll($ae.parameters);
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 }
     ;
 
@@ -689,8 +690,8 @@ constantExpression returns [MultiCounter<String> variablesNameUsed =
         new MultiCounter<String>(), CallCounter calls = new CallCounter()]
     : ce=conditionalExpression
 {
-    $variablesNameUsed.addAll($ce.variablesNameUsed);
-    $calls.addAll($ce.calls);
+    $variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $calls.incrementAll($ce.calls);
 }
     ;
 
@@ -794,8 +795,8 @@ initDeclarator
     | d=declarator '=' i=initializer
 {
     $declaration::variableNames.add($d.name);
-    $declaration::variablesNameUsed.addAll($i.variablesNameUsed);
-    $declaration::calls.addAll($i.calls);
+    $declaration::variablesNameUsed.incrementAll($i.variablesNameUsed);
+    $declaration::calls.incrementAll($i.calls);
 }
     ;
 
@@ -1160,18 +1161,18 @@ initializer returns [MultiCounter<String> variablesNameUsed =
         new MultiCounter<String>(), CallCounter calls = new CallCounter()]
     : ae=assignmentExpression
 {
-    $variablesNameUsed.addAll($ae.variablesNameUsed);
-    $calls.addAll($ae.calls);
+    $variablesNameUsed.incrementAll($ae.variablesNameUsed);
+    $calls.incrementAll($ae.calls);
 }
     | '{' il=initializerList '}'
 {
-    $variablesNameUsed.addAll($il.variablesNameUsed);
-    $calls.addAll($il.calls);    
+    $variablesNameUsed.incrementAll($il.variablesNameUsed);
+    $calls.incrementAll($il.calls);    
 }
     | '{' il=initializerList ',' '}'
 {
-    $variablesNameUsed.addAll($il.variablesNameUsed);
-    $calls.addAll($il.calls);   
+    $variablesNameUsed.incrementAll($il.variablesNameUsed);
+    $calls.incrementAll($il.calls);   
 }
     ;
 
@@ -1179,15 +1180,15 @@ initializerList returns [MultiCounter<String> variablesNameUsed =
         new MultiCounter<String>(), CallCounter calls = new CallCounter()]
     : designation? i=initializer
 {
-    $variablesNameUsed.addAll($i.variablesNameUsed);
-    $calls.addAll($i.calls);
+    $variablesNameUsed.incrementAll($i.variablesNameUsed);
+    $calls.incrementAll($i.calls);
 }
     | il=initializerList ',' designation? i=initializer
 {
-    $variablesNameUsed.addAll($il.variablesNameUsed);
-    $calls.addAll($il.calls);
-    $variablesNameUsed.addAll($i.variablesNameUsed);
-    $calls.addAll($i.calls);    
+    $variablesNameUsed.incrementAll($il.variablesNameUsed);
+    $calls.incrementAll($il.calls);
+    $variablesNameUsed.incrementAll($i.variablesNameUsed);
+    $calls.incrementAll($i.calls);    
 }
     ;
 
@@ -1203,8 +1204,8 @@ designatorList
 designator
     : '[' ce=constantExpression ']'
 {
-    $initializerList::variablesNameUsed.addAll($ce.variablesNameUsed);
-    $initializerList::calls.addAll($ce.calls);
+    $initializerList::variablesNameUsed.incrementAll($ce.variablesNameUsed);
+    $initializerList::calls.incrementAll($ce.calls);
 }
     | '.' Identifier
     ;
@@ -1231,8 +1232,8 @@ statement returns [MultiCounter<String> variablesNameUsed =
 }
     : ls=labeledStatement
 {
-	$variablesNameUsed.addAll($ls.variablesNameUsed);
-	$calls.addAll($ls.calls);
+	$variablesNameUsed.incrementAll($ls.variablesNameUsed);
+	$calls.incrementAll($ls.calls);
 	$blocks.addAll($ls.blocks);
 }
     | cs=compoundStatement[$parentLocals]
@@ -1241,26 +1242,26 @@ statement returns [MultiCounter<String> variablesNameUsed =
 }
     | es=expressionStatement
 {
-    $variablesNameUsed.addAll($es.variablesNameUsed);
-    $calls.addAll($es.calls);
+    $variablesNameUsed.incrementAll($es.variablesNameUsed);
+    $calls.incrementAll($es.calls);
     $blocks.addAll($es.blocks);
 }
     | ss=selectionStatement
 {
-    $variablesNameUsed.addAll($ss.variablesNameUsed);
-    $calls.addAll($ss.calls);
+    $variablesNameUsed.incrementAll($ss.variablesNameUsed);
+    $calls.incrementAll($ss.calls);
     $blocks.addAll($ss.blocks);
 }
     | is=iterationStatement
 {
-    $variablesNameUsed.addAll($is.variablesNameUsed);
-    $calls.addAll($is.calls);
+    $variablesNameUsed.incrementAll($is.variablesNameUsed);
+    $calls.incrementAll($is.calls);
     $blocks.addAll($is.blocks);
 }
     | js=jumpStatement
 {
-    $variablesNameUsed.addAll($js.variablesNameUsed);
-    $calls.addAll($js.calls);
+    $variablesNameUsed.incrementAll($js.variablesNameUsed);
+    $calls.incrementAll($js.calls);
     $blocks.addAll($js.blocks);
 }
     | ('__asm' | '__asm__') ('volatile' | '__volatile__') '(' (loe1=logicalOrExpression (',' loe2=logicalOrExpression)*)? (':' (loe3=logicalOrExpression (',' loe4=logicalOrExpression)*)?)* ')' ';'
@@ -1275,14 +1276,14 @@ labeledStatement returns [MultiCounter<String> variablesNameUsed =
     : Identifier ':' statement
     | 'case' constantExpression ':' s=statement
 {
-	$variablesNameUsed.addAll($s.variablesNameUsed);
-    $calls.addAll($s.calls);
+	$variablesNameUsed.incrementAll($s.variablesNameUsed);
+    $calls.incrementAll($s.calls);
     $blocks.addAll($s.blocks);
 }
     | 'default' ':' s=statement
 {
-    $variablesNameUsed.addAll($s.variablesNameUsed);
-    $calls.addAll($s.calls);
+    $variablesNameUsed.incrementAll($s.variablesNameUsed);
+    $calls.incrementAll($s.calls);
     $blocks.addAll($s.blocks);
 }
     ;
@@ -1378,13 +1379,13 @@ blockItem
             if(this.globalVariables.containsKey(counter.getKey()))
             {
                 GlobalVariable v = this.globalVariables.get(counter.getKey());
-                $compoundStatement::globalsUse.add(v, counter.getValue());
+                $compoundStatement::globalsUse.increment(v, counter.getValue());
             }
             else if($compoundStatement::locals.containsKey(counter.getKey()))
             {
                 LocalVariable v = 
                 		$compoundStatement::locals.get(counter.getKey());
-                $compoundStatement::localsUse.add(v, counter.getValue());
+                $compoundStatement::localsUse.increment(v, counter.getValue());
             }
         }
         
@@ -1445,12 +1446,12 @@ blockItem
         if(this.globalVariables.containsKey(counter.getKey()))
         {
         	GlobalVariable v = this.globalVariables.get(counter.getKey());
-            $compoundStatement::globalsUse.add(v, counter.getValue());
+            $compoundStatement::globalsUse.increment(v, counter.getValue());
         }
         else if($compoundStatement::locals.containsKey(counter.getKey()))
         {
             LocalVariable v = $compoundStatement::locals.get(counter.getKey());
-            $compoundStatement::localsUse.add(v, counter.getValue());
+            $compoundStatement::localsUse.increment(v, counter.getValue());
         }
     }
         
@@ -1512,8 +1513,8 @@ expressionStatement returns [MultiCounter<String> variablesNameUsed =
 {
 	if($e.text != null)
 	{
-		$variablesNameUsed.addAll($e.variablesNameUsed);
-		$calls.addAll($e.calls);
+		$variablesNameUsed.incrementAll($e.variablesNameUsed);
+		$calls.incrementAll($e.calls);
 	}
 }
     ;
@@ -1523,26 +1524,26 @@ selectionStatement returns [MultiCounter<String> variablesNameUsed =
 		Set<Block> blocks = new HashSet<Block>()]
     : 'if' '(' e=expression ')' s1=statement ('else' s2=statement)?
 {
-    $variablesNameUsed.addAll($e.variablesNameUsed);
-    $calls.addAll($e.calls);
-    $variablesNameUsed.addAll($s1.variablesNameUsed);
-    $calls.addAll($s1.calls);
+    $variablesNameUsed.incrementAll($e.variablesNameUsed);
+    $calls.incrementAll($e.calls);
+    $variablesNameUsed.incrementAll($s1.variablesNameUsed);
+    $calls.incrementAll($s1.calls);
     $blocks.addAll($s1.blocks);
     
     if($s2.text != null)
 	{
-    	$variablesNameUsed.addAll($s2.variablesNameUsed);
-        $calls.addAll($s2.calls);
+    	$variablesNameUsed.incrementAll($s2.variablesNameUsed);
+        $calls.incrementAll($s2.calls);
         $blocks.addAll($s2.blocks);
 	}
  	
 }
     | 'switch' '(' e=expression ')' s=statement
 {
-    $variablesNameUsed.addAll($e.variablesNameUsed);
-    $calls.addAll($e.calls);
-    $variablesNameUsed.addAll($s.variablesNameUsed);
-    $calls.addAll($s.calls);
+    $variablesNameUsed.incrementAll($e.variablesNameUsed);
+    $calls.incrementAll($e.calls);
+    $variablesNameUsed.incrementAll($s.variablesNameUsed);
+    $calls.incrementAll($s.calls);
     $blocks.addAll($s.blocks);	
 }
     ;
@@ -1552,60 +1553,60 @@ iterationStatement returns [MultiCounter<String> variablesNameUsed =
 		Set<Block> blocks = new HashSet<Block>()]
     : 'while' '(' e=expression ')' s=statement
 {
-	$variablesNameUsed.addAll($e.variablesNameUsed);
-    $calls.addAll($e.calls);
-    $variablesNameUsed.addAll($s.variablesNameUsed);
-    $calls.addAll($s.calls);
+	$variablesNameUsed.incrementAll($e.variablesNameUsed);
+    $calls.incrementAll($e.calls);
+    $variablesNameUsed.incrementAll($s.variablesNameUsed);
+    $calls.incrementAll($s.calls);
     $blocks.addAll($s.blocks);
 }
     | 'do' s=statement 'while' '(' e=expression ')' ';'
 {
-    $variablesNameUsed.addAll($s.variablesNameUsed);
-    $calls.addAll($s.calls);
+    $variablesNameUsed.incrementAll($s.variablesNameUsed);
+    $calls.incrementAll($s.calls);
     $blocks.addAll($s.blocks);
-    $variablesNameUsed.addAll($e.variablesNameUsed);
-    $calls.addAll($e.calls);
+    $variablesNameUsed.incrementAll($e.variablesNameUsed);
+    $calls.incrementAll($e.calls);
 }
     | 'for' '(' e1=expression? ';' e2=expression? ';' e3=expression? ')' s=statement
 {
     if($e1.text != null)
     {
-        $variablesNameUsed.addAll($e1.variablesNameUsed);
-        $calls.addAll($e1.calls);
+        $variablesNameUsed.incrementAll($e1.variablesNameUsed);
+        $calls.incrementAll($e1.calls);
     }
     
     if($e2.text != null)
     {
-        $variablesNameUsed.addAll($e2.variablesNameUsed);
-        $calls.addAll($e2.calls);
+        $variablesNameUsed.incrementAll($e2.variablesNameUsed);
+        $calls.incrementAll($e2.calls);
     }
     
     if($e3.text != null)
     {
-        $variablesNameUsed.addAll($e3.variablesNameUsed);
-        $calls.addAll($e3.calls);
+        $variablesNameUsed.incrementAll($e3.variablesNameUsed);
+        $calls.incrementAll($e3.calls);
     }
     	
-    $variablesNameUsed.addAll($s.variablesNameUsed);
-    $calls.addAll($s.calls);
+    $variablesNameUsed.incrementAll($s.variablesNameUsed);
+    $calls.incrementAll($s.calls);
     $blocks.addAll($s.blocks);
 }
     | 'for' '(' d=declaration e1=expression? ';' e2=expression? ')' s=statement
 {
     if($e1.text != null)
     {
-        $variablesNameUsed.addAll($e1.variablesNameUsed);
-        $calls.addAll($e1.calls);
+        $variablesNameUsed.incrementAll($e1.variablesNameUsed);
+        $calls.incrementAll($e1.calls);
     }
         
     if($e2.text != null)
     {
-        $variablesNameUsed.addAll($e2.variablesNameUsed);
-        $calls.addAll($e2.calls);
+        $variablesNameUsed.incrementAll($e2.variablesNameUsed);
+        $calls.incrementAll($e2.calls);
     }
         	
-    $variablesNameUsed.addAll($s.variablesNameUsed);
-    $calls.addAll($s.calls);
+    $variablesNameUsed.incrementAll($s.variablesNameUsed);
+    $calls.incrementAll($s.calls);
     $blocks.addAll($s.blocks);	
 }
     ;
@@ -1620,14 +1621,14 @@ jumpStatement returns [MultiCounter<String> variablesNameUsed =
 {
     if($e.text != null)
     {
-        $variablesNameUsed.addAll($e.variablesNameUsed);
-        $calls.addAll($e.calls);
+        $variablesNameUsed.incrementAll($e.variablesNameUsed);
+        $calls.incrementAll($e.calls);
     }	
 }
     | 'goto' ue=unaryExpression ';'
 {
-    $variablesNameUsed.addAll($ue.variablesNameUsed);
-    $calls.addAll($ue.calls);	
+    $variablesNameUsed.incrementAll($ue.variablesNameUsed);
+    $calls.incrementAll($ue.calls);	
 }
     ;
 

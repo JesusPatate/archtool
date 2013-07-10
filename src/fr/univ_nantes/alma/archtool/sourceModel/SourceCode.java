@@ -1,12 +1,8 @@
 package fr.univ_nantes.alma.archtool.sourceModel;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.utils.Pair;
 
 /**
  * Classe du modèle de code source regroupant l'ensemble des éléments d'un
@@ -20,54 +16,6 @@ public class SourceCode
             new HashSet<GlobalVariable>();
 
     private final Set<ComplexType> types = new HashSet<ComplexType>();
-    
-    // For mediator
-    private Map<Function, Set<Pair<Function, Integer>>> functionsCalled =
-            new HashMap<Function, Set<Pair<Function, Integer>>>();
-    
-    private Map<Function, Set<Pair<Function, Integer>>> functionsCalling = 
-            new HashMap<Function, Set<Pair<Function, Integer>>>();
-    
-    private Map<Function, Set<Pair<ComplexType, Integer>>> typesUsedByFunction = 
-            new HashMap<Function, Set<Pair<ComplexType, Integer>>>();
-    
-    private Map<ComplexType, Set<Pair<Function, Integer>>> typesUsingFunction = 
-            new HashMap<ComplexType, Set<Pair<Function, Integer>>>();
-    
-    private Map<Function, Set<Pair<GlobalVariable, Integer>>> globalsUsed = 
-            new HashMap<Function, Set<Pair<GlobalVariable, Integer>>>();
-    
-    private Map<GlobalVariable, Set<Pair<Function, Integer>>> globalsUsing = 
-            new HashMap<GlobalVariable, Set<Pair<Function, Integer>>>();
-    
-    private Map<ComplexType, Set<Pair<GlobalVariable, Integer>>> typesUsingGlobals = 
-            new HashMap<ComplexType, Set<Pair<GlobalVariable, Integer>>>();
-    
-    
-    public void createRelations()
-    {
-        // Beetween functions and functions, types, variables
-        for(Function f : this.functions)
-        {
-            for(Call call : f.getCalls())
-            {
-                
-            }
-            
-            for(Entry<GlobalVariable, Integer> variableUse : 
-                f.getFileGlobals().entrySet())
-            {
-                
-            }
-            
-            for(Entry<Type, Integer> typeUse : f.getUsedTypes().entrySet())
-            {
-                
-            }
-        }
-    }
-    
-    
 
     public Set<Function> getFunctions()
     {

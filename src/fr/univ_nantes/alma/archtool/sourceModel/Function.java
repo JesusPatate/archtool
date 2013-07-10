@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.univ_nantes.alma.archtool.utils.MultiCounter;
+
 /**
  * Classe du modèle de code source représentant une fonction.
  * 
@@ -195,37 +197,23 @@ public class Function
      * 
      * @return Un set contenant les types utilisés dans le corps de la fonction.
      */
-    public Map<Type, Integer> getUsedTypes()
+    public Map<ComplexType, Integer> getUsedTypes()
     {
-        Map<Type, Integer> usedTypes = new HashMap<Type, Integer>();
+        MultiCounter<ComplexType> typesUse =
+                new MultiCounter<ComplexType>();
+        typesUse.incrementAll(this.body.getUsedTypes());
+        
+        for (LocalVariable argument : this.arguments)
+        { 
+            ComplexType type = (ComplexType) argument.getType();
 
-        usedTypes.putAll(this.body.getUsedTypes());
-
-        for (LocalVariable var : this.arguments)
-        {
-            Type t = var.getType();
-
-            if (usedTypes.containsKey(t))
+            if(type.isComplex && type != ComplexType.anonymousType)
             {
-                usedTypes.put(t, (usedTypes.get(t) + 1));
-            }
-            else
-            {
-                usedTypes.put(t, 1);
+                typesUse.increment(type);
             }
         }
 
-        if (usedTypes.containsKey(this.returnType))
-        {
-            usedTypes.put(this.returnType,
-                    (usedTypes.get(this.returnType) + 1));
-        }
-        else
-        {
-            usedTypes.put(this.returnType, 1);
-        }
-
-        return usedTypes;
+        return typesUse.getCounters();
     }
 
     @Override
