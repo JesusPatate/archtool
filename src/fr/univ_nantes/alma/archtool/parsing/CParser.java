@@ -46,7 +46,7 @@ public class CParser extends Parser {
 		"'__extension__'", "'char'", "'do'", "'_Alignas'", "'auto'", "'*='", "')'", 
 		"'__stdcall'", "'inline'", "'unsigned'", "'goto'", "'__asm__'", "'__declspec'", 
 		"'restrict'", "'|'", "'_Atomic'", "'!'", "'long'", "'sizeof'", "'short'", 
-		"'\"C\"'", "'-='", "','", "'-'", "'while'", "'if'", "'_Bool'", "'int'", 
+		"'\"C\"'", "'-='", "','", "'while'", "'-'", "'if'", "'_Bool'", "'int'", 
 		"'__asm'", "'?'", "'void'", "'>>='", "'...'", "'__inline__'", "'break'", 
 		"'+='", "'^='", "'else'", "'struct'", "'++'", "'__builtin_va_arg'", "'extern'", 
 		"'.'", "'+'", "'&&'", "'||'", "'>'", "'%='", "'switch'", "'/='", "'/'", 
@@ -130,6 +130,8 @@ public class CParser extends Parser {
 		private Map<String, Function> functions;
 		private Map<String, ComplexType> complexTypes;
 		private Map<String, GlobalVariable> globalVariables;
+		private Map<String, Function> otherFunctions = new HashMap<String, Function>();
+		private Map<String, ComplexType> otherComplexTypes = new HashMap<String, ComplexType>();
 		
 		private void addComplexType(String name)
 		{
@@ -755,7 +757,7 @@ public class CParser extends Parser {
 						setState(291); match(87);
 						setState(293);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 							{
 							setState(292); ((PostfixExpressionContext)_localctx).ag = argumentExpressionList(0);
 							}
@@ -1125,7 +1127,7 @@ public class CParser extends Parser {
 			{
 			setState(364);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 23) | (1L << 30) | (1L << 50) | (1L << 58) | (1L << 59))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 23) | (1L << 31) | (1L << 50) | (1L << 58) | (1L << 59))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
@@ -1435,7 +1437,7 @@ public class CParser extends Parser {
 						pushNewRecursionContext(_localctx, _startState, RULE_additiveExpression);
 						setState(417);
 						if (!(1 >= _localctx._p)) throw new FailedPredicateException(this, "1 >= $_p");
-						setState(418); match(30);
+						setState(418); match(31);
 						setState(419); ((AdditiveExpressionContext)_localctx).me = multiplicativeExpression(0);
 
 						              _localctx.parameters.addAll(((AdditiveExpressionContext)_localctx).ae.parameters);
@@ -3330,7 +3332,7 @@ public class CParser extends Parser {
 				    
 				    ((TypeSpecifierContext)getInvokingContext(30)).name =  (((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null);
 				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  
-				            new StructOrUnionSpecifier((((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null), this.complexTypes);
+				            new StructOrUnionSpecifier((((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null), this.complexTypes, this.otherComplexTypes);
 
 				}
 				break;
@@ -3342,7 +3344,7 @@ public class CParser extends Parser {
 				setState(711); ((StructOrUnionSpecifierContext)_localctx).i = match(Identifier);
 
 				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  
-				            new StructOrUnionSpecifier((((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null), this.complexTypes);
+				            new StructOrUnionSpecifier((((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null), this.complexTypes, this.otherComplexTypes);
 
 				}
 				break;
@@ -3768,7 +3770,8 @@ public class CParser extends Parser {
 				    }
 				    
 				    ((TypeSpecifierContext)getInvokingContext(30)).name =  (((EnumSpecifierContext)_localctx).i!=null?((EnumSpecifierContext)_localctx).i.getText():null);
-				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  new EnumSpecifier((((EnumSpecifierContext)_localctx).i!=null?((EnumSpecifierContext)_localctx).i.getText():null), this.complexTypes);
+				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  new EnumSpecifier((((EnumSpecifierContext)_localctx).i!=null?((EnumSpecifierContext)_localctx).i.getText():null), this.complexTypes,
+				    		this.otherComplexTypes);
 
 				}
 				break;
@@ -3799,7 +3802,8 @@ public class CParser extends Parser {
 				    }
 				    
 				    ((TypeSpecifierContext)getInvokingContext(30)).name =  (((EnumSpecifierContext)_localctx).i!=null?((EnumSpecifierContext)_localctx).i.getText():null);
-				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  new EnumSpecifier((((EnumSpecifierContext)_localctx).i!=null?((EnumSpecifierContext)_localctx).i.getText():null), this.complexTypes);
+				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  new EnumSpecifier((((EnumSpecifierContext)_localctx).i!=null?((EnumSpecifierContext)_localctx).i.getText():null), this.complexTypes,
+				    		this.otherComplexTypes);
 
 				}
 				break;
@@ -3810,7 +3814,8 @@ public class CParser extends Parser {
 				setState(785); match(82);
 				setState(786); ((EnumSpecifierContext)_localctx).i = match(Identifier);
 
-				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  new EnumSpecifier((((EnumSpecifierContext)_localctx).i!=null?((EnumSpecifierContext)_localctx).i.getText():null), this.complexTypes);
+				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  new EnumSpecifier((((EnumSpecifierContext)_localctx).i!=null?((EnumSpecifierContext)_localctx).i.getText():null), this.complexTypes,
+				    		this.otherComplexTypes);
 
 				}
 				break;
@@ -4324,7 +4329,7 @@ public class CParser extends Parser {
 
 						setState(865);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 							{
 							setState(864); assignmentExpression();
 							}
@@ -4769,7 +4774,7 @@ public class CParser extends Parser {
 					setState(943); match(87);
 					setState(945);
 					_la = _input.LA(1);
-					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 						{
 						setState(944); argumentExpressionList(0);
 						}
@@ -5583,7 +5588,7 @@ public class CParser extends Parser {
 
 				setState(1066);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1065); assignmentExpression();
 					}
@@ -5686,7 +5691,7 @@ public class CParser extends Parser {
 
 						setState(1105);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 							{
 							setState(1104); assignmentExpression();
 							}
@@ -5814,7 +5819,8 @@ public class CParser extends Parser {
 			setState(1145); ((TypedefNameContext)_localctx).i = match(Identifier);
 
 			    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  
-			            new TypedefNameSpecifier((((TypedefNameContext)_localctx).i!=null?((TypedefNameContext)_localctx).i.getText():null), this.complexTypes);
+			            new TypedefNameSpecifier((((TypedefNameContext)_localctx).i!=null?((TypedefNameContext)_localctx).i.getText():null), this.complexTypes,
+			            		this.otherComplexTypes);
 			    ((TypeSpecifierContext)getInvokingContext(30)).name =  (((TypedefNameContext)_localctx).i!=null?((TypedefNameContext)_localctx).i.getText():null);
 
 			}
@@ -6356,7 +6362,7 @@ public class CParser extends Parser {
 				setState(1238); match(87);
 				setState(1247);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1239); ((StatementContext)_localctx).loe1 = logicalOrExpression(0);
 					setState(1244);
@@ -6385,7 +6391,7 @@ public class CParser extends Parser {
 					setState(1249); match(88);
 					setState(1258);
 					_la = _input.LA(1);
-					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+					if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 						{
 						setState(1250); ((StatementContext)_localctx).loe3 = logicalOrExpression(0);
 						setState(1255);
@@ -6656,38 +6662,51 @@ public class CParser extends Parser {
 				{
 				setState(1302); ((BlockItemContext)_localctx).d = declaration();
 
+					// Function call with one argument
 					if(((BlockItemContext)_localctx).d.isFunction)
 					{
+						Function f = null;
+						
 						if(this.functions.containsKey(((BlockItemContext)_localctx).d.name))
 				    	{
-				            Function f = this.functions.get(((BlockItemContext)_localctx).d.name);
-				            Set<Variable> parameters = new HashSet<Variable>();
-				            Variable v = null;
-				         
-				            if(this.globalVariables.containsKey(((BlockItemContext)_localctx).d.variableNames.get(0)))
-				            {
-				                GlobalVariable g = this.globalVariables.get(
-				                		((BlockItemContext)_localctx).d.variableNames.get(0));
-				                ((CompoundStatementContext)getInvokingContext(71)).globalsUse.increment(g);
-				                v = g;
-				            }
-				            else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(
-				            		((BlockItemContext)_localctx).d.variableNames.get(0)))
-				            {
-				            	LocalVariable l = ((CompoundStatementContext)getInvokingContext(71)).locals.get(
-				            			((BlockItemContext)_localctx).d.variableNames.get(0));
-				                ((CompoundStatementContext)getInvokingContext(71)).localsUse.increment(l);
-				                v = l;
-				            }
-				            
-				            if(v != null)
-				            {
-				            	parameters.add(v);
-				            }
-				            
-				            ((CompoundStatementContext)getInvokingContext(71)).calls.add(new Call(f, parameters));
+				           f = this.functions.get(((BlockItemContext)_localctx).d.name);
 				    	}
+						else if(this.otherFunctions.containsKey(((BlockItemContext)_localctx).d.name))
+				    	{
+							f = this.otherFunctions.get(((BlockItemContext)_localctx).d.name);
+					    }
+						else
+						{
+							f = new Function(((BlockItemContext)_localctx).d.name, ComplexType.anonymousType);
+				    	    this.otherFunctions.put(((BlockItemContext)_localctx).d.name, f);
+						}
+				            
+				        Set<Variable> parameters = new HashSet<Variable>();
+				        Variable v = null;
+				         
+				        if(this.globalVariables.containsKey(((BlockItemContext)_localctx).d.variableNames.get(0)))
+				        {
+				        	GlobalVariable g = this.globalVariables.get(
+				        			((BlockItemContext)_localctx).d.variableNames.get(0));
+				            ((CompoundStatementContext)getInvokingContext(71)).globalsUse.increment(g);
+				            v = g;
+				        }
+				        else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(((BlockItemContext)_localctx).d.variableNames.get(0)))
+				        {
+				        	LocalVariable l = ((CompoundStatementContext)getInvokingContext(71)).locals.get(
+				        			((BlockItemContext)_localctx).d.variableNames.get(0));
+				            ((CompoundStatementContext)getInvokingContext(71)).localsUse.increment(l);
+				            v = l;
+				        }
+				            
+				        if(v != null)
+				        {
+				        	parameters.add(v);
+				        }
+				            
+				        ((CompoundStatementContext)getInvokingContext(71)).calls.add(new Call(f, parameters));
 					}
+					// Variable declaration
 					else if(!((BlockItemContext)_localctx).d.isDeclarationType || ((BlockItemContext)_localctx).d.isAnonymousTypeDeclaration)
 				    {
 				        for(String variableName : ((BlockItemContext)_localctx).d.variableNames)
@@ -6723,10 +6742,14 @@ public class CParser extends Parser {
 				        	{
 					            f = this.functions.get(function.getKey());
 				        	}
+				        	else if(this.otherFunctions.containsKey(function.getKey()))
+				        	{
+					            f = this.otherFunctions.get(function.getKey());
+				        	}
 				        	else
 				        	{
 				        	    f = new Function(function.getKey(), ComplexType.anonymousType);
-				        	    this.functions.put(function.getKey(), f);
+				        	    this.otherFunctions.put(function.getKey(), f);
 				        	}
 					            
 					        for(Set<String> functionCall : function.getValue())
@@ -6791,10 +6814,14 @@ public class CParser extends Parser {
 				        {
 				            f = this.functions.get(function.getKey());
 				        }
+				        else if(this.otherFunctions.containsKey(function.getKey()))
+				        {
+				            f = this.otherFunctions.get(function.getKey());
+				        }
 				        else
 				        {
 				            f = new Function(function.getKey(), ComplexType.anonymousType);
-				            this.functions.put(function.getKey(), f);
+				            this.otherFunctions.put(function.getKey(), f);
 				        }
 					            
 					    for(Set<String> functionCall : function.getValue())
@@ -6865,7 +6892,7 @@ public class CParser extends Parser {
 			{
 			setState(1311);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 				{
 				setState(1310); ((ExpressionStatementContext)_localctx).e = expression(0);
 				}
@@ -7027,7 +7054,7 @@ public class CParser extends Parser {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(1336); match(31);
+				setState(1336); match(30);
 				setState(1337); match(87);
 				setState(1338); ((IterationStatementContext)_localctx).e = expression(0);
 				setState(1339); match(13);
@@ -7047,7 +7074,7 @@ public class CParser extends Parser {
 				{
 				setState(1343); match(9);
 				setState(1344); ((IterationStatementContext)_localctx).s = statement();
-				setState(1345); match(31);
+				setState(1345); match(30);
 				setState(1346); match(87);
 				setState(1347); ((IterationStatementContext)_localctx).e = expression(0);
 				setState(1348); match(13);
@@ -7069,7 +7096,7 @@ public class CParser extends Parser {
 				setState(1353); match(87);
 				setState(1355);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1354); ((IterationStatementContext)_localctx).e1 = expression(0);
 					}
@@ -7078,7 +7105,7 @@ public class CParser extends Parser {
 				setState(1357); match(101);
 				setState(1359);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1358); ((IterationStatementContext)_localctx).e2 = expression(0);
 					}
@@ -7087,7 +7114,7 @@ public class CParser extends Parser {
 				setState(1361); match(101);
 				setState(1363);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1362); ((IterationStatementContext)_localctx).e3 = expression(0);
 					}
@@ -7129,7 +7156,7 @@ public class CParser extends Parser {
 				setState(1371); ((IterationStatementContext)_localctx).d = declaration();
 				setState(1373);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1372); ((IterationStatementContext)_localctx).e1 = expression(0);
 					}
@@ -7138,7 +7165,7 @@ public class CParser extends Parser {
 				setState(1375); match(101);
 				setState(1377);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1376); ((IterationStatementContext)_localctx).e2 = expression(0);
 					}
@@ -7236,7 +7263,7 @@ public class CParser extends Parser {
 				setState(1392); match(99);
 				setState(1394);
 				_la = _input.LA(1);
-				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 30) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
+				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << 2) | (1L << 7) | (1L << 23) | (1L << 25) | (1L << 31) | (1L << 46) | (1L << 47) | (1L << 50) | (1L << 51) | (1L << 58) | (1L << 59) | (1L << 62))) != 0) || ((((_la - 68)) & ~0x3f) == 0 && ((1L << (_la - 68)) & ((1L << (68 - 68)) | (1L << (77 - 68)) | (1L << (87 - 68)) | (1L << (102 - 68)) | (1L << (Identifier - 68)) | (1L << (Constant - 68)) | (1L << (StringLiteral - 68)))) != 0)) {
 					{
 					setState(1393); ((JumpStatementContext)_localctx).e = expression(0);
 					}
@@ -7415,10 +7442,12 @@ public class CParser extends Parser {
 				setState(1421); ((ExternalDeclarationContext)_localctx).fd = functionDefinition();
 
 				    // We already know the prototype of the function
-				    if(this.functions.containsKey(((ExternalDeclarationContext)_localctx).fd.result.getName()))
+				    if(this.otherFunctions.containsKey(((ExternalDeclarationContext)_localctx).fd.result.getName()))
 				    {
-				    	Function prototype = this.functions.get(((ExternalDeclarationContext)_localctx).fd.result.getName());
+				    	Function prototype = this.otherFunctions.get(((ExternalDeclarationContext)_localctx).fd.result.getName());
 				    	prototype.update(((ExternalDeclarationContext)_localctx).fd.result);
+				    	this.otherFunctions.remove(((ExternalDeclarationContext)_localctx).fd.result.getName());
+				    	this.functions.put(prototype.getName(), prototype);
 				    }
 				    else
 				    {
@@ -7438,7 +7467,7 @@ public class CParser extends Parser {
 					{
 						Function declaredFunction = new Function(((ExternalDeclarationContext)_localctx).d.variableNames.get(0),
 						        ((ExternalDeclarationContext)_localctx).d.type, ((ExternalDeclarationContext)_localctx).d.isStatic);
-						this.functions.put(declaredFunction.getName(), declaredFunction);
+						this.otherFunctions.put(declaredFunction.getName(), declaredFunction);
 					}
 				    // Global variable(s) declaration
 					else if(!((ExternalDeclarationContext)_localctx).d.isDeclarationType || ((ExternalDeclarationContext)_localctx).d.isAnonymousTypeDeclaration)
@@ -7883,6 +7912,12 @@ public class CParser extends Parser {
 		}
 		return true;
 	}
+	private boolean logicalOrExpression_sempred(LogicalOrExpressionContext _localctx, int predIndex) {
+		switch (predIndex) {
+		case 25: return 1 >= _localctx._p;
+		}
+		return true;
+	}
 	private boolean inclusiveOrExpression_sempred(InclusiveOrExpressionContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 23: return 1 >= _localctx._p;
@@ -7898,12 +7933,6 @@ public class CParser extends Parser {
 	private boolean genericAssocList_sempred(GenericAssocListContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 0: return 1 >= _localctx._p;
-		}
-		return true;
-	}
-	private boolean logicalOrExpression_sempred(LogicalOrExpressionContext _localctx, int predIndex) {
-		switch (predIndex) {
-		case 25: return 1 >= _localctx._p;
 		}
 		return true;
 	}
@@ -8050,7 +8079,7 @@ public class CParser extends Parser {
 		"\26\30\32\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTVXZ\\^`bdfhjlnprtv"+
 		"xz|~\u0080\u0082\u0084\u0086\u0088\u008a\u008c\u008e\u0090\u0092\u0094"+
 		"\u0096\u0098\u009a\u009c\u009e\u00a0\u00a2\u00a4\u00a6\2\f\7\4\4\31\31"+
-		"  \64\64<=\f\16\16\36\36((,-88::NNRRVV[[\5\5\5JJbb\4//LL\6\26\26\30\30"+
+		"!!\64\64<=\f\16\16\36\36((,-88::NNRRVV[[\5\5\5JJbb\4//LL\6\26\26\30\30"+
 		"QQff\5\20\21**KK\5\17\17\37\37YY\4\17\17YY\4\24\24%%\4``ff\u063a\2\u00d0"+
 		"\3\2\2\2\4\u00d2\3\2\2\2\6\u00da\3\2\2\2\b\u00f2\3\2\2\2\n\u011c\3\2\2"+
 		"\2\f\u013e\3\2\2\2\16\u016c\3\2\2\2\20\u016e\3\2\2\2\22\u0180\3\2\2\2"+
@@ -8152,7 +8181,7 @@ public class CParser extends Parser {
 		"\3\2\2\2\u019a\u019b\b\f\1\2\u019b\u019c\5\24\13\2\u019c\u019d\b\f\1\2"+
 		"\u019d\u01aa\3\2\2\2\u019e\u019f\6\f\r\3\u019f\u01a0\7\64\2\2\u01a0\u01a1"+
 		"\5\24\13\2\u01a1\u01a2\b\f\1\2\u01a2\u01a9\3\2\2\2\u01a3\u01a4\6\f\16"+
-		"\3\u01a4\u01a5\7 \2\2\u01a5\u01a6\5\24\13\2\u01a6\u01a7\b\f\1\2\u01a7"+
+		"\3\u01a4\u01a5\7!\2\2\u01a5\u01a6\5\24\13\2\u01a6\u01a7\b\f\1\2\u01a7"+
 		"\u01a9\3\2\2\2\u01a8\u019e\3\2\2\2\u01a8\u01a3\3\2\2\2\u01a9\u01ac\3\2"+
 		"\2\2\u01aa\u01a8\3\2\2\2\u01aa\u01ab\3\2\2\2\u01ab\27\3\2\2\2\u01ac\u01aa"+
 		"\3\2\2\2\u01ad\u01ae\b\r\1\2\u01ae\u01af\5\26\f\2\u01af\u01b0\b\r\1\2"+
@@ -8452,10 +8481,10 @@ public class CParser extends Parser {
 		"\u052f\3\2\2\2\u052f\u0530\bM\1\2\u0530\u0539\3\2\2\2\u0531\u0532\79\2"+
 		"\2\u0532\u0533\7Y\2\2\u0533\u0534\5.\30\2\u0534\u0535\7\17\2\2\u0535\u0536"+
 		"\5\u008cG\2\u0536\u0537\bM\1\2\u0537\u0539\3\2\2\2\u0538\u0526\3\2\2\2"+
-		"\u0538\u0531\3\2\2\2\u0539\u0099\3\2\2\2\u053a\u053b\7!\2\2\u053b\u053c"+
+		"\u0538\u0531\3\2\2\2\u0539\u0099\3\2\2\2\u053a\u053b\7 \2\2\u053b\u053c"+
 		"\7Y\2\2\u053c\u053d\5.\30\2\u053d\u053e\7\17\2\2\u053e\u053f\5\u008cG"+
 		"\2\u053f\u0540\bN\1\2\u0540\u056a\3\2\2\2\u0541\u0542\7\13\2\2\u0542\u0543"+
-		"\5\u008cG\2\u0543\u0544\7!\2\2\u0544\u0545\7Y\2\2\u0545\u0546\5.\30\2"+
+		"\5\u008cG\2\u0543\u0544\7 \2\2\u0544\u0545\7Y\2\2\u0545\u0546\5.\30\2"+
 		"\u0546\u0547\7\17\2\2\u0547\u0548\7g\2\2\u0548\u0549\bN\1\2\u0549\u056a"+
 		"\3\2\2\2\u054a\u054b\7c\2\2\u054b\u054d\7Y\2\2\u054c\u054e\5.\30\2\u054d"+
 		"\u054c\3\2\2\2\u054d\u054e\3\2\2\2\u054e\u054f\3\2\2\2\u054f\u0551\7g"+

@@ -20,6 +20,8 @@ grammar C;
 	private Map<String, Function> functions;
 	private Map<String, ComplexType> complexTypes;
 	private Map<String, GlobalVariable> globalVariables;
+	private Map<String, Function> otherFunctions = new HashMap<String, Function>();
+	private Map<String, ComplexType> otherComplexTypes = new HashMap<String, ComplexType>();
 	
 	private void addComplexType(String name)
 	{
@@ -881,12 +883,12 @@ structOrUnionSpecifier
     
     $typeSpecifier::name = $i.text;
     $typeSpecifier::specifier = 
-            new StructOrUnionSpecifier($i.text, this.complexTypes);
+            new StructOrUnionSpecifier($i.text, this.complexTypes, this.otherComplexTypes);
 }
     | structOrUnion i=Identifier
 {
     $typeSpecifier::specifier = 
-            new StructOrUnionSpecifier($i.text, this.complexTypes);
+            new StructOrUnionSpecifier($i.text, this.complexTypes, this.otherComplexTypes);
 }
     ;
 
@@ -932,7 +934,8 @@ enumSpecifier
     }
     
     $typeSpecifier::name = $i.text;
-    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);
+    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes,
+    		this.otherComplexTypes);
 }
     | 'enum' i=Identifier? '{' enumeratorList ',' '}'
 {
@@ -945,11 +948,13 @@ enumSpecifier
     }
     
     $typeSpecifier::name = $i.text;
-    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);
+    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes,
+    		this.otherComplexTypes);
 }
     | 'enum' i=Identifier
 {
-    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes);
+    $typeSpecifier::specifier = new EnumSpecifier($i.text, this.complexTypes,
+    		this.otherComplexTypes);
 }
     ;
 
@@ -1145,7 +1150,8 @@ typedefName
     : i=Identifier
 {
     $typeSpecifier::specifier = 
-            new TypedefNameSpecifier($i.text, this.complexTypes);
+            new TypedefNameSpecifier($i.text, this.complexTypes,
+            		this.otherComplexTypes);
     $typeSpecifier::name = $i.text;
 }
     ;
@@ -1312,38 +1318,51 @@ blockItemList
 blockItem
     : d=declaration
 {
+	// Function call with one argument
 	if($d.isFunction)
 	{
+		Function f = null;
+		
 		if(this.functions.containsKey($d.name))
     	{
-            Function f = this.functions.get($d.name);
-            Set<Variable> parameters = new HashSet<Variable>();
-            Variable v = null;
-         
-            if(this.globalVariables.containsKey($d.variableNames.get(0)))
-            {
-                GlobalVariable g = this.globalVariables.get(
-                		$d.variableNames.get(0));
-                $compoundStatement::globalsUse.increment(g);
-                v = g;
-            }
-            else if($compoundStatement::locals.containsKey(
-            		$d.variableNames.get(0)))
-            {
-            	LocalVariable l = $compoundStatement::locals.get(
-            			$d.variableNames.get(0));
-                $compoundStatement::localsUse.increment(l);
-                v = l;
-            }
-            
-            if(v != null)
-            {
-            	parameters.add(v);
-            }
-            
-            $compoundStatement::calls.add(new Call(f, parameters));
+           f = this.functions.get($d.name);
     	}
+		else if(this.otherFunctions.containsKey($d.name))
+    	{
+			f = this.otherFunctions.get($d.name);
+	    }
+		else
+		{
+			f = new Function($d.name, ComplexType.anonymousType);
+    	    this.otherFunctions.put($d.name, f);
+		}
+            
+        Set<Variable> parameters = new HashSet<Variable>();
+        Variable v = null;
+         
+        if(this.globalVariables.containsKey($d.variableNames.get(0)))
+        {
+        	GlobalVariable g = this.globalVariables.get(
+        			$d.variableNames.get(0));
+            $compoundStatement::globalsUse.increment(g);
+            v = g;
+        }
+        else if($compoundStatement::locals.containsKey($d.variableNames.get(0)))
+        {
+        	LocalVariable l = $compoundStatement::locals.get(
+        			$d.variableNames.get(0));
+            $compoundStatement::localsUse.increment(l);
+            v = l;
+        }
+            
+        if(v != null)
+        {
+        	parameters.add(v);
+        }
+            
+        $compoundStatement::calls.add(new Call(f, parameters));
 	}
+	// Variable declaration
 	else if(!$d.isDeclarationType || $d.isAnonymousTypeDeclaration)
     {
         for(String variableName : $d.variableNames)
@@ -1379,10 +1398,14 @@ blockItem
         	{
 	            f = this.functions.get(function.getKey());
         	}
+        	else if(this.otherFunctions.containsKey(function.getKey()))
+        	{
+	            f = this.otherFunctions.get(function.getKey());
+        	}
         	else
         	{
         	    f = new Function(function.getKey(), ComplexType.anonymousType);
-        	    this.functions.put(function.getKey(), f);
+        	    this.otherFunctions.put(function.getKey(), f);
         	}
 	            
 	        for(Set<String> functionCall : function.getValue())
@@ -1441,10 +1464,14 @@ blockItem
         {
             f = this.functions.get(function.getKey());
         }
+        else if(this.otherFunctions.containsKey(function.getKey()))
+        {
+            f = this.otherFunctions.get(function.getKey());
+        }
         else
         {
             f = new Function(function.getKey(), ComplexType.anonymousType);
-            this.functions.put(function.getKey(), f);
+            this.otherFunctions.put(function.getKey(), f);
         }
 	            
 	    for(Set<String> functionCall : function.getValue())
@@ -1622,10 +1649,12 @@ externalDeclaration
     : fd=functionDefinition
 {
     // We already know the prototype of the function
-    if(this.functions.containsKey($fd.result.getName()))
+    if(this.otherFunctions.containsKey($fd.result.getName()))
     {
-    	Function prototype = this.functions.get($fd.result.getName());
+    	Function prototype = this.otherFunctions.get($fd.result.getName());
     	prototype.update($fd.result);
+    	this.otherFunctions.remove($fd.result.getName());
+    	this.functions.put(prototype.getName(), prototype);
     }
     else
     {
@@ -1639,7 +1668,7 @@ externalDeclaration
 	{
 		Function declaredFunction = new Function($d.variableNames.get(0),
 		        $d.type, $d.isStatic);
-		this.functions.put(declaredFunction.getName(), declaredFunction);
+		this.otherFunctions.put(declaredFunction.getName(), declaredFunction);
 	}
     // Global variable(s) declaration
 	else if(!$d.isDeclarationType || $d.isAnonymousTypeDeclaration)

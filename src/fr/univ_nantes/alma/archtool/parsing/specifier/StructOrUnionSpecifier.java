@@ -7,9 +7,10 @@ import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 
 public class StructOrUnionSpecifier extends StructuredSpecifier
 {
-    public StructOrUnionSpecifier(String name, Map<String, ComplexType> complextypes)
+    public StructOrUnionSpecifier(String name, Map<String, ComplexType> complextypes,
+    		Map<String, ComplexType> otherComplextypes)
     {
-        super(name, complextypes);
+        super(name, complextypes, otherComplextypes);
     }
 
     @Override

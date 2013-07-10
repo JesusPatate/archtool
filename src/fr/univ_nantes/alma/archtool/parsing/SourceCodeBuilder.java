@@ -29,13 +29,15 @@ public class SourceCodeBuilder
 	{
 		this.sourcesScanner.scann();	
 		Set<String> sourceFiles = this.sourcesScanner.getPathsFound();
+		Context context = new Context();
 		
 		for(String sourceFile : sourceFiles)
 		{			
 			try
 			{    
 			    System.out.println("starting parse source: " + sourceFile);
-			    this.cProcessor.process(sourceFile, new Context());
+			    this.cProcessor.process(sourceFile, context);
+			    context = context.merge(this.cProcessor.getContext());
 			    System.out.println("finishing parse source: " + sourceFile);
 			    this.sourceCode.addFunctions(this.cProcessor.getFunctions());
 			    this.sourceCode.addTypes(this.cProcessor.getComplexTypes());
