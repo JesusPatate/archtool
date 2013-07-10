@@ -26,7 +26,7 @@ public class MultiCounter<K>
         }
     }
     
-    public boolean containsCounter(String counter)
+    public boolean containsCounter(K counter)
     {
         return this.counters.containsKey(counter);
     }

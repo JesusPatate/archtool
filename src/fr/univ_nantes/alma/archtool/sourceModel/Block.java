@@ -65,7 +65,25 @@ public class Block
      */
     public Map<GlobalVariable, Integer> getGlobalVariables()
     {
-        return new HashMap<GlobalVariable, Integer>(this.globals);
+        final Map<GlobalVariable, Integer> total =
+                new HashMap<GlobalVariable, Integer>(this.globals);
+
+        for (final Block b : this.subBlocks)
+        {
+            for (final GlobalVariable v : b.getGlobalVariables().keySet())
+            {
+                if(total.containsKey(v))
+                {
+                    total.put(v, total.get(v) + b.getGlobalVariables().get(v));
+                }
+                else
+                {
+                    total.put(v, b.getGlobalVariables().get(v));
+                }
+            }
+        }
+
+        return total;
     }
 
     /**
@@ -214,7 +232,14 @@ public class Block
 
         for (final Variable var : this.globals.keySet())
         {
-            usedTypes.put(var.getType(), this.globals.get(var));
+            if(var.getType().isComplex)
+            {
+                
+                
+                
+                
+                usedTypes.put(var.getType(), this.globals.get(var));
+            }
         }
 
         for (final Variable var : this.locals.keySet())

@@ -5,6 +5,8 @@ public abstract class Type
     private final String name;
 
     private final File sourceFile;
+    
+    protected boolean isComplex = false;
 
     public Type(final String name, final File sourceFile)
     {
@@ -20,6 +22,11 @@ public abstract class Type
     public File getSourceFile()
     {
         return this.sourceFile;
+    }
+    
+    public boolean isComplex()
+    {
+        return this.isComplex;
     }
     
     @Override
