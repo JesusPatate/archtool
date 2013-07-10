@@ -41,7 +41,7 @@ public class Cohesion
      * Poids de la cohésion sur les variables globales communes dans le calcul
      * de la cohésion entre 2 fonctions.
      */
-    static final double WEIGHT_FCT_COHESION_GLOBALS = 2.0;
+    static final double WEIGHT_FCT_COHESION_GLOBALS = 1.0;
 
     /**
      * Poids de la cohésion sur les variables locales communes dans le calcul de
@@ -1115,30 +1115,32 @@ public class Cohesion
 
         Set<Call> calls1 = f1.getCalls();
         Set<Call> calls2 = f2.getCalls();
-
+        
+        Set<Function> fctCalledTotal = new HashSet<Function>();
+        Set<Function> fctCalledCommon = new HashSet<Function>();
+        
         for (Call call : calls1)
         {
-            Function fct = call.getFunction();
-
-            Iterator<Call> it = calls2.iterator();
-            boolean found = false;
-
-            while (it.hasNext() && found == false)
+            fctCalledTotal.add(call.getFunction());
+        }
+        
+        for (Call call : calls2)
+        {
+            boolean added = false;
+            
+            added = fctCalledTotal.add(call.getFunction());
+            
+            if(added == false)
             {
-                Call c = it.next();
-
-                if (c.getFunction().equals(fct))
-                {
-                    ++nbCommon;
-                }
+                fctCalledCommon.add(call.getFunction());
             }
         }
-
-        nbCalls = calls1.size() + calls2.size() - nbCommon;
-
-        if (nbCalls > 0)
+        
+//        System.out.println("nbCalls=" + fctCalledTotal.size() + " nbCommon=" + fctCalledCommon.size()); // DBG
+        
+        if (fctCalledTotal.size() > 0)
         {
-            result = nbCommon / nbCalls;
+            result = ((double) fctCalledCommon.size()) / fctCalledTotal.size();
         }
 
         return result;
