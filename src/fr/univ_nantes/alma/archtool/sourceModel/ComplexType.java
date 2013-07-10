@@ -7,5 +7,6 @@ public class ComplexType extends Type
     public ComplexType(final String name, final File sourceFile)
     {
         super(name, sourceFile);
+        this.isComplex = true;
     }
 }
