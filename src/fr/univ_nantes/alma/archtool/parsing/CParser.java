@@ -131,8 +131,10 @@ public class CParser extends Parser {
 		private Map<String, Function> functions;
 		private Map<String, ComplexType> complexTypes;
 		private Map<String, GlobalVariable> globalVariables;
-		private Map<String, Function> otherFunctions = new HashMap<String, Function>();
-		private Map<String, ComplexType> otherComplexTypes = new HashMap<String, ComplexType>();
+		private Map<String, Function> otherFunctions = 
+		        new HashMap<String, Function>();
+		private Map<String, ComplexType> otherComplexTypes = 
+		        new HashMap<String, ComplexType>();
 		
 		private void addComplexType(String name)
 		{
@@ -6666,46 +6668,49 @@ public class CParser extends Parser {
 					// Function call with one argument
 					if(((BlockItemContext)_localctx).d.isFunction)
 					{
-						Function f = null;
-						
-						if(this.functions.containsKey(((BlockItemContext)_localctx).d.name))
-				    	{
-				           f = this.functions.get(((BlockItemContext)_localctx).d.name);
-				    	}
-						else if(this.otherFunctions.containsKey(((BlockItemContext)_localctx).d.name))
-				    	{
-							f = this.otherFunctions.get(((BlockItemContext)_localctx).d.name);
+					    if(((BlockItemContext)_localctx).d.name != null)
+					    {
+				    		Function f = null;
+				    		
+				    		if(this.functions.containsKey(((BlockItemContext)_localctx).d.name))
+				        	{
+				               f = this.functions.get(((BlockItemContext)_localctx).d.name);
+				        	}
+				    		else if(this.otherFunctions.containsKey(((BlockItemContext)_localctx).d.name))
+				        	{
+				    			f = this.otherFunctions.get(((BlockItemContext)_localctx).d.name);
+				    	    }
+				    		else
+				    		{
+				    			f = new Function(((BlockItemContext)_localctx).d.name, ComplexType.anonymousType);
+				        	    this.otherFunctions.put(((BlockItemContext)_localctx).d.name, f);
+				    		}
+				                
+				            Set<Variable> parameters = new HashSet<Variable>();
+				            Variable v = null;
+				             
+				            if(this.globalVariables.containsKey(((BlockItemContext)_localctx).d.variableNames.get(0)))
+				            {
+				            	GlobalVariable g = this.globalVariables.get(
+				            			((BlockItemContext)_localctx).d.variableNames.get(0));
+				                ((CompoundStatementContext)getInvokingContext(71)).globalsUse.increment(g);
+				                v = g;
+				            }
+				            else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(((BlockItemContext)_localctx).d.variableNames.get(0)))
+				            {
+				            	LocalVariable l = ((CompoundStatementContext)getInvokingContext(71)).locals.get(
+				            			((BlockItemContext)_localctx).d.variableNames.get(0));
+				                ((CompoundStatementContext)getInvokingContext(71)).localsUse.increment(l);
+				                v = l;
+				            }
+				                
+				            if(v != null)
+				            {
+				            	parameters.add(v);
+				            }
+				                
+				            ((CompoundStatementContext)getInvokingContext(71)).calls.add(new Call(f, parameters));
 					    }
-						else
-						{
-							f = new Function(((BlockItemContext)_localctx).d.name, ComplexType.anonymousType);
-				    	    this.otherFunctions.put(((BlockItemContext)_localctx).d.name, f);
-						}
-				            
-				        Set<Variable> parameters = new HashSet<Variable>();
-				        Variable v = null;
-				         
-				        if(this.globalVariables.containsKey(((BlockItemContext)_localctx).d.variableNames.get(0)))
-				        {
-				        	GlobalVariable g = this.globalVariables.get(
-				        			((BlockItemContext)_localctx).d.variableNames.get(0));
-				            ((CompoundStatementContext)getInvokingContext(71)).globalsUse.increment(g);
-				            v = g;
-				        }
-				        else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(((BlockItemContext)_localctx).d.variableNames.get(0)))
-				        {
-				        	LocalVariable l = ((CompoundStatementContext)getInvokingContext(71)).locals.get(
-				        			((BlockItemContext)_localctx).d.variableNames.get(0));
-				            ((CompoundStatementContext)getInvokingContext(71)).localsUse.increment(l);
-				            v = l;
-				        }
-				            
-				        if(v != null)
-				        {
-				        	parameters.add(v);
-				        }
-				            
-				        ((CompoundStatementContext)getInvokingContext(71)).calls.add(new Call(f, parameters));
 					}
 					// Variable declaration
 					else if(!((BlockItemContext)_localctx).d.isDeclarationType || ((BlockItemContext)_localctx).d.isAnonymousTypeDeclaration)
@@ -6737,47 +6742,50 @@ public class CParser extends Parser {
 				        for(Entry<String, Set<Set<String>>> function : 
 				            ((BlockItemContext)_localctx).d.calls.getCalls().entrySet())
 				        {
-				            Function f = null;
-				            
-				        	if(this.functions.containsKey(function.getKey()))
-				        	{
-					            f = this.functions.get(function.getKey());
-				        	}
-				        	else if(this.otherFunctions.containsKey(function.getKey()))
-				        	{
-					            f = this.otherFunctions.get(function.getKey());
-				        	}
-				        	else
-				        	{
-				        	    f = new Function(function.getKey(), ComplexType.anonymousType);
-				        	    this.otherFunctions.put(function.getKey(), f);
-				        	}
-					            
-					        for(Set<String> functionCall : function.getValue())
-					        {
-					            Set<Variable> parameters = new HashSet<Variable>();
-					                
-					            for(String parameter : functionCall)
-					            {
-					                Variable v = null;
-					                    
-					                if(this.globalVariables.containsKey(parameter))
-					                {
-					                    v = this.globalVariables.get(parameter);
-					                }
-					                else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(parameter))
-					                {
-					                    v = ((CompoundStatementContext)getInvokingContext(71)).locals.get(parameter);
-					                }
-					                    
-					                if(v != null)
-					                {
-					                    parameters.add(v);
-					                }
-					            }
-					                
-					            ((CompoundStatementContext)getInvokingContext(71)).calls.add(new Call(f, parameters));
-				        	}
+				            if(function.getKey() != null)
+				            {  
+				                Function f = null;
+				                
+				            	if(this.functions.containsKey(function.getKey()))
+				            	{
+				    	            f = this.functions.get(function.getKey());
+				            	}
+				            	else if(this.otherFunctions.containsKey(function.getKey()))
+				            	{
+				    	            f = this.otherFunctions.get(function.getKey());
+				            	}
+				            	else
+				            	{
+				            	    f = new Function(function.getKey(), ComplexType.anonymousType);
+				            	    this.otherFunctions.put(function.getKey(), f);
+				            	}
+				    	            
+				    	        for(Set<String> functionCall : function.getValue())
+				    	        {
+				    	            Set<Variable> parameters = new HashSet<Variable>();
+				    	                
+				    	            for(String parameter : functionCall)
+				    	            {
+				    	                Variable v = null;
+				    	                    
+				    	                if(this.globalVariables.containsKey(parameter))
+				    	                {
+				    	                    v = this.globalVariables.get(parameter);
+				    	                }
+				    	                else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(parameter))
+				    	                {
+				    	                    v = ((CompoundStatementContext)getInvokingContext(71)).locals.get(parameter);
+				    	                }
+				    	                    
+				    	                if(v != null)
+				    	                {
+				    	                    parameters.add(v);
+				    	                }
+				    	            }
+				    	                
+				    	            ((CompoundStatementContext)getInvokingContext(71)).calls.add(new Call(f, parameters));
+				            	}
+				            }
 				        }
 				    }
 

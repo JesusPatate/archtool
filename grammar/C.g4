@@ -21,8 +21,10 @@ grammar C;
 	private Map<String, Function> functions;
 	private Map<String, ComplexType> complexTypes;
 	private Map<String, GlobalVariable> globalVariables;
-	private Map<String, Function> otherFunctions = new HashMap<String, Function>();
-	private Map<String, ComplexType> otherComplexTypes = new HashMap<String, ComplexType>();
+	private Map<String, Function> otherFunctions = 
+	        new HashMap<String, Function>();
+	private Map<String, ComplexType> otherComplexTypes = 
+	        new HashMap<String, ComplexType>();
 	
 	private void addComplexType(String name)
 	{
@@ -1322,46 +1324,49 @@ blockItem
 	// Function call with one argument
 	if($d.isFunction)
 	{
-		Function f = null;
-		
-		if(this.functions.containsKey($d.name))
-    	{
-           f = this.functions.get($d.name);
-    	}
-		else if(this.otherFunctions.containsKey($d.name))
-    	{
-			f = this.otherFunctions.get($d.name);
+	    if($d.name != null)
+	    {
+    		Function f = null;
+    		
+    		if(this.functions.containsKey($d.name))
+        	{
+               f = this.functions.get($d.name);
+        	}
+    		else if(this.otherFunctions.containsKey($d.name))
+        	{
+    			f = this.otherFunctions.get($d.name);
+    	    }
+    		else
+    		{
+    			f = new Function($d.name, ComplexType.anonymousType);
+        	    this.otherFunctions.put($d.name, f);
+    		}
+                
+            Set<Variable> parameters = new HashSet<Variable>();
+            Variable v = null;
+             
+            if(this.globalVariables.containsKey($d.variableNames.get(0)))
+            {
+            	GlobalVariable g = this.globalVariables.get(
+            			$d.variableNames.get(0));
+                $compoundStatement::globalsUse.increment(g);
+                v = g;
+            }
+            else if($compoundStatement::locals.containsKey($d.variableNames.get(0)))
+            {
+            	LocalVariable l = $compoundStatement::locals.get(
+            			$d.variableNames.get(0));
+                $compoundStatement::localsUse.increment(l);
+                v = l;
+            }
+                
+            if(v != null)
+            {
+            	parameters.add(v);
+            }
+                
+            $compoundStatement::calls.add(new Call(f, parameters));
 	    }
-		else
-		{
-			f = new Function($d.name, ComplexType.anonymousType);
-    	    this.otherFunctions.put($d.name, f);
-		}
-            
-        Set<Variable> parameters = new HashSet<Variable>();
-        Variable v = null;
-         
-        if(this.globalVariables.containsKey($d.variableNames.get(0)))
-        {
-        	GlobalVariable g = this.globalVariables.get(
-        			$d.variableNames.get(0));
-            $compoundStatement::globalsUse.increment(g);
-            v = g;
-        }
-        else if($compoundStatement::locals.containsKey($d.variableNames.get(0)))
-        {
-        	LocalVariable l = $compoundStatement::locals.get(
-        			$d.variableNames.get(0));
-            $compoundStatement::localsUse.increment(l);
-            v = l;
-        }
-            
-        if(v != null)
-        {
-        	parameters.add(v);
-        }
-            
-        $compoundStatement::calls.add(new Call(f, parameters));
 	}
 	// Variable declaration
 	else if(!$d.isDeclarationType || $d.isAnonymousTypeDeclaration)
@@ -1393,47 +1398,50 @@ blockItem
         for(Entry<String, Set<Set<String>>> function : 
             $d.calls.getCalls().entrySet())
         {
-            Function f = null;
-            
-        	if(this.functions.containsKey(function.getKey()))
-        	{
-	            f = this.functions.get(function.getKey());
-        	}
-        	else if(this.otherFunctions.containsKey(function.getKey()))
-        	{
-	            f = this.otherFunctions.get(function.getKey());
-        	}
-        	else
-        	{
-        	    f = new Function(function.getKey(), ComplexType.anonymousType);
-        	    this.otherFunctions.put(function.getKey(), f);
-        	}
-	            
-	        for(Set<String> functionCall : function.getValue())
-	        {
-	            Set<Variable> parameters = new HashSet<Variable>();
-	                
-	            for(String parameter : functionCall)
-	            {
-	                Variable v = null;
-	                    
-	                if(this.globalVariables.containsKey(parameter))
-	                {
-	                    v = this.globalVariables.get(parameter);
-	                }
-	                else if($compoundStatement::locals.containsKey(parameter))
-	                {
-	                    v = $compoundStatement::locals.get(parameter);
-	                }
-	                    
-	                if(v != null)
-	                {
-	                    parameters.add(v);
-	                }
-	            }
-	                
-	            $compoundStatement::calls.add(new Call(f, parameters));
-        	}
+            if(function.getKey() != null)
+            {  
+                Function f = null;
+                
+            	if(this.functions.containsKey(function.getKey()))
+            	{
+    	            f = this.functions.get(function.getKey());
+            	}
+            	else if(this.otherFunctions.containsKey(function.getKey()))
+            	{
+    	            f = this.otherFunctions.get(function.getKey());
+            	}
+            	else
+            	{
+            	    f = new Function(function.getKey(), ComplexType.anonymousType);
+            	    this.otherFunctions.put(function.getKey(), f);
+            	}
+    	            
+    	        for(Set<String> functionCall : function.getValue())
+    	        {
+    	            Set<Variable> parameters = new HashSet<Variable>();
+    	                
+    	            for(String parameter : functionCall)
+    	            {
+    	                Variable v = null;
+    	                    
+    	                if(this.globalVariables.containsKey(parameter))
+    	                {
+    	                    v = this.globalVariables.get(parameter);
+    	                }
+    	                else if($compoundStatement::locals.containsKey(parameter))
+    	                {
+    	                    v = $compoundStatement::locals.get(parameter);
+    	                }
+    	                    
+    	                if(v != null)
+    	                {
+    	                    parameters.add(v);
+    	                }
+    	            }
+    	                
+    	            $compoundStatement::calls.add(new Call(f, parameters));
+            	}
+            }
         }
     }
 }

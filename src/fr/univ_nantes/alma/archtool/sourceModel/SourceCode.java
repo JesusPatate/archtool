@@ -16,11 +16,33 @@ public class SourceCode
             new HashSet<GlobalVariable>();
 
     private final Set<ComplexType> types = new HashSet<ComplexType>();
+    
+    private SourceCodeCoreMediator coreMediator = new SourceCodeCoreMediator();
+    
+    private SourceCodeTotalMediator totalMediator = new SourceCodeTotalMediator();
 
+    
     public Set<Function> getFunctions()
     {
         return new HashSet<Function>(this.functions);
     }
+    
+    public Set<Function> getTotalFunctions()
+    {
+        Set<Function> total = new HashSet<Function>(this.functions);
+        
+        for(Function f : this.functions)
+        {
+            for(Call c : f.getCalls())
+            {
+                total.add(c.getFunction());
+            }
+        }
+        
+        return total;
+    }
+    
+    
 
     public void addFunction(final Function function)
     {
@@ -93,9 +115,82 @@ public class SourceCode
     {
         this.types.addAll(types);
     }
-
-    public boolean isComplexType(final Type type)
+  
+    public void optimizeRelations()
     {
-        return this.types.contains(type);
+        this.coreMediator.createRelations(this.functions, this.types,
+                this.globals);
+        this.totalMediator.createRelations(this.functions, this.types,
+                this.globals);
+    }
+    
+    public Set<Function> getCoreFunctionsCalledBy(Function function)
+    {
+        return this.coreMediator.getFunctionsCalledBy(function);
+    }
+    
+    public Set<Function> getCoreFunctionsCalling(Function function)
+    {
+        return this.coreMediator.getFunctionsCalling(function);
+    }
+    
+    public Set<GlobalVariable> getGlobalsUsedBy(Function function)
+    {
+        return this.coreMediator.getGlobalsUsedBy(function);
+    }
+    
+    public Set<Function> getCoreFunctionUsing(GlobalVariable global)
+    {
+        return this.coreMediator.getFunctionUsing(global);
+    }
+    
+    public Set<ComplexType> getCoreTypesUsedBy(Function function)
+    {
+        return this.coreMediator.getTypesUsedBy(function);
+    }
+    
+    public Set<Function> getCoreFunctionUsing(ComplexType type)
+    {
+        return this.coreMediator.getFunctionUsing(type);
+    }
+    
+    public Set<GlobalVariable> getCoreGlobalsUsing(ComplexType type)
+    {
+        return this.coreMediator.getGlobalsUsing(type);
+    }
+    
+    public Set<Function> getTotalFunctionsCalledBy(Function function)
+    {
+        return this.totalMediator.getFunctionsCalledBy(function);
+    }
+    
+    public Set<Function> getTotalFunctionsCalling(Function function)
+    {
+        return this.totalMediator.getFunctionsCalling(function);
+    }
+    
+    public Set<GlobalVariable> getTotalGlobalsUsedBy(Function function)
+    {
+        return this.totalMediator.getGlobalsUsedBy(function);
+    }
+    
+    public Set<Function> getTotalFunctionUsing(GlobalVariable global)
+    {
+        return this.totalMediator.getFunctionUsing(global);
+    }
+    
+    public Set<ComplexType> getTotalTypesUsedBy(Function function)
+    {
+        return this.totalMediator.getTypesUsedBy(function);
+    }
+    
+    public Set<Function> getTotalFunctionUsing(ComplexType type)
+    {
+        return this.totalMediator.getFunctionUsing(type);
+    }
+    
+    public Set<GlobalVariable> getTotalGlobalsUsing(ComplexType type)
+    {
+        return this.totalMediator.getGlobalsUsing(type);
     }
 }
