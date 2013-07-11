@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
-import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 
 class COAComponents
@@ -16,13 +16,13 @@ class COAComponents
 
     private Map<GlobalVariable, Component> varToComp = new HashMap<GlobalVariable, Component>();
 
-    private Map<Type, Component> typeToComp = new HashMap<Type, Component>();
+    private Map<ComplexType, Component> typeToComp = new HashMap<ComplexType, Component>();
 
     private Map<Component, Set<Function>> compToFcts = new HashMap<Component, Set<Function>>();
 
     private Map<Component, Set<GlobalVariable>> compToVars = new HashMap<Component, Set<GlobalVariable>>();
 
-    private Map<Component, Set<Type>> compToTypes = new HashMap<Component, Set<Type>>();
+    private Map<Component, Set<ComplexType>> compToTypes = new HashMap<Component, Set<ComplexType>>();
 
     /**
      * Retourne l'ensemble des fonctions d'un composant.
@@ -43,7 +43,7 @@ class COAComponents
     /**
      * Retourne l'ensemble des types d'un composant.
      */
-    public Set<Type> getComponentTypes(Component comp)
+    public Set<ComplexType> getComponentTypes(Component comp)
     {
         return this.compToTypes.get(comp);
     }
@@ -59,7 +59,7 @@ class COAComponents
         {
             this.compToFcts.put(comp, new HashSet<Function>());
             this.compToVars.put(comp, new HashSet<GlobalVariable>());
-            this.compToTypes.put(comp, new HashSet<Type>());
+            this.compToTypes.put(comp, new HashSet<ComplexType>());
 
             done = true;
         }
@@ -239,11 +239,11 @@ class COAComponents
     /**
      * Ajoute un type à un composant.
      */
-    public boolean addType(Type t, Component comp)
+    public boolean addType(ComplexType t, Component comp)
     {
         boolean done = false;
 
-        Set<Type> compTypes = this.compToTypes.get(comp);
+        Set<ComplexType> compTypes = this.compToTypes.get(comp);
 
         if (compTypes.contains(t) == false)
         {
@@ -260,11 +260,11 @@ class COAComponents
     /**
      * Retire un type d'une fonction.
      */
-    public boolean removeType(Type t, Component comp)
+    public boolean removeType(ComplexType t, Component comp)
     {
         boolean done = false;
 
-        Set<Type> compTypes = this.compToTypes.get(comp);
+        Set<ComplexType> compTypes = this.compToTypes.get(comp);
 
         if (compTypes.contains(t))
         {
@@ -282,18 +282,18 @@ class COAComponents
     /**
      * Déplace un type d'un composant à un autre.
      */
-    public boolean moveType(Type t, Component from, Component to)
+    public boolean moveType(ComplexType t, Component from, Component to)
     {
         boolean done = false;
 
-        Set<Type> fromTypes = this.compToTypes.get(from);
+        Set<ComplexType> fromTypes = this.compToTypes.get(from);
 
         if (fromTypes.contains(t))
         {
             fromTypes.remove(t);
             this.compToTypes.put(from, fromTypes);
 
-            Set<Type> toTypes = this.compToTypes.get(to);
+            Set<ComplexType> toTypes = this.compToTypes.get(to);
             toTypes.add(t);
             this.compToTypes.put(from, toTypes);
 
@@ -333,7 +333,7 @@ class COAComponents
                 buf.append(", ");
             }
             
-            for(Type type : this.compToTypes.get(comp))
+            for(ComplexType type : this.compToTypes.get(comp))
             {
                 buf.append(type.getName());
                 buf.append(", ");

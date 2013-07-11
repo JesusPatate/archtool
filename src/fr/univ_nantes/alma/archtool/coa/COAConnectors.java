@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
+import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
@@ -22,7 +23,7 @@ public class COAConnectors
     
     private Map<Connector, Set<GlobalVariable>> conToVars = new HashMap<Connector, Set<GlobalVariable>>();
     
-    private Map<Connector, Set<Type>> conToTypes = new HashMap<Connector, Set<Type>>();
+    private Map<Connector, Set<ComplexType>> conToTypes = new HashMap<Connector, Set<ComplexType>>();
 
     
     /**
@@ -44,7 +45,7 @@ public class COAConnectors
     /**
      * Retourne l'ensemble des types d'un connecteur.
      */
-    public Set<Type> getConnectorTypes(Connector con)
+    public Set<ComplexType> getConnectorTypes(Connector con)
     {
         return this.conToTypes.get(con);
     }
@@ -60,7 +61,7 @@ public class COAConnectors
        {
            this.conToFcts.put(con, new HashSet<Function>());
            this.conToVars.put(con, new HashSet<GlobalVariable>());
-           this.conToTypes.put(con, new HashSet<Type>());
+           this.conToTypes.put(con, new HashSet<ComplexType>());
            
            done = true;
        }
@@ -240,11 +241,11 @@ public class COAConnectors
     /**
      * Ajoute un type à un connecteur.
      */
-    public boolean addType(Type t, Connector con)
+    public boolean addType(ComplexType t, Connector con)
     {
         boolean done = false;
 
-        Set<Type> conTypes = this.conToTypes.get(con);
+        Set<ComplexType> conTypes = this.conToTypes.get(con);
         
         if (this.typeToCon.containsKey(t) == false)
         {
@@ -261,11 +262,11 @@ public class COAConnectors
     /**
      * Retire un type d'un connecteur.
      */
-    public boolean removeType(Type t, Connector con)
+    public boolean removeType(ComplexType t, Connector con)
     {
         boolean done = false;
 
-        Set<Type> conTypes = this.conToTypes.get(con);
+        Set<ComplexType> conTypes = this.conToTypes.get(con);
         
         if (conTypes.contains(t))
         {
@@ -283,18 +284,18 @@ public class COAConnectors
     /**
      * Déplace un type d'un connecteur à un autre.
      */
-    public boolean moveType(Type t, Connector from, Connector to)
+    public boolean moveType(ComplexType t, Connector from, Connector to)
     {
         boolean done = false;
 
-        Set<Type> fromTypes = this.conToTypes.get(from);
+        Set<ComplexType> fromTypes = this.conToTypes.get(from);
         
         if (fromTypes.contains(t))
         {
             fromTypes.remove(t);
             this.conToTypes.put(from, fromTypes);
             
-            Set<Type> toTypes = this.conToTypes.get(to);
+            Set<ComplexType> toTypes = this.conToTypes.get(to);
             toTypes.add(t);
             this.conToTypes.put(from, toTypes);
             
