@@ -11,18 +11,18 @@ import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 
 public class COA
 {
-    public COAComponents coaComponents = new COAComponents();
+    private COAComponents coaComponents = new COAComponents();
     
-    public COAInterfaces coaInterfaces = new COAInterfaces();
+    private COAInterfaces coaInterfaces = new COAInterfaces();
     
-    public COAConnectors coaConnectors = new COAConnectors();
+    private COAConnectors coaConnectors = new COAConnectors();
     
     /**
      * Retourne l'ensemble des fonctions d'un composant.
      */
     public Set<Function> getComponentFunctions(Component comp)
     {
-        return this.coaComponents.getComponentFunctions(comp);
+        return this.coaComponents.getFunctions(comp);
     }
     
     /**
@@ -30,7 +30,7 @@ public class COA
      */
     public Set<GlobalVariable> getComponentVariables(Component comp)
     {
-        return this.coaComponents.getComponentVariables(comp);
+        return this.coaComponents.getVariables(comp);
     }
     
     /**
@@ -38,7 +38,7 @@ public class COA
      */
     public Set<ComplexType> getComponentTypes(Component comp)
     {
-        return this.coaComponents.getComponentTypes(comp);
+        return this.coaComponents.getTypes(comp);
     }
     
     /**
@@ -87,6 +87,36 @@ public class COA
     public Set<ComplexType> getConnectorTypes(Connector con)
     {
         return this.coaConnectors.getConnectorTypes(con);
+    }
+    
+    /**
+     * Retourne le composant qui contient une fonction donnée.
+     * 
+     * @param fct La fonction recherchée.
+     */
+    public Component getComponent(final Function fct)
+    {
+        return this.coaComponents.getComponent(fct);
+    }
+
+    /**
+     * Retourne le composant qui contient une variable donnée.
+     * 
+     * @param var La variable recherchée.
+     */
+    public Component getComponent(final GlobalVariable var)
+    {
+        return this.coaComponents.getComponent(var);
+    }
+
+    /**
+     * Retourne le composant qui contient un type donné.
+     * 
+     * @param t Le type recherché.
+     */
+    public Component getComponent(final ComplexType t)
+    {
+        return this.coaComponents.getComponent(t);
     }
     
     /**

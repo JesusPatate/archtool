@@ -27,7 +27,7 @@ class COAComponents
     /**
      * Retourne l'ensemble des fonctions d'un composant.
      */
-    public Set<Function> getComponentFunctions(Component comp)
+    public Set<Function> getFunctions(Component comp)
     {
         return this.compToFcts.get(comp);
     }
@@ -35,7 +35,7 @@ class COAComponents
     /**
      * Retourne l'ensemble des variables d'un composant.
      */
-    public Set<GlobalVariable> getComponentVariables(Component comp)
+    public Set<GlobalVariable> getVariables(Component comp)
     {
         return this.compToVars.get(comp);
     }
@@ -43,9 +43,39 @@ class COAComponents
     /**
      * Retourne l'ensemble des types d'un composant.
      */
-    public Set<ComplexType> getComponentTypes(Component comp)
+    public Set<ComplexType> getTypes(Component comp)
     {
         return this.compToTypes.get(comp);
+    }
+    
+    /**
+     * Retourne le composant qui contient une fonction donnée.
+     * 
+     * @param fct La fonction recherchée.
+     */
+    public Component getComponent(final Function fct)
+    {
+        return this.fctToComp.get(fct);
+    }
+
+    /**
+     * Retourne le composant qui contient une variable donnée.
+     * 
+     * @param var La variable recherchée.
+     */
+    public Component getComponent(final GlobalVariable var)
+    {
+        return this.varToComp.get(var);
+    }
+
+    /**
+     * Retourne le composant qui contient un type donné.
+     * 
+     * @param t Le type recherché.
+     */
+    public Component getComponent(final ComplexType t)
+    {
+        return this.typeToComp.get(t);
     }
 
     /**
