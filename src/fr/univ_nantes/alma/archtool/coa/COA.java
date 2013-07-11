@@ -120,6 +120,66 @@ public class COA
     }
     
     /**
+     * Retourne l'interface qui contient une fonction donnée.
+     * 
+     * @param fct La fonction recherchée.
+     */
+    public Interface getInterface(final Function fct)
+    {
+        return this.coaInterfaces.getInterface(fct);
+    }
+
+    /**
+     * Retourne l'interface qui contient une variable donnée.
+     * 
+     * @param var La variable recherchée.
+     */
+    public Interface getInterface(final GlobalVariable var)
+    {
+        return this.coaInterfaces.getInterface(var);
+    }
+
+    /**
+     * Retourne l'interface qui contient un type donné.
+     * 
+     * @param t Le type recherché.
+     */
+    public Set<Interface> getInterface(final ComplexType t)
+    {
+        return this.coaInterfaces.getInterface(t);
+    }
+    
+    /**
+     * Retourne le connecteur qui contient une fonction donnée.
+     * 
+     * @param fct La fonction recherchée.
+     */
+    public Connector getConnector(final Function fct)
+    {
+        return this.coaConnectors.getConnector(fct);
+    }
+
+    /**
+     * Retourne le connecteur qui contient une variable donnée.
+     * 
+     * @param var La variable recherchée.
+     */
+    public Connector getConnector(final GlobalVariable var)
+    {
+        return this.coaConnectors.getConnector(var);
+    }
+
+    /**
+     * Retourne le connecteur qui contient un type donné.
+     * 
+     * @param t Le type recherché.
+     */
+    public Connector getConnector(final ComplexType t)
+    {
+        return this.coaConnectors.getConnector(t);
+    }
+    
+    /**
      * Ajoute une fonction à un composant.
      */
     public boolean addFunction(Function fct, Component comp)

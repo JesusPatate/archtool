@@ -54,6 +54,36 @@ public class COAInterfaces
     {
         return this.itfToTypes.get(itf);
     }
+    
+    /**
+     * Retourne l'interface qui contient une fonction donnée.
+     * 
+     * @param fct La fonction recherchée.
+     */
+    public Interface getInterface(final Function fct)
+    {
+        return this.fctToItf.get(fct);
+    }
+
+    /**
+     * Retourne l'interface qui contient une variable donnée.
+     * 
+     * @param var La variable recherchée.
+     */
+    public Interface getInterface(final GlobalVariable var)
+    {
+        return this.varToItf.get(var);
+    }
+
+    /**
+     * Retourne le connecteur qui contient un type donné.
+     * 
+     * @param t Le type recherché.
+     */
+    public Set<Interface> getInterface(final ComplexType t)
+    {
+        return this.typeToItf.get(t);
+    }
 
     /**
      * Ajoute une nouvelle interface.
