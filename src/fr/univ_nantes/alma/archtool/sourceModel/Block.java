@@ -188,21 +188,21 @@ public class Block
         for(Entry<GlobalVariable, Integer> variableUse : 
             this.globals.entrySet())
         {
-            ComplexType type = (ComplexType) variableUse.getKey().getType();
+            Type type = variableUse.getKey().getType();
             
             if(type.isComplex && type != ComplexType.anonymousType)
             {          
-                typesUse.increment(type, variableUse.getValue());
+                typesUse.increment((ComplexType) type, variableUse.getValue());
             }
         }
         
         for(Entry<LocalVariable, Integer> variableUse : this.locals.entrySet())
         {
-            ComplexType type = (ComplexType) variableUse.getKey().getType();
+            Type type = variableUse.getKey().getType();
             
             if(type.isComplex && type != ComplexType.anonymousType)
             {          
-                typesUse.increment(type, variableUse.getValue());
+                typesUse.increment((ComplexType) type, variableUse.getValue());
             }
         }
         

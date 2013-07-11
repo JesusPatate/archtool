@@ -1,7 +1,9 @@
 package fr.univ_nantes.alma.archtool.utils;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class MultiMultiCounter<K, V>
 {
@@ -32,10 +34,32 @@ public class MultiMultiCounter<K, V>
     
     public int getCounter(K key, V counter)
     {
-        return this.counters.get(key).getCounter(counter);
+        int value = 0;
+        
+        if(this.counters.containsKey(key))
+        {
+            value = this.counters.get(key).getCounter(counter);
+        }
+        
+        return value;
+    }
+    
+    public Set<V> getCounters(K key)
+    {
+        Set<V> counters = null;
+        
+        if(this.counters.containsKey(key))
+        {
+            counters = this.counters.get(key).getCounterKey();
+        }
+        else
+        {
+            counters = new HashSet<V>();
+        }
+        
+        return counters;
     }
 
-    // TODO
     public void clear()
     {
         this.counters.clear();        

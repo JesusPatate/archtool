@@ -79,9 +79,9 @@ public class SourceCode
         this.globals.addAll(vars);
     }
 
-    public Set<Type> getTypes()
+    public Set<ComplexType> getTypes()
     {
-        return new HashSet<Type>(this.types);
+        return new HashSet<ComplexType>(this.types);
     }
 
     public void addType(final ComplexType t1)

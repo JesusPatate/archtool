@@ -51,8 +51,13 @@ public class SourceCodeMediator
         {
             for(Call call : function.getCalls())
             {
-                this.functionsCalling.increment(function, call.getFunction());
-                this.functionsCalledBy.increment(call.getFunction(), function);
+                if(functions.contains(call.getFunction()))
+                {
+                    this.functionsCalling.increment(call.getFunction(),
+                            function);     
+                    this.functionsCalledBy.increment(function,
+                            call.getFunction());
+                }
             }
             
             for(Entry<GlobalVariable, Integer> variableUse : 
@@ -89,5 +94,40 @@ public class SourceCodeMediator
                 this.typesUsingGlobals.increment((ComplexType) type, global);
             }
         }
+    }
+    
+    public Set<Function> getFunctionsCalledBy(Function function)
+    {
+        return this.functionsCalledBy.getCounters(function);
+    }
+    
+    public Set<Function> getFunctionsCalling(Function function)
+    {
+        return this.functionsCalling.getCounters(function);
+    }
+    
+    public Set<GlobalVariable> getGlobalsUsedBy(Function function)
+    {
+        return this.globalsUsedByFunction.getCounters(function);
+    }
+    
+    public Set<Function> getFunctionUsing(GlobalVariable global)
+    {
+        return this.globalsUsingFunction.getCounters(global);
+    }
+    
+    public Set<ComplexType> getTypesUsedBy(Function function)
+    {
+        return this.typesUsedByFunction.getCounters(function);
+    }
+    
+    public Set<Function> getFunctionUsing(ComplexType type)
+    {
+        return this.typesUsingFunction.getCounters(type);
+    }
+    
+    public Set<GlobalVariable> getGlobalsUsing(ComplexType type)
+    {
+        return this.typesUsingGlobals.getCounters(type);
     }
 }

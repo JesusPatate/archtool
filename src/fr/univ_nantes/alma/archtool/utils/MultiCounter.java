@@ -51,7 +51,14 @@ public class MultiCounter<K>
     
     public int getCounter(K counter)
     {
-        return this.counters.get(counter);
+        int value = 0;
+        
+        if(this.counters.containsKey(counter))
+        {
+            value = this.counters.get(counter);
+        }
+        
+        return value;
     }
     
     public Set<K> getCounterKey()

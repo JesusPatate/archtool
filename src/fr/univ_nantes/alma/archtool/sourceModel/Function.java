@@ -205,11 +205,11 @@ public class Function
         
         for (LocalVariable argument : this.arguments)
         { 
-            ComplexType type = (ComplexType) argument.getType();
+            Type type =  argument.getType();
 
             if(type.isComplex && type != ComplexType.anonymousType)
             {
-                typesUse.increment(type);
+                typesUse.increment((ComplexType) type);
             }
         }
 
@@ -219,7 +219,9 @@ public class Function
     @Override
     public String toString()
     {
-        StringBuffer function = new StringBuffer(this.returnType.getName()
+        return this.name;
+        
+        /*StringBuffer function = new StringBuffer(this.returnType.getName()
                 + " ");
 
         function.append(this.name);
@@ -240,6 +242,6 @@ public class Function
         
         function.append("\n" + this.body.getCalls());
         
-        return function.toString();
+        return function.toString();*/
     }
 }

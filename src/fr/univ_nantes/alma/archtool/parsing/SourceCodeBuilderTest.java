@@ -1,5 +1,9 @@
 package fr.univ_nantes.alma.archtool.parsing;
 
+import fr.univ_nantes.alma.archtool.sourceModel.Function;
+import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
+import fr.univ_nantes.alma.archtool.sourceModel.SourceCodeMediator;
+
 public class SourceCodeBuilderTest
 {
     public static void main(String[] args)
@@ -19,5 +23,19 @@ public class SourceCodeBuilderTest
         SourceCodeBuilder builder = new SourceCodeBuilder(sourceFilePaths,
                 sourceFileFilter);
         builder.build();
+        
+        SourceCode sc = builder.getSourceCode();
+        SourceCodeMediator m = new SourceCodeMediator();
+        m.createRelations(sc.getFunctions(), sc.getTypes(),
+                sc.getGlobalVariables());
+        
+        System.out.println(sc.getFunctions().size());
+        
+        /*for(Function f : sc.getFunctions())
+        {
+            System.out.println(f);
+            System.out.println(m.getFunctionsCalledBy(f));
+            System.out.println();
+        }*/
     }
 }
