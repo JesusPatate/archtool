@@ -12,6 +12,7 @@ import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
+import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
@@ -582,7 +583,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
                         // Body
 
-                        final Map<Type, Integer> types = fct2.getUsedTypes();
+                        final Map<ComplexType, Integer> types = fct2.getUsedTypes();
 
                         if (types.containsKey(t))
                         {

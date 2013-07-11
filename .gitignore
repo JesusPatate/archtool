@@ -1,6 +1,7 @@
 *~
 
 *.class
+*.tokens
 
 # Package Files #
 *.war

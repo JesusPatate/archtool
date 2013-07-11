@@ -5,9 +5,9 @@ import java.util.Set;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
+import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.Type;
 
 public class COA
 {
@@ -36,7 +36,7 @@ public class COA
     /**
      * Retourne l'ensemble des types d'un composant.
      */
-    public Set<Type> getComponentTypes(Component comp)
+    public Set<ComplexType> getComponentTypes(Component comp)
     {
         return this.coaComponents.getComponentTypes(comp);
     }
@@ -60,7 +60,7 @@ public class COA
     /**
      * Retourne l'ensemble des types d'une interface.
      */
-    public Set<Type> getInterfaceTypes(Interface itf)
+    public Set<ComplexType> getInterfaceTypes(Interface itf)
     {
         return this.coaInterfaces.getInterfaceTypes(itf);
     }
@@ -84,7 +84,7 @@ public class COA
     /**
      * Retourne l'ensemble des types d'une interface.
      */
-    public Set<Type> getConnectorTypes(Connector con)
+    public Set<ComplexType> getConnectorTypes(Connector con)
     {
         return this.coaConnectors.getConnectorTypes(con);
     }
@@ -130,7 +130,7 @@ public class COA
     /**
      * Ajoute un type à un composant.
      */
-    public boolean addType(Type t, Component comp)
+    public boolean addType(ComplexType t, Component comp)
     {
         return this.coaComponents.addType(t, comp);
     }
@@ -138,9 +138,9 @@ public class COA
     /**
      * Ajoute un ensemble de types à un composant.
      */
-    public void addTypes(Set<Type> types, Component comp)
+    public void addTypes(Set<ComplexType> types, Component comp)
     {
-       for(Type t : types)
+       for(ComplexType t : types)
        {
            this.coaComponents.addType(t, comp);
        }
@@ -187,7 +187,7 @@ public class COA
     /**
      * Ajoute un type à une interface.
      */
-    public boolean addType(Type t, Interface itf)
+    public boolean addType(ComplexType t, Interface itf)
     {
         return this.coaInterfaces.addType(t, itf);
     }
@@ -195,9 +195,9 @@ public class COA
     /**
      * Ajoute un ensemble de types à une interface.
      */
-    public void addTypes(Set<Type> types, Interface itf)
+    public void addTypes(Set<ComplexType> types, Interface itf)
     {
-       for(Type t : types)
+       for(ComplexType t : types)
        {
            this.coaInterfaces.addType(t, itf);
        }
@@ -244,7 +244,7 @@ public class COA
     /**
      * Ajoute un type à un connecteur.
      */
-    public boolean addType(Type t, Connector con)
+    public boolean addType(ComplexType t, Connector con)
     {
         return this.coaConnectors.addType(t, con);
     }
@@ -252,9 +252,9 @@ public class COA
     /**
      * Ajoute un ensemble de types à un connecteur.
      */
-    public void addTypes(Set<Type> types, Connector con)
+    public void addTypes(Set<ComplexType> types, Connector con)
     {
-       for(Type t : types)
+       for(ComplexType t : types)
        {
            this.coaConnectors.addType(t, con);
        }
@@ -279,7 +279,7 @@ public class COA
     /**
      * Retire un type d'un composant.
      */
-    public boolean removeType(Type t, Component comp)
+    public boolean removeType(ComplexType t, Component comp)
     {
         return this.coaComponents.removeType(t, comp);
     }
@@ -303,7 +303,7 @@ public class COA
     /**
      * Retire un type d'une interface.
      */
-    public boolean removeType(Type t, Interface itf)
+    public boolean removeType(ComplexType t, Interface itf)
     {
         return this.coaInterfaces.removeType(t, itf);
     }
@@ -327,7 +327,7 @@ public class COA
     /**
      * Retire un type d'un connecteur.
      */
-    public boolean removeType(Type t, Connector con)
+    public boolean removeType(ComplexType t, Connector con)
     {
         return this.coaConnectors.removeType(t, con);
     }
@@ -351,7 +351,7 @@ public class COA
     /**
      * Déplace un type d'un composant à un autre.
      */
-    public boolean moveType(Type t, Component from, Component to)
+    public boolean moveType(ComplexType t, Component from, Component to)
     {
         return this.coaComponents.moveType(t, from, to);
     }
@@ -375,7 +375,7 @@ public class COA
     /**
      * Déplace un type d'une interface à une autre.
      */
-    public boolean moveType(Type t, Interface from, Interface to)
+    public boolean moveType(ComplexType t, Interface from, Interface to)
     {
         return this.coaInterfaces.moveType(t, from, to);
     }
@@ -399,7 +399,7 @@ public class COA
     /**
      * Déplace un type d'un connecteur à un autre.
      */
-    public boolean moveType(Type t, Connector from, Connector to)
+    public boolean moveType(ComplexType t, Connector from, Connector to)
     {
         return this.coaConnectors.moveType(t, from, to);
     }

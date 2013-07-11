@@ -8,7 +8,7 @@ import java.util.Set;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.Type;
+import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 
 public class COAInterfaces
 {
@@ -18,8 +18,8 @@ public class COAInterfaces
     private Map<GlobalVariable, Interface> varToItf =
             new HashMap<GlobalVariable, Interface>();
 
-    private Map<Type, Set<Interface>> typeToItf =
-            new HashMap<Type, Set<Interface>>();
+    private Map<ComplexType, Set<Interface>> typeToItf =
+            new HashMap<ComplexType, Set<Interface>>();
 
     private Map<Interface, Set<Function>> itfToFcts =
             new HashMap<Interface, Set<Function>>();
@@ -27,8 +27,8 @@ public class COAInterfaces
     private Map<Interface, Set<GlobalVariable>> itfToVars =
             new HashMap<Interface, Set<GlobalVariable>>();
 
-    private Map<Interface, Set<Type>> itfToTypes =
-            new HashMap<Interface, Set<Type>>();
+    private Map<Interface, Set<ComplexType>> itfToTypes =
+            new HashMap<Interface, Set<ComplexType>>();
 
     /**
      * Retourne l'ensemble des fonctions d'une interface.
@@ -49,7 +49,7 @@ public class COAInterfaces
     /**
      * Retourne l'ensemble des types d'une interface.
      */
-    public Set<Type> getInterfaceTypes(Interface itf)
+    public Set<ComplexType> getInterfaceTypes(Interface itf)
     {
         return this.itfToTypes.get(itf);
     }
@@ -65,7 +65,7 @@ public class COAInterfaces
         {
             this.itfToFcts.put(itf, new HashSet<Function>());
             this.itfToVars.put(itf, new HashSet<GlobalVariable>());
-            this.itfToTypes.put(itf, new HashSet<Type>());
+            this.itfToTypes.put(itf, new HashSet<ComplexType>());
 
             done = true;
         }
@@ -103,9 +103,9 @@ public class COAInterfaces
                 removeVariable(var, itf);
             }
             
-            Set<Type> types = this.itfToTypes.get(itf);
+            Set<ComplexType> types = this.itfToTypes.get(itf);
 
-            for (Type type : types)
+            for (ComplexType type : types)
             {
                 removeType(type, itf);
             }
@@ -260,11 +260,11 @@ public class COAInterfaces
     /**
      * Ajoute un type à une interface.
      */
-    public boolean addType(Type t, Interface itf)
+    public boolean addType(ComplexType t, Interface itf)
     {
         boolean done = false;
         
-        Set<Type> itfTypes = this.itfToTypes.get(itf);
+        Set<ComplexType> itfTypes = this.itfToTypes.get(itf);
         
         if (itfTypes.contains(t) == false)
         {
@@ -294,11 +294,11 @@ public class COAInterfaces
     /**
      * Retire un type d'une interface.
      */
-    public boolean removeType(Type t, Interface itf)
+    public boolean removeType(ComplexType t, Interface itf)
     {
         boolean done = false;
 
-        Set<Type> itfTypes = this.itfToTypes.get(itf);
+        Set<ComplexType> itfTypes = this.itfToTypes.get(itf);
 
         if (itfTypes.contains(t))
         {
@@ -316,12 +316,12 @@ public class COAInterfaces
     /**
      * Déplace un type d'une interface à une autre.
      */
-    public boolean moveType(Type t, Interface from, Interface to)
+    public boolean moveType(ComplexType t, Interface from, Interface to)
     {
         boolean done = false;
 
-        Set<Type> fromTypes = this.itfToTypes.get(from);
-        Set<Type> toTypes = this.itfToTypes.get(to);
+        Set<ComplexType> fromTypes = this.itfToTypes.get(from);
+        Set<ComplexType> toTypes = this.itfToTypes.get(to);
 
         if (fromTypes.contains(t) && (toTypes.contains(t) == false))
         {
@@ -368,7 +368,7 @@ public class COAInterfaces
                 buf.append(", ");
             }
             
-            for(Type type : this.itfToTypes.get(itf))
+            for(ComplexType type : this.itfToTypes.get(itf))
             {
                 buf.append(type.getName());
                 buf.append(", ");
