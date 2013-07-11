@@ -46,7 +46,7 @@ public class COA
      */
     public Set<Function> getInterfaceFunctions(Interface itf)
     {
-        return this.coaInterfaces.getInterfaceFunctions(itf);
+        return this.coaInterfaces.getFunctions(itf);
     }
     
     /**
@@ -54,7 +54,7 @@ public class COA
      */
     public Set<GlobalVariable> getInterfaceVariables(Interface itf)
     {
-        return this.coaInterfaces.getInterfaceVariables(itf);
+        return this.coaInterfaces.getVariables(itf);
     }
     
     /**
@@ -62,7 +62,7 @@ public class COA
      */
     public Set<ComplexType> getInterfaceTypes(Interface itf)
     {
-        return this.coaInterfaces.getInterfaceTypes(itf);
+        return this.coaInterfaces.getTypes(itf);
     }
     
     /**
@@ -70,7 +70,7 @@ public class COA
      */
     public Set<Function> getConnectorFunctions(Connector con)
     {
-        return this.coaConnectors.getConnectorFunctions(con);
+        return this.coaConnectors.getFunctions(con);
     }
     
     /**
@@ -78,7 +78,7 @@ public class COA
      */
     public Set<GlobalVariable> getConnectorVariables(Connector con)
     {
-        return this.coaConnectors.getConnectorVariables(con);
+        return this.coaConnectors.getVariables(con);
     }
     
     /**
@@ -86,7 +86,7 @@ public class COA
      */
     public Set<ComplexType> getConnectorTypes(Connector con)
     {
-        return this.coaConnectors.getConnectorTypes(con);
+        return this.coaConnectors.getTypes(con);
     }
     
     /**

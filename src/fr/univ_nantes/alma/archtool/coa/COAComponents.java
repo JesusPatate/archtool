@@ -29,7 +29,7 @@ class COAComponents
      */
     public Set<Function> getFunctions(Component comp)
     {
-        return this.compToFcts.get(comp);
+        return new HashSet<Function>(this.compToFcts.get(comp));
     }
 
     /**
@@ -37,7 +37,7 @@ class COAComponents
      */
     public Set<GlobalVariable> getVariables(Component comp)
     {
-        return this.compToVars.get(comp);
+        return new HashSet<GlobalVariable>(this.compToVars.get(comp));
     }
 
     /**
@@ -45,7 +45,7 @@ class COAComponents
      */
     public Set<ComplexType> getTypes(Component comp)
     {
-        return this.compToTypes.get(comp);
+        return new HashSet<ComplexType>(this.compToTypes.get(comp));
     }
     
     /**
