@@ -5,7 +5,7 @@ import java.util.Map.Entry;
 
 import fr.univ_nantes.alma.archtool.utils.MultiMultiCounter;
 
-public class SourceCodeMediator
+public class SourceCodeCoreMediator implements SourceCodeMediator
 {
     private MultiMultiCounter<Function, Function> functionsCalledBy =
             new MultiMultiCounter<Function, Function>();
@@ -28,7 +28,7 @@ public class SourceCodeMediator
     private MultiMultiCounter<GlobalVariable, Function> globalsUsingFunction = 
             new MultiMultiCounter<GlobalVariable, Function>();
     
-    
+    @Override
     public void createRelations(Set<Function> functions, Set<ComplexType> types,
             Set<GlobalVariable> globals)
     {
@@ -61,7 +61,7 @@ public class SourceCodeMediator
             }
             
             for(Entry<GlobalVariable, Integer> variableUse : 
-                function.getFileGlobals().entrySet())
+                function.getGlobalVariables().entrySet())
             {
                 this.globalsUsedByFunction.increment(function,
                         variableUse.getKey(), variableUse.getValue());
@@ -96,36 +96,43 @@ public class SourceCodeMediator
         }
     }
     
+    @Override
     public Set<Function> getFunctionsCalledBy(Function function)
     {
         return this.functionsCalledBy.getCounters(function);
     }
     
+    @Override
     public Set<Function> getFunctionsCalling(Function function)
     {
         return this.functionsCalling.getCounters(function);
     }
     
+    @Override
     public Set<GlobalVariable> getGlobalsUsedBy(Function function)
     {
         return this.globalsUsedByFunction.getCounters(function);
     }
     
+    @Override
     public Set<Function> getFunctionUsing(GlobalVariable global)
     {
         return this.globalsUsingFunction.getCounters(global);
     }
     
+    @Override
     public Set<ComplexType> getTypesUsedBy(Function function)
     {
         return this.typesUsedByFunction.getCounters(function);
     }
     
+    @Override
     public Set<Function> getFunctionUsing(ComplexType type)
     {
         return this.typesUsingFunction.getCounters(type);
     }
     
+    @Override
     public Set<GlobalVariable> getGlobalsUsing(ComplexType type)
     {
         return this.typesUsingGlobals.getCounters(type);
