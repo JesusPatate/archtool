@@ -154,9 +154,11 @@ public class COAInterfaces
             this.itfToFcts.put(itf, itfFcts);
 
             this.fctToItf.remove(fct);
-
+            
             done = true;
         }
+        
+        
 
         return done;
     }

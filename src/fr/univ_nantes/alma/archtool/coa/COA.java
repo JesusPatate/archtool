@@ -12,11 +12,11 @@ import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 
 public class COA
 {
-    public COAComponents coaComponents;
+    private COAComponents coaComponents;
     
-    public COAInterfaces coaInterfaces;
+    private COAInterfaces coaInterfaces;
     
-    public COAConnectors coaConnectors;
+    private COAConnectors coaConnectors;
     
     
     private SourceCode sourceCode;
@@ -39,7 +39,7 @@ public class COA
      */
     public Set<Function> getComponentFunctions(Component comp)
     {
-        return this.coaComponents.getComponentFunctions(comp);
+        return this.coaComponents.getFunctions(comp);
     }
     
     /**
@@ -47,7 +47,7 @@ public class COA
      */
     public Set<GlobalVariable> getComponentVariables(Component comp)
     {
-        return this.coaComponents.getComponentVariables(comp);
+        return this.coaComponents.getVariables(comp);
     }
     
     /**
@@ -55,7 +55,7 @@ public class COA
      */
     public Set<ComplexType> getComponentTypes(Component comp)
     {
-        return this.coaComponents.getComponentTypes(comp);
+        return this.coaComponents.getTypes(comp);
     }
     
     /**
@@ -104,6 +104,36 @@ public class COA
     public Set<ComplexType> getConnectorTypes(Connector con)
     {
         return this.coaConnectors.getConnectorTypes(con);
+    }
+    
+    /**
+     * Retourne le composant qui contient une fonction donnée.
+     * 
+     * @param fct La fonction recherchée.
+     */
+    public Component getComponent(final Function fct)
+    {
+        return this.coaComponents.getComponent(fct);
+    }
+
+    /**
+     * Retourne le composant qui contient une variable donnée.
+     * 
+     * @param var La variable recherchée.
+     */
+    public Component getComponent(final GlobalVariable var)
+    {
+        return this.coaComponents.getComponent(var);
+    }
+
+    /**
+     * Retourne le composant qui contient un type donné.
+     * 
+     * @param t Le type recherché.
+     */
+    public Component getComponent(final ComplexType t)
+    {
+        return this.coaComponents.getComponent(t);
     }
     
     /**
@@ -306,7 +336,16 @@ public class COA
      */
     public boolean removeFunction(Function fct, Interface itf)
     {
-        return this.coaInterfaces.removeFunction(fct, itf);
+        boolean done = this.coaInterfaces.removeFunction(fct, itf);
+        
+        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        {
+            this.removeInterface(itf);
+        }
+        
+        return done;
     }
     
     /**
@@ -314,7 +353,17 @@ public class COA
      */
     public boolean removeVariable(GlobalVariable var, Interface itf)
     {
-        return this.coaInterfaces.removeVariable(var, itf);
+        boolean done = this.coaInterfaces.removeVariable(var, itf);
+        
+        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        {
+            this.removeInterface(itf);
+        }
+        
+        return done;
+        
     }
     
     /**
@@ -322,7 +371,16 @@ public class COA
      */
     public boolean removeType(ComplexType t, Interface itf)
     {
-        return this.coaInterfaces.removeType(t, itf);
+        boolean done = this.coaInterfaces.removeType(t, itf);
+        
+        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        {
+            this.removeInterface(itf);
+        }
+        
+        return done;
     }
     
     /**
@@ -467,6 +525,11 @@ public class COA
     public boolean addConnector(Connector con)
     {
         return this.coaConnectors.newConnector(con);
+    }
+    
+    public Set<Function> getFunctionsToOut(Component component)
+    {
+        return this.coaComponents.getFunctionsToOut(component);
     }
     
     public String toString()
