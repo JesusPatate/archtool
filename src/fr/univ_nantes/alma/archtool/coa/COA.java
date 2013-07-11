@@ -532,6 +532,21 @@ public class COA
         return this.coaComponents.getFunctionsToOut(component);
     }
     
+    public Set<GlobalVariable> getGlobalsToOut(Component component)
+    {
+        return this.coaComponents.getGlobalsToOut(component);
+    }
+    
+    public Set<Function> getFunctionsToIn(Component component)
+    {
+        return this.coaComponents.getFunctionsToIn(component);
+    }
+    
+    public Set<GlobalVariable> getGlobalsToIn(Component component)
+    {
+        return this.coaComponents.getGlobalsToIn(component);
+    }
+    
     public String toString()
     {
         StringBuffer buf = new StringBuffer("COA [");
