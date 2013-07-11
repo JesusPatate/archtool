@@ -1,7 +1,9 @@
 package fr.univ_nantes.alma.archtool.coa;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,21 +11,36 @@ import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
+import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
+import fr.univ_nantes.alma.archtool.sourceModel.Type;
 
 class COAComponents
 {
-    private Map<Function, Component> fctToComp = new HashMap<Function, Component>();
+    private Map<Function, Component> fctToComp = 
+            new HashMap<Function, Component>();
 
-    private Map<GlobalVariable, Component> varToComp = new HashMap<GlobalVariable, Component>();
+    private Map<GlobalVariable, Component> varToComp = 
+            new HashMap<GlobalVariable, Component>();
 
-    private Map<ComplexType, Component> typeToComp = new HashMap<ComplexType, Component>();
+    private Map<ComplexType, Component> typeToComp = 
+            new HashMap<ComplexType, Component>();
 
-    private Map<Component, Set<Function>> compToFcts = new HashMap<Component, Set<Function>>();
+    private Map<Component, Set<Function>> compToFcts = 
+            new HashMap<Component, Set<Function>>();
 
-    private Map<Component, Set<GlobalVariable>> compToVars = new HashMap<Component, Set<GlobalVariable>>();
+    private Map<Component, Set<GlobalVariable>> compToVars = 
+            new HashMap<Component, Set<GlobalVariable>>();
 
-    private Map<Component, Set<ComplexType>> compToTypes = new HashMap<Component, Set<ComplexType>>();
+    private Map<Component, Set<ComplexType>> compToTypes = 
+            new HashMap<Component, Set<ComplexType>>();
 
+    private SourceCode sourceCode;
+    
+    public COAComponents(SourceCode sourceCode)
+    {
+        this.sourceCode = sourceCode;
+    }
+    
     /**
      * Retourne l'ensemble des fonctions d'un composant.
      */
@@ -333,6 +350,102 @@ class COAComponents
         }
 
         return done;
+    }
+    
+    /**
+     * Retourne toutes les fonctions d'un composant qui utilise des éléments
+     *  extérieurs au composant
+     */
+    public Set<Function> getFunctionsToOut(Component component)
+    {
+        Set<Function> toOut = new HashSet<Function>();
+        
+        for(Function function : this.compToFcts.get(component))
+        {
+            if(!this.compToFcts.get(component).
+                    containsAll(this.sourceCode.
+                    getCoreFunctionsCalledBy(function)) ||
+                    !this.compToTypes.get(component).
+                    containsAll(this.sourceCode.getCoreTypesUsedBy(function)) ||
+                    !this.compToVars.get(component).containsAll(this.sourceCode.
+                    getCoreGlobalsUsedBy(function)))
+            {
+                toOut.add(function);
+            }
+        }
+        
+        return toOut;
+    }
+    
+    /**
+     * Retourne toutes les variables globales d'un composant qui utilise des
+     * éléments extérieurs au composant
+     */
+    public Set<GlobalVariable> getGlobalsToOut(Component component)
+    {
+        Set<GlobalVariable> toOut = new HashSet<GlobalVariable>();
+        
+        for(GlobalVariable global : this.compToVars.get(component))
+        {
+            Type type = global.getType();
+            
+            if(type.isComplex() && 
+                    this.typeToComp.get((ComplexType) type) != component)
+            {
+                toOut.add(global);
+            }
+        }
+        
+        return toOut;
+    }
+    
+    /**
+     * Retourne toutes les fonctions n'appartenant pas au composant et qui 
+     * utilisent des entités du composant.
+     */
+    public Set<Function> getFunctionsToIn(Component component)
+    {
+        Set<Function> toIn = new HashSet<Function>();
+        
+        for(Function function : this.sourceCode.getFunctions())
+        {
+            if(this.fctToComp.get(function) != component)
+            {
+                if(!Collections.disjoint(this.compToFcts.get(component), 
+                        this.sourceCode.getCoreFunctionsCalledBy(function)) ||
+                        !Collections.disjoint(this.compToTypes.get(component), 
+                        this.sourceCode.getCoreTypesUsedBy(function)) ||
+                        !Collections.disjoint(this.compToVars.get(component), 
+                        this.sourceCode.getCoreGlobalsUsedBy(function)))
+                {
+                    toIn.add(function);
+                }
+            }
+        }
+        
+        return toIn;
+    }
+    
+    /**
+     * Retourne toutes les variables globales n'appartenant pas au composant et
+     *  qui utilisent des entités du composant.
+     */
+    public Set<GlobalVariable> getGlobalsToIn(Component component)
+    {
+        Set<GlobalVariable> toIn = new HashSet<GlobalVariable>();
+        
+        for(GlobalVariable global : this.sourceCode.getGlobalVariables())
+        {
+            Type type = global.getType();
+            
+            if(type.isComplex() && 
+                    this.typeToComp.get((ComplexType) type) == component)
+            {
+                toIn.add(global);
+            }
+        }
+        
+        return toIn;
     }
 
     /**

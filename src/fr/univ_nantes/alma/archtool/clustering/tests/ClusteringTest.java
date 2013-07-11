@@ -52,11 +52,11 @@ public class ClusteringTest
         sourceCode = new SourceCode();
         
         file = new File("file");
-        v1 = new LocalVariable("x", PrimitiveType.charType());
-        v2 = new LocalVariable("v", PrimitiveType.intType());
-        v3 = new LocalVariable("y", PrimitiveType.intType());
+        v1 = new LocalVariable("x", PrimitiveType.charType);
+        v2 = new LocalVariable("v", PrimitiveType.intType);
+        v3 = new LocalVariable("y", PrimitiveType.intType);
 
-        v4 = new GlobalVariable("g", PrimitiveType.charType(), false, file);
+        v4 = new GlobalVariable("g", PrimitiveType.charType, false, file);
         sourceCode.addGlobal(v4);
         
         fct1 = createFct1();
@@ -65,7 +65,7 @@ public class ClusteringTest
         fct2 = createFct2();
         sourceCode.addFunction(fct2);
         
-        Function fct3 = new Function("fct3", PrimitiveType.longType(), false,
+        Function fct3 = new Function("fct3", PrimitiveType.longType, false,
                 new HashSet<LocalVariable>(), new Block(), new File("file2"));
         
         sourceCode.addFunction(fct3);
@@ -116,7 +116,8 @@ public class ClusteringTest
         Block body1 = new Block(new HashSet<Call>(), globals, locals,
                 new HashSet<Block>());
 
-        return new Function("fct1", PrimitiveType.intType(), args, body1, file);
+        return new Function("fct1", PrimitiveType.intType, false, args, body1,
+                file);
     }
 
     /**
@@ -145,7 +146,7 @@ public class ClusteringTest
 
         Block body2 = new Block(calls, globals, locals, new HashSet<Block>());
 
-        return new Function("fct2", PrimitiveType.charType(), args, body2,
+        return new Function("fct2", PrimitiveType.charType, false, args, body2,
                 file);
     }
 }

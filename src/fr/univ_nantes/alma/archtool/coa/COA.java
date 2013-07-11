@@ -8,14 +8,31 @@ import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
+import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 
 public class COA
 {
-    private COAComponents coaComponents = new COAComponents();
+    private COAComponents coaComponents;
     
-    private COAInterfaces coaInterfaces = new COAInterfaces();
+    private COAInterfaces coaInterfaces;
     
-    private COAConnectors coaConnectors = new COAConnectors();
+    private COAConnectors coaConnectors;
+    
+    
+    private SourceCode sourceCode;
+    
+    public COA(SourceCode sourceCode)
+    {
+        this.sourceCode = sourceCode;
+        this.coaComponents = new COAComponents(this.sourceCode);
+        this.coaInterfaces = new COAInterfaces();
+        this.coaConnectors = new COAConnectors();
+    }
+    
+    public SourceCode getSourceCode()
+    {
+        return this.sourceCode;
+    }
     
     /**
      * Retourne l'ensemble des fonctions d'un composant.
@@ -379,7 +396,16 @@ public class COA
      */
     public boolean removeFunction(Function fct, Interface itf)
     {
-        return this.coaInterfaces.removeFunction(fct, itf);
+        boolean done = this.coaInterfaces.removeFunction(fct, itf);
+        
+        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        {
+            this.removeInterface(itf);
+        }
+        
+        return done;
     }
     
     /**
@@ -387,7 +413,17 @@ public class COA
      */
     public boolean removeVariable(GlobalVariable var, Interface itf)
     {
-        return this.coaInterfaces.removeVariable(var, itf);
+        boolean done = this.coaInterfaces.removeVariable(var, itf);
+        
+        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        {
+            this.removeInterface(itf);
+        }
+        
+        return done;
+        
     }
     
     /**
@@ -395,7 +431,16 @@ public class COA
      */
     public boolean removeType(ComplexType t, Interface itf)
     {
-        return this.coaInterfaces.removeType(t, itf);
+        boolean done = this.coaInterfaces.removeType(t, itf);
+        
+        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
+                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        {
+            this.removeInterface(itf);
+        }
+        
+        return done;
     }
     
     /**
@@ -542,28 +587,24 @@ public class COA
         return this.coaConnectors.newConnector(con);
     }
     
-    /**
-     * Teste si un composant est présent dans le COA.
-     */
-    private boolean knows(Component comp)
+    public Set<Function> getFunctionsToOut(Component component)
     {
-        return this.coaComponents.knows(comp);
+        return this.coaComponents.getFunctionsToOut(component);
     }
     
-    /**
-     * Teste si un connecteur est présent dans le COA.
-     */
-    private boolean knows(Connector con)
+    public Set<GlobalVariable> getGlobalsToOut(Component component)
     {
-        return this.coaConnectors.knows(con);
+        return this.coaComponents.getGlobalsToOut(component);
     }
     
-    /**
-     * Teste si une interface est présente dans le COA.
-     */
-    private boolean knows(Interface itf)
+    public Set<Function> getFunctionsToIn(Component component)
     {
-        return this.coaInterfaces.knows(itf);
+        return this.coaComponents.getFunctionsToIn(component);
+    }
+    
+    public Set<GlobalVariable> getGlobalsToIn(Component component)
+    {
+        return this.coaComponents.getGlobalsToIn(component);
     }
     
     public String toString()

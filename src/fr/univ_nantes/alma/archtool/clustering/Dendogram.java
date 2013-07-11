@@ -180,7 +180,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
     public Dendogram(SourceCode sourceCode)
     {
         this.sourceCode = sourceCode;
-        this.coa = new COA();
+        this.coa = new COA(sourceCode);
         this.init();
     }
 
@@ -388,7 +388,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
     private void buildArchitecture()
     {
         this.architecture = new Architecture();
-        this.coa = new COA();
+        this.coa = new COA(this.sourceCode);
 
         for (Node node : this.nodes)
         {

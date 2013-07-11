@@ -9,6 +9,8 @@ import fr.univ_nantes.alma.archtool.clustering.Clustering;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.parsing.CProcessor;
 import fr.univ_nantes.alma.archtool.parsing.Context;
+import fr.univ_nantes.alma.archtool.parsing.ExtensionFilter;
+import fr.univ_nantes.alma.archtool.parsing.SourceCodeBuilder;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
@@ -25,19 +27,24 @@ public class ClusteringTest2
     @BeforeClass
     public static void setUpBeforeClass() throws Exception
     {
-        CProcessor cp = new CProcessor();
-        Context context = new Context(new HashSet<Function>(),
-                new HashSet<ComplexType>(), new HashSet<GlobalVariable>());
+String root = "/home/stan/Documents/development/";
         
-        cp.process("/comptes/E10A345H/Fac/horoquartz/sou/hr/srclib/hrrjou.c",
-                context);
-
-        System.out.println("Parsing completed");
-
-        sourceCode = new SourceCode();
-        sourceCode.addFunctions(cp.getFunctions());
-        sourceCode.addGlobals(cp.getGlobalVariables());
-        sourceCode.addTypes(cp.getComplexTypes());
+        String [] sourceFilePaths = 
+                new String []{/*root + "sou/hr/srclib/hrrjou.c",
+                root + "sou/hr/srclib/hrract.c",
+                root + "sou/hr/srclib/hrrhor.c",
+                root + "sou/hr/srclib/hrrcho.c",*/
+                root + "sou/hr/srclib/hrrplc.c"/*,
+                root + "sou/hr/srclib/hrrpro.c",
+                root + "sou/hr/srclib/hrrseh.c"*/};
+        ExtensionFilter sourceFileFilter = 
+                new ExtensionFilter(new String [] {".c"});        
+        SourceCodeBuilder builder = new SourceCodeBuilder(sourceFilePaths,
+                sourceFileFilter);
+        builder.build();
+        
+        sourceCode = builder.getSourceCode();
+        sourceCode.optimizeRelations();
 
         obj = new ObjectiveFunction();
     }

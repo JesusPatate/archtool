@@ -134,7 +134,7 @@ public class SourceCode
         return this.coreMediator.getFunctionsCalling(function);
     }
     
-    public Set<GlobalVariable> getGlobalsUsedBy(Function function)
+    public Set<GlobalVariable> getCoreGlobalsUsedBy(Function function)
     {
         return this.coreMediator.getGlobalsUsedBy(function);
     }
