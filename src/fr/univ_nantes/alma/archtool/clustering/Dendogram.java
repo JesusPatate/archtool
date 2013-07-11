@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
@@ -195,6 +194,11 @@ public class Dendogram implements Iterable<Dendogram.Node>
         {
             this.nodes.add(new Node(node));
         }
+    }
+    
+    public Node getNode(int index)
+    {
+        return (index < this.size()) ? this.nodes.get(index) : null;
     }
 
     /**
@@ -417,13 +421,6 @@ public class Dendogram implements Iterable<Dendogram.Node>
     /**
      * A COMPLETER
      * 
-     * <p>
-     * Recherche les appels à la fonction fournie par un composant. Une
-     * interface requise est créée pour chaque composant faisant appel à cette
-     * fonction. Une interface fournie est créée pour le composant qui contient
-     * la fonction en question.
-     * </p>
-     * 
      * @param idxNode
      *            Index du composant qui fournit la fonction en question
      * 
@@ -434,55 +431,31 @@ public class Dendogram implements Iterable<Dendogram.Node>
         for (final Function fct : this.coa.getComponentFunctions(comp))
         {
             Interface itf = new Interface();
-            this.coa.addInterface(itf);
-            this.coa.addFunction(fct, itf);
 
-            int nbCallers = 0; // Nb of components that call fct
+            boolean required = false;
+            
+            Set<Function> callers =
+                    this.sourceCode.getCoreFunctionsCalling(fct);
 
-            for (Component comp2 : this.architecture.getComponents())
+            for (Function fct2 : callers)
             {
-                if (comp2.equals(comp) == false)
-                {
-                    Iterator<Function> itFcts =
-                            this.coa.getComponentFunctions(comp2).iterator();
-
-                    Function fct2 = null;
-                    boolean found = false;
-
-                    while (itFcts.hasNext() && (found == false))
-                    {
-                        fct2 = itFcts.next();
-
-                        if (fct2.calls(fct))
-                        {
-                            comp2.addRequiredInterface(itf);
-                            ++nbCallers;
-                            found = true;
-                        }
-                    }
-                }
+                Component comp2 = this.coa.getComponent(fct2);
+                comp2.addRequiredInterface(itf);
+                required = true;
             }
-
-            if (nbCallers > 0)
+            
+            if(required == true)
             {
                 comp.addProvidedInterface(itf);
-            }
-            else
-            {
-                this.coa.removeInterface(itf);
+
+                this.coa.addInterface(itf);
+                this.coa.addFunction(fct, itf);
             }
         }
     }
 
     /**
      * A COMPLETER
-     * 
-     * <p>
-     * Recherche les accès à une variable fournie par un composant. Une
-     * interface requise est créée pour chaque composant qui accède à cette
-     * fonction. Une interface fournie est créée pour le composant qui contient
-     * la variable en question.
-     * </p>
      * 
      * @param idxNode
      *            Index du composant qui fournit la variable en question
@@ -494,45 +467,28 @@ public class Dendogram implements Iterable<Dendogram.Node>
         for (final GlobalVariable var : this.coa.getComponentVariables(comp))
         {
             Interface itf = new Interface();
-            this.coa.addInterface(itf);
-            this.coa.addVariable(var, itf);
 
-            int nbAccessors = 0;
+            Set<Function> userFcts = this.sourceCode.getCoreFunctionUsing(var);
 
-            for (Component comp2 : this.architecture.getComponents())
+            boolean required = false;
+
+            for (Function fct : userFcts)
             {
+                Component comp2 = this.coa.getComponent(fct);
+
                 if (comp2.equals(comp) == false)
                 {
-                    Iterator<Function> itFcts =
-                            this.coa.getComponentFunctions(comp2).iterator();
-
-                    Function fct2 = null;
-                    boolean found = false;
-
-                    while (itFcts.hasNext() && (found == false))
-                    {
-                        fct2 = itFcts.next();
-
-                        final Map<GlobalVariable, Integer> varsFct2 =
-                                fct2.getGlobalVariables();
-
-                        if (varsFct2.containsKey(var))
-                        {
-                            comp2.addRequiredInterface(itf);
-                            ++nbAccessors;
-                            found = true;
-                        }
-                    }
+                    comp2.addRequiredInterface(itf);
+                    required = true;
                 }
             }
 
-            if (nbAccessors > 0)
+            if (required == true)
             {
                 comp.addProvidedInterface(itf);
-            }
-            else
-            {
-                this.coa.removeInterface(itf);
+
+                this.coa.addInterface(itf);
+                this.coa.addVariable(var, itf);
             }
         }
     }
@@ -560,67 +516,42 @@ public class Dendogram implements Iterable<Dendogram.Node>
         for (final ComplexType t : this.coa.getComponentTypes(comp))
         {
             Interface itf = new Interface();
-            this.coa.addInterface(itf);
-            this.coa.addType(t, itf);
 
-            int nbUsers = 0;
+            boolean required = false;
 
-            for (Component comp2 : this.architecture.getComponents())
+            Set<Function> userFcts = this.sourceCode.getCoreFunctionUsing(t);
+
+            Set<GlobalVariable> userVars =
+                    this.sourceCode.getCoreGlobalsUsing(t);
+
+            for (Function fct : userFcts)
             {
+                Component comp2 = this.coa.getComponent(fct);
+
                 if (comp2.equals(comp) == false)
                 {
-                    boolean found = false;
-
-                    Set<Function> fcts = this.coa.getComponentFunctions(comp2);
-                    Iterator<Function> itFcts = fcts.iterator();
-
-                    // A function of comp2 can use t within its body or it can
-                    // have an argument of this type
-                    while (itFcts.hasNext() && (found == false))
-                    {
-                        final Function fct2 = itFcts.next();
-
-                        // Body
-
-                        final Map<ComplexType, Integer> types = fct2.getUsedTypes();
-
-                        if (types.containsKey(t))
-                        {
-                            comp2.addRequiredInterface(itf);
-                            ++nbUsers;
-                            found = true;
-                        }
-                    }
-
-                    if (found == false)
-                    {
-                        // comp2 can have a global variable of type t
-                        Set<GlobalVariable> vars =
-                                this.coa.getComponentVariables(comp2);
-                        Iterator<GlobalVariable> itVars = vars.iterator();
-
-                        while (itVars.hasNext() && (found == false))
-                        {
-                            GlobalVariable v = itVars.next();
-
-                            if (v.ofType(t))
-                            {
-                                comp2.addRequiredInterface(itf);
-                                ++nbUsers;
-                                found = true;
-                            }
-                        }
-                    }
+                    comp2.addRequiredInterface(itf);
+                    required = true;
                 }
             }
 
-            if (nbUsers > 0)
+            for (GlobalVariable var : userVars)
+            {
+                Component comp2 = this.coa.getComponent(var);
+
+                if (comp2.equals(comp) == false)
+                {
+                    comp2.addRequiredInterface(itf);
+                    required = true;
+                }
+            }
+
+            if (required == true)
             {
                 comp.addProvidedInterface(itf);
-            }
-            else
-            {
-                this.coa.removeInterface(itf);
+
+                this.coa.addInterface(itf);
+                this.coa.addType(t, itf);
             }
         }
     }
