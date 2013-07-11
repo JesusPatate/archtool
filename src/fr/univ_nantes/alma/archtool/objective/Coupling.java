@@ -8,9 +8,9 @@ import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
+import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
 public class Coupling
@@ -30,8 +30,8 @@ public class Coupling
      * 
      * @see #coupling(Function, Function)
      * @see #coupling(Function, Variable)
-     * @see #coupling(Function, Type)
-     * @see #coupling(Variable, Type)
+     * @see #coupling(Function, ComplexType)
+     * @see #coupling(Variable, ComplexType)
      */
     public int componentCoupling(Component comp)
     {
@@ -39,7 +39,7 @@ public class Coupling
 
         Set<Function> functions = this.coa.getComponentFunctions(comp);
         Set<GlobalVariable> variables = this.coa.getComponentVariables(comp);
-        Set<Type> types = this.coa.getComponentTypes(comp);
+        Set<ComplexType> types = this.coa.getComponentTypes(comp);
 
         if (functions.size() > 0)
         {
@@ -59,7 +59,7 @@ public class Coupling
                 }
             }
 
-            for (Type type : types)
+            for (ComplexType type : types)
             {
                 for (Function fct : functions)
                 {
@@ -70,7 +70,7 @@ public class Coupling
 
         for (Variable var : variables)
         {
-            for (Type type : types)
+            for (ComplexType type : types)
             {
                 result += coupling(var, type);
             }
@@ -87,8 +87,8 @@ public class Coupling
      * 
      * @see #coupling(Function, Function)
      * @see #coupling(Function, Variable)
-     * @see #coupling(Function, Type)
-     * @see #coupling(Variable, Type)
+     * @see #coupling(Function, ComplexType)
+     * @see #coupling(Variable, ComplexType)
      */
     public int interfaceCoupling(Interface itf)
     {
@@ -96,7 +96,7 @@ public class Coupling
 
         Set<Function> functions = this.coa.getInterfaceFunctions(itf);
         Set<GlobalVariable> variables = this.coa.getInterfaceVariables(itf);
-        Set<Type> types = this.coa.getInterfaceTypes(itf);
+        Set<ComplexType> types = this.coa.getInterfaceTypes(itf);
 
         if (functions.size() > 0)
         {
@@ -116,7 +116,7 @@ public class Coupling
                 }
             }
 
-            for (Type type : types)
+            for (ComplexType type : types)
             {
                 for (Function fct : functions)
                 {
@@ -127,7 +127,7 @@ public class Coupling
 
         for (Variable var : variables)
         {
-            for (Type type : types)
+            for (ComplexType type : types)
             {
                 result += coupling(var, type);
             }
@@ -144,8 +144,8 @@ public class Coupling
      * 
      * @see #coupling(Function, Function)
      * @see #coupling(Function, Variable)
-     * @see #coupling(Function, Type)
-     * @see #coupling(Variable, Type)
+     * @see #coupling(Function, ComplexType)
+     * @see #coupling(Variable, ComplexType)
      */
     public int connectorCoupling(Connector con)
     {
@@ -153,7 +153,7 @@ public class Coupling
 
         Set<Function> functions = this.coa.getConnectorFunctions(con);
         Set<GlobalVariable> variables = this.coa.getConnectorVariables(con);
-        Set<Type> types = this.coa.getConnectorTypes(con);
+        Set<ComplexType> types = this.coa.getConnectorTypes(con);
 
         if (functions.size() > 0)
         {
@@ -173,7 +173,7 @@ public class Coupling
                 }
             }
 
-            for (Type type : types)
+            for (ComplexType type : types)
             {
                 for (Function fct : functions)
                 {
@@ -184,7 +184,7 @@ public class Coupling
 
         for (Variable var : variables)
         {
-            for (Type type : types)
+            for (ComplexType type : types)
             {
                 result += coupling(var, type);
             }
@@ -278,11 +278,11 @@ public class Coupling
      * @param type
      *            Un type d'un modèle de code source
      */
-    private int coupling(Function fct, Type type)
+    private int coupling(Function fct, ComplexType type)
     {
         int result = 0;
 
-        Map<Type, Integer> usedTypes = fct.getUsedTypes();
+        Map<ComplexType, Integer> usedTypes = fct.getUsedTypes();
 
         if (usedTypes.containsKey(type))
         {
@@ -295,7 +295,7 @@ public class Coupling
     /**
      * Mesure le couplage entre une variable et un type.
      */
-    private int coupling(Variable var, Type type)
+    private int coupling(Variable var, ComplexType type)
     {
         return var.ofType(type) ? 1 : 0;
     }

@@ -1,7 +1,6 @@
 package fr.univ_nantes.alma.archtool.objective;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,7 +14,6 @@ import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.LocalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.PrimitiveType;
-import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
 public class Cohesion
@@ -89,8 +87,8 @@ public class Cohesion
         Set<GlobalVariable> variables1 = this.coa.getInterfaceVariables(itf1);
         Set<GlobalVariable> variables2 = this.coa.getInterfaceVariables(itf2);
 
-        Set<Type> types1 = this.coa.getInterfaceTypes(itf1);
-        Set<Type> types2 = this.coa.getInterfaceTypes(itf2);
+        Set<ComplexType> types1 = this.coa.getInterfaceTypes(itf1);
+        Set<ComplexType> types2 = this.coa.getInterfaceTypes(itf2);
 
         int nbPairs = 0;
 
@@ -108,7 +106,7 @@ public class Cohesion
                 ++nbPairs;
             }
 
-            for (Type t2 : types2)
+            for (ComplexType t2 : types2)
             {
                 result += cohesion(fct1, t2);
                 ++nbPairs;
@@ -123,7 +121,7 @@ public class Cohesion
                 ++nbPairs;
             }
 
-            for (Type t1 : types1)
+            for (ComplexType t1 : types1)
             {
                 result += cohesion(fct2, t1);
                 ++nbPairs;
@@ -331,9 +329,9 @@ public class Cohesion
             Function[] fctArray = new Function[nbFunctions];
             this.coa.getComponentFunctions(comp).toArray(fctArray);
 
-            for (int i = 0 ; i < (nbFunctions - 1) ; ++i)
+            for (int i = 0; i < (nbFunctions - 1); ++i)
             {
-                for (int j = (i + 1) ; j < nbFunctions ; ++j)
+                for (int j = (i + 1); j < nbFunctions; ++j)
                 {
                     final Function f1 = fctArray[i];
                     final Function f2 = fctArray[j];
@@ -374,9 +372,9 @@ public class Cohesion
             Function[] fctArray = new Function[nbFunctions];
             this.coa.getInterfaceFunctions(itf).toArray(fctArray);
 
-            for (int i = 0 ; i < (nbFunctions - 2) ; ++i)
+            for (int i = 0; i < (nbFunctions - 2); ++i)
             {
-                for (int j = (i + 1) ; j < (nbFunctions - 1) ; ++j)
+                for (int j = (i + 1); j < (nbFunctions - 1); ++j)
                 {
                     final Function f1 = fctArray[i];
                     final Function f2 = fctArray[j];
@@ -412,9 +410,9 @@ public class Cohesion
             Function[] fctArray = new Function[nbFunctions];
             this.coa.getConnectorFunctions(con).toArray(fctArray);
 
-            for (int i = 0 ; i < (nbFunctions - 2) ; ++i)
+            for (int i = 0; i < (nbFunctions - 2); ++i)
             {
-                for (int j = (i + 1) ; j < (nbFunctions - 1) ; ++j)
+                for (int j = (i + 1); j < (nbFunctions - 1); ++j)
                 {
                     final Function f1 = fctArray[i];
                     final Function f2 = fctArray[j];
@@ -549,11 +547,11 @@ public class Cohesion
         double sum = 0.0;
 
         Set<Function> compFcts = this.coa.getComponentFunctions(comp);
-        Set<Type> compTypes = this.coa.getComponentTypes(comp);
+        Set<ComplexType> compTypes = this.coa.getComponentTypes(comp);
 
         for (Function fct : compFcts)
         {
-            for (Type type : compTypes)
+            for (ComplexType type : compTypes)
             {
                 sum += this.cohesion(fct, type);
             }
@@ -584,11 +582,11 @@ public class Cohesion
         double sum = 0.0;
 
         Set<Function> itfFcts = this.coa.getInterfaceFunctions(itf);
-        Set<Type> itfTypes = this.coa.getInterfaceTypes(itf);
+        Set<ComplexType> itfTypes = this.coa.getInterfaceTypes(itf);
 
         for (Function fct : itfFcts)
         {
-            for (Type type : itfTypes)
+            for (ComplexType type : itfTypes)
             {
                 sum += this.cohesion(fct, type);
             }
@@ -619,11 +617,11 @@ public class Cohesion
         double sum = 0.0;
 
         Set<Function> conFcts = this.coa.getConnectorFunctions(con);
-        Set<Type> conTypes = this.coa.getConnectorTypes(con);
+        Set<ComplexType> conTypes = this.coa.getConnectorTypes(con);
 
         for (Function fct : conFcts)
         {
-            for (Type type : conTypes)
+            for (ComplexType type : conTypes)
             {
                 sum += this.cohesion(fct, type);
             }
@@ -659,11 +657,11 @@ public class Cohesion
         double sum = 0.0;
 
         Set<GlobalVariable> compVars = this.coa.getComponentVariables(comp);
-        Set<Type> compTypes = this.coa.getComponentTypes(comp);
+        Set<ComplexType> compTypes = this.coa.getComponentTypes(comp);
 
         for (Variable var : compVars)
         {
-            for (Type t : compTypes)
+            for (ComplexType t : compTypes)
             {
                 if (var.ofType(t))
                 {
@@ -702,11 +700,11 @@ public class Cohesion
         double sum = 0.0;
 
         Set<GlobalVariable> compVars = this.coa.getInterfaceVariables(itf);
-        Set<Type> compTypes = this.coa.getInterfaceTypes(itf);
+        Set<ComplexType> compTypes = this.coa.getInterfaceTypes(itf);
 
         for (Variable var : compVars)
         {
-            for (Type t : compTypes)
+            for (ComplexType t : compTypes)
             {
                 if (var.ofType(t))
                 {
@@ -745,11 +743,11 @@ public class Cohesion
         double sum = 0.0;
 
         Set<GlobalVariable> compVars = this.coa.getConnectorVariables(con);
-        Set<Type> compTypes = this.coa.getConnectorTypes(con);
+        Set<ComplexType> compTypes = this.coa.getConnectorTypes(con);
 
         for (Variable var : compVars)
         {
-            for (Type t : compTypes)
+            for (ComplexType t : compTypes)
             {
                 if (var.ofType(t))
                 {
@@ -813,15 +811,16 @@ public class Cohesion
             }
         }
 
-        result /= WEIGHT_FCT_COHESION_CALLS + WEIGHT_FCT_COHESION_GLOBALS
-                + WEIGHT_FCT_COHESION_LOCALS + WEIGHT_FCT_COHESION_TYPES
-                + WEIGHT_FCT_COHESION_ARGS;
+        result /=
+                WEIGHT_FCT_COHESION_CALLS + WEIGHT_FCT_COHESION_GLOBALS
+                        + WEIGHT_FCT_COHESION_LOCALS
+                        + WEIGHT_FCT_COHESION_TYPES + WEIGHT_FCT_COHESION_ARGS;
 
         result = (result > 1.0) ? 1.0 : result;
 
-//        System.out.println(f1.getName() + " - " + f2.getName() + " : "
-//                + "CC=" + cc + " CG=" + cg + " CL=" + cl + " CT=" + ct
-//                + " CA=" + ca + " -- " + result); // DBG
+//         System.out.println(f1.getName() + " - " + f2.getName() + " : "
+//         + "CC=" + cc + " CG=" + cg + " CL=" + cl + " CT=" + ct
+//         + " CA=" + ca + " -- " + result); // DBG
 
         return result;
     }
@@ -896,15 +895,15 @@ public class Cohesion
      * 
      * @return Un double entre 0.0 et 1.0
      */
-    private double cohesion(final Function fct, Type type)
+    private double cohesion(final Function fct, ComplexType type)
     {
         double result = 0.0;
         double nbUsesOfType = 0.0;
         double total = 0.0; // Total uses of types
 
-        Map<Type, Integer> usedTypes = fct.getUsedTypes();
+        Map<ComplexType, Integer> usedTypes = fct.getUsedTypes();
 
-        for (Type t : usedTypes.keySet())
+        for (ComplexType t : usedTypes.keySet())
         {
             if (t.equals(type))
             {
@@ -952,25 +951,31 @@ public class Cohesion
     private double cohesionGlobalVars(Function f1, Function f2)
     {
         double result = 0.0;
-        double nbPGVars = 0;
-        double nbCommon = 0;
 
         Map<GlobalVariable, Integer> globalVars1 = f1.getGlobalVariables();
         Map<GlobalVariable, Integer> globalVars2 = f2.getGlobalVariables();
+        
+        Set<GlobalVariable> globalVarsTotal = new HashSet<GlobalVariable>();
+        Set<GlobalVariable> globalVarsCommon = new HashSet<GlobalVariable>();
 
         for (GlobalVariable var : globalVars1.keySet())
         {
-            if (globalVars2.containsKey(var))
+            globalVarsTotal.add(var);
+        }
+        
+        for (GlobalVariable var : globalVars2.keySet())
+        {
+            boolean newVar = globalVarsTotal.add(var);
+            
+            if(newVar == false)
             {
-                ++nbCommon;
+                globalVarsCommon.add(var);
             }
         }
 
-        nbPGVars = globalVars1.size() + globalVars2.size() - nbCommon;
-
-        if (nbPGVars > 0)
+        if (globalVarsTotal.size() > 0)
         {
-            result = nbCommon / nbPGVars;
+            result = globalVarsCommon.size() / globalVarsTotal.size();
         }
 
         return result;
@@ -1001,7 +1006,6 @@ public class Cohesion
 
         Map<LocalVariable, Integer> localVars1 = f1.getLocals();
         Map<LocalVariable, Integer> localVars2 = f2.getLocals();
-        Set<LocalVariable> localVars = new HashSet<LocalVariable>();
 
         for (LocalVariable var1 : localVars1.keySet())
         {
@@ -1017,16 +1021,15 @@ public class Cohesion
                             ++nbCommon;
                         }
                     }
-
-                    localVars.add(var1);
-                    localVars.add(var2);
                 }
             }
         }
+        
+        double nbPairs = localVars1.size() * localVars2.size();
 
-        if (localVars.size() > 0)
+        if (nbPairs > 0)
         {
-            result = nbCommon / localVars.size();
+            result = nbCommon / nbPairs;
         }
 
         return result;
@@ -1052,38 +1055,39 @@ public class Cohesion
     private double cohesionTypes(Function f1, Function f2)
     {
         double result = 0.0;
-        double nbCommon = 0;
 
-        Map<Type, Integer> usedTypesFct1 = f1.getUsedTypes();
-        Map<Type, Integer> usedTypesFct2 = f2.getUsedTypes();
-        Set<Type> usedTypes = new HashSet<Type>();
+        Map<ComplexType, Integer> usedTypesFct1 = f1.getUsedTypes();
+        Map<ComplexType, Integer> usedTypesFct2 = f2.getUsedTypes();
+        
+        Set<ComplexType> usedTypesTotal = new HashSet<ComplexType>();
+        Set<ComplexType> usedTypesCommon = new HashSet<ComplexType>();
 
-        for (Type t : usedTypesFct1.keySet())
+        for (ComplexType t : usedTypesFct1.keySet())
         {
             if (t.equals(PrimitiveType.voidType) == false
                     && t.equals(ComplexType.anonymousType) == false)
             {
-                if (usedTypesFct2.containsKey(t))
+                usedTypesTotal.add(t);
+            }
+        }
+
+        for (ComplexType t : usedTypesFct2.keySet())
+        {
+            if (t.equals(PrimitiveType.voidType) == false
+                    && t.equals(ComplexType.anonymousType) == false)
+            {
+                boolean newType = usedTypesTotal.add(t);
+                
+                if(newType == false)
                 {
-                    ++nbCommon;
+                    usedTypesCommon.add(t);
                 }
-
-                usedTypes.add(t);
             }
         }
 
-        for (Type t : usedTypesFct2.keySet())
+        if (usedTypesTotal.size() > 0)
         {
-            if (t.equals(PrimitiveType.voidType) == false
-                    && t.equals(ComplexType.anonymousType) == false)
-            {
-                usedTypes.add(t);
-            }
-        }
-
-        if (usedTypes.size() > 0)
-        {
-            result = nbCommon / usedTypes.size();
+            result = ((double) usedTypesCommon.size()) / usedTypesTotal.size();
         }
 
         return result;
@@ -1110,34 +1114,30 @@ public class Cohesion
     private double cohesionCalls(Function f1, Function f2)
     {
         double result = 0.0;
-        double nbCalls = 0;
-        double nbCommon = 0;
 
         Set<Call> calls1 = f1.getCalls();
         Set<Call> calls2 = f2.getCalls();
-        
+
         Set<Function> fctCalledTotal = new HashSet<Function>();
         Set<Function> fctCalledCommon = new HashSet<Function>();
-        
+
         for (Call call : calls1)
         {
             fctCalledTotal.add(call.getFunction());
         }
-        
+
         for (Call call : calls2)
         {
             boolean added = false;
-            
+
             added = fctCalledTotal.add(call.getFunction());
-            
-            if(added == false)
+
+            if (added == false)
             {
                 fctCalledCommon.add(call.getFunction());
             }
         }
-        
-//        System.out.println("nbCalls=" + fctCalledTotal.size() + " nbCommon=" + fctCalledCommon.size()); // DBG
-        
+
         if (fctCalledTotal.size() > 0)
         {
             result = ((double) fctCalledCommon.size()) / fctCalledTotal.size();

@@ -7,9 +7,9 @@ import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.coa.COA;
+import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.Type;
 import fr.univ_nantes.alma.archtool.utils.Graph;
 
 public class ObjectiveFunction
@@ -297,7 +297,7 @@ public class ObjectiveFunction
         
         Set<Function> conFcts = this.coa.getConnectorFunctions(con);
         Set<GlobalVariable> conVars = this.coa.getConnectorVariables(con);
-        Set<Type> conTypes = this.coa.getConnectorTypes(con);
+        Set<ComplexType> conTypes = this.coa.getConnectorTypes(con);
         
         for(Function fct : conFcts)
         {
@@ -309,7 +309,7 @@ public class ObjectiveFunction
             graph.addNode(var);
         }
 
-        for(Type t : conTypes)
+        for(ComplexType t : conTypes)
         {
             graph.addNode(t);
         }
@@ -321,7 +321,7 @@ public class ObjectiveFunction
                 graph.addEdge(fct, var);
             }
             
-            for(Type t : fct.getUsedTypes().keySet())
+            for(ComplexType t : fct.getUsedTypes().keySet())
             {
                 graph.addEdge(fct, t);
             }

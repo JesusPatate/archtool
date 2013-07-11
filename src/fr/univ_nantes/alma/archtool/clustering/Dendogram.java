@@ -16,7 +16,6 @@ import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
-import fr.univ_nantes.alma.archtool.sourceModel.Type;
 
 public class Dendogram implements Iterable<Dendogram.Node>
 {
@@ -32,7 +31,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
     {
         private Set<Function> functions = new HashSet<Function>();
         private Set<GlobalVariable> variables = new HashSet<GlobalVariable>();
-        private Set<Type> types = new HashSet<Type>();
+        private Set<ComplexType> types = new HashSet<ComplexType>();
 
         private Node leftChild = null;
         private Node rightChild = null;
@@ -77,7 +76,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
         {
             this.functions = new HashSet<Function>(node.functions);
             this.variables = new HashSet<GlobalVariable>(node.variables);
-            this.types = new HashSet<Type>(node.types);
+            this.types = new HashSet<ComplexType>(node.types);
 
             this.leftChild = node.leftChild;
             this.rightChild = node.rightChild;
@@ -103,12 +102,12 @@ public class Dendogram implements Iterable<Dendogram.Node>
             return this.variables.add(var);
         }
 
-        public Set<Type> getTypes()
+        public Set<ComplexType> getTypes()
         {
-            return new HashSet<Type>(this.types);
+            return new HashSet<ComplexType>(this.types);
         }
 
-        public boolean addType(Type t)
+        public boolean addType(ComplexType t)
         {
             return this.types.add(t);
         }
@@ -139,7 +138,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
                 buf.append(", ");
             }
 
-            for (Type t : this.types)
+            for (ComplexType t : this.types)
             {
                 buf.append(t.getName());
                 buf.append(", ");
@@ -370,7 +369,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
      */
     private void extractTypes()
     {
-        for (final Type t : this.sourceCode.getTypes())
+        for (final ComplexType t : this.sourceCode.getTypes())
         {
             final Dendogram.Node node = new Node();
             node.addType(t);
@@ -558,7 +557,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
     private void processInterfacesType(Component comp)
     {
-        for (final Type t : this.coa.getComponentTypes(comp))
+        for (final ComplexType t : this.coa.getComponentTypes(comp))
         {
             Interface itf = new Interface();
             this.coa.addInterface(itf);
