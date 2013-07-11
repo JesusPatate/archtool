@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
@@ -33,7 +34,7 @@ public class COAInterfaces
     /**
      * Retourne l'ensemble des fonctions d'une interface.
      */
-    public Set<Function> getInterfaceFunctions(Interface itf)
+    public Set<Function> getFunctions(Interface itf)
     {
         return this.itfToFcts.get(itf);
     }
@@ -41,7 +42,7 @@ public class COAInterfaces
     /**
      * Retourne l'ensemble des variables d'une interface.
      */
-    public Set<GlobalVariable> getInterfaceVariables(Interface itf)
+    public Set<GlobalVariable> getVariables(Interface itf)
     {
         return this.itfToVars.get(itf);
     }
@@ -49,9 +50,39 @@ public class COAInterfaces
     /**
      * Retourne l'ensemble des types d'une interface.
      */
-    public Set<ComplexType> getInterfaceTypes(Interface itf)
+    public Set<ComplexType> getTypes(Interface itf)
     {
         return this.itfToTypes.get(itf);
+    }
+    
+    /**
+     * Retourne l'interface qui contient une fonction donnée.
+     * 
+     * @param fct La fonction recherchée.
+     */
+    public Interface getInterface(final Function fct)
+    {
+        return this.fctToItf.get(fct);
+    }
+
+    /**
+     * Retourne l'interface qui contient une variable donnée.
+     * 
+     * @param var La variable recherchée.
+     */
+    public Interface getInterface(final GlobalVariable var)
+    {
+        return this.varToItf.get(var);
+    }
+
+    /**
+     * Retourne le connecteur qui contient un type donné.
+     * 
+     * @param t Le type recherché.
+     */
+    public Set<Interface> getInterface(final ComplexType t)
+    {
+        return this.typeToItf.get(t);
     }
 
     /**
@@ -125,15 +156,23 @@ public class COAInterfaces
     {
         boolean done = false;
 
-        Set<Function> itfFcts = this.itfToFcts.get(itf);
-
-        if (itfFcts.contains(fct) == false)
+        if(this.fctToItf.containsKey(fct) == false)
         {
-            itfFcts.add(fct);
-            this.itfToFcts.put(itf, itfFcts);
             this.fctToItf.put(fct, itf);
-
-            done = true;
+            
+            if(this.itfToFcts.containsKey(itf) == false)
+            {
+                Set<Function> itfFcts = new HashSet<Function>();
+                itfFcts.add(fct);
+                
+                this.itfToFcts.put(itf, itfFcts);
+                done = true;
+            }
+            
+            else
+            {
+                done = this.itfToFcts.get(itf).add(fct);
+            }
         }
 
         return done;
@@ -196,15 +235,23 @@ public class COAInterfaces
     {
         boolean done = false;
 
-        Set<GlobalVariable> itfVars = this.itfToVars.get(itf);
-
-        if (itfVars.contains(var) == false)
+        if(this.varToItf.containsKey(var) == false)
         {
-            itfVars.add(var);
-            this.itfToVars.put(itf, itfVars);
             this.varToItf.put(var, itf);
-
-            done = true;
+            
+            if(this.itfToVars.containsKey(itf) == false)
+            {
+                Set<GlobalVariable> itfVars = new HashSet<GlobalVariable>();
+                itfVars.add(var);
+                
+                this.itfToVars.put(itf, itfVars);
+                done = true;
+            }
+            
+            else
+            {
+                done = this.itfToVars.get(itf).add(var);
+            }
         }
 
         return done;
@@ -266,29 +313,33 @@ public class COAInterfaces
     {
         boolean done = false;
         
-        Set<ComplexType> itfTypes = this.itfToTypes.get(itf);
-        
-        if (itfTypes.contains(t) == false)
+        if(this.itfToTypes.containsKey(itf) == false)
         {
+            Set<ComplexType> itfTypes = new HashSet<ComplexType>();
             itfTypes.add(t);
+            
             this.itfToTypes.put(itf, itfTypes);
-            
-            Set<Interface> typeItfs = null;
-            
-            if(this.typeToItf.containsKey(t))
-            {
-                typeItfs = this.typeToItf.get(t);
-            }
-            else
-            {
-                typeItfs = new HashSet<Interface>();
-            }
-            
-            typeItfs.add(itf);
-            this.typeToItf.put(t, typeItfs);
-
             done = true;
         }
+        
+        else
+        {
+            done = this.itfToTypes.get(itf).add(t);
+        }
+        
+        Set<Interface> typeItfs = null;
+
+        if (this.typeToItf.containsKey(t))
+        {
+            typeItfs = this.typeToItf.get(t);
+        }
+        else
+        {
+            typeItfs = new HashSet<Interface>();
+        }
+
+        typeItfs.add(itf);
+        this.typeToItf.put(t, typeItfs);
 
         return done;
     }

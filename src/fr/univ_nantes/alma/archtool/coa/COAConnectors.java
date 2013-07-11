@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -29,7 +31,7 @@ public class COAConnectors
     /**
      * Retourne l'ensemble des fonctions d'un connecteur.
      */
-    public Set<Function> getConnectorFunctions(Connector con)
+    public Set<Function> getFunctions(Connector con)
     {
         return this.conToFcts.get(con);
     }
@@ -37,7 +39,7 @@ public class COAConnectors
     /**
      * Retourne l'ensemble des variables d'un connecteur.
      */
-    public Set<GlobalVariable> getConnectorVariables(Connector con)
+    public Set<GlobalVariable> getVariables(Connector con)
     {
         return this.conToVars.get(con);
     }
@@ -45,9 +47,39 @@ public class COAConnectors
     /**
      * Retourne l'ensemble des types d'un connecteur.
      */
-    public Set<ComplexType> getConnectorTypes(Connector con)
+    public Set<ComplexType> getTypes(Connector con)
     {
         return this.conToTypes.get(con);
+    }
+    
+    /**
+     * Retourne le connecteur qui contient une fonction donnée.
+     * 
+     * @param fct La fonction recherchée.
+     */
+    public Connector getConnector(final Function fct)
+    {
+        return this.fctToCon.get(fct);
+    }
+
+    /**
+     * Retourne le connecteur qui contient une variable donnée.
+     * 
+     * @param var La variable recherchée.
+     */
+    public Connector getConnector(final GlobalVariable var)
+    {
+        return this.varToCon.get(var);
+    }
+
+    /**
+     * Retourne le connecteur qui contient un type donné.
+     * 
+     * @param t Le type recherché.
+     */
+    public Connector getConnector(final ComplexType t)
+    {
+        return this.typeToCon.get(t);
     }
     
     /**
