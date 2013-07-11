@@ -8,14 +8,31 @@ import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
+import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 
 public class COA
 {
-    public COAComponents coaComponents = new COAComponents();
+    public COAComponents coaComponents;
     
-    public COAInterfaces coaInterfaces = new COAInterfaces();
+    public COAInterfaces coaInterfaces;
     
-    public COAConnectors coaConnectors = new COAConnectors();
+    public COAConnectors coaConnectors;
+    
+    
+    private SourceCode sourceCode;
+    
+    public COA(SourceCode sourceCode)
+    {
+        this.sourceCode = sourceCode;
+        this.coaComponents = new COAComponents(this.sourceCode);
+        this.coaInterfaces = new COAInterfaces();
+        this.coaConnectors = new COAConnectors();
+    }
+    
+    public SourceCode getSourceCode()
+    {
+        return this.sourceCode;
+    }
     
     /**
      * Retourne l'ensemble des fonctions d'un composant.
@@ -450,30 +467,6 @@ public class COA
     public boolean addConnector(Connector con)
     {
         return this.coaConnectors.newConnector(con);
-    }
-    
-    /**
-     * Teste si un composant est présent dans le COA.
-     */
-    private boolean knows(Component comp)
-    {
-        return this.coaComponents.knows(comp);
-    }
-    
-    /**
-     * Teste si un connecteur est présent dans le COA.
-     */
-    private boolean knows(Connector con)
-    {
-        return this.coaConnectors.knows(con);
-    }
-    
-    /**
-     * Teste si une interface est présente dans le COA.
-     */
-    private boolean knows(Interface itf)
-    {
-        return this.coaInterfaces.knows(itf);
     }
     
     public String toString()

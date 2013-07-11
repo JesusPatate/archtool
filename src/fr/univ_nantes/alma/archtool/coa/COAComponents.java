@@ -2,6 +2,7 @@ package fr.univ_nantes.alma.archtool.coa;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -9,21 +10,35 @@ import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
+import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 
 class COAComponents
 {
-    private Map<Function, Component> fctToComp = new HashMap<Function, Component>();
+    private Map<Function, Component> fctToComp = 
+            new HashMap<Function, Component>();
 
-    private Map<GlobalVariable, Component> varToComp = new HashMap<GlobalVariable, Component>();
+    private Map<GlobalVariable, Component> varToComp = 
+            new HashMap<GlobalVariable, Component>();
 
-    private Map<ComplexType, Component> typeToComp = new HashMap<ComplexType, Component>();
+    private Map<ComplexType, Component> typeToComp = 
+            new HashMap<ComplexType, Component>();
 
-    private Map<Component, Set<Function>> compToFcts = new HashMap<Component, Set<Function>>();
+    private Map<Component, Set<Function>> compToFcts = 
+            new HashMap<Component, Set<Function>>();
 
-    private Map<Component, Set<GlobalVariable>> compToVars = new HashMap<Component, Set<GlobalVariable>>();
+    private Map<Component, Set<GlobalVariable>> compToVars = 
+            new HashMap<Component, Set<GlobalVariable>>();
 
-    private Map<Component, Set<ComplexType>> compToTypes = new HashMap<Component, Set<ComplexType>>();
+    private Map<Component, Set<ComplexType>> compToTypes = 
+            new HashMap<Component, Set<ComplexType>>();
 
+    private SourceCode sourceCode;
+    
+    public COAComponents(SourceCode sourceCode)
+    {
+        this.sourceCode = sourceCode;
+    }
+    
     /**
      * Retourne l'ensemble des fonctions d'un composant.
      */
@@ -303,6 +318,54 @@ class COAComponents
         }
 
         return done;
+    }
+    
+    /**
+     * Retourne toutes les fonctions d'un composant qui utilise des éléments
+     *  extérieurs au composant
+     */
+    public Set<Function> getFunctionsToOut(Component component)
+    {
+        Set<Function> toOut = new HashSet<Function>();
+        
+        for(Function function : this.compToFcts.get(component))
+        {
+            boolean useOut = false;
+            
+            Iterator<Function> funcIter = this.sourceCode.
+                    getCoreFunctionsCalledBy(function).iterator();
+            
+            while(!useOut && funcIter.hasNext())
+            {
+                Function called = funcIter.next();
+                useOut = this.fctToComp.get(called) != component;
+            }
+            
+            Iterator<ComplexType> typeIter = this.sourceCode.
+                    getCoreTypesUsedBy(function).iterator();
+            
+            while(!useOut && typeIter.hasNext())
+            {
+                ComplexType used = typeIter.next();
+                useOut = this.typeToComp.get(used) != component;
+            }
+            
+            Iterator<GlobalVariable> globalIter = this.sourceCode.
+                    getGlobalsUsedBy(function).iterator();
+            
+            while(!useOut && globalIter.hasNext())
+            {
+                GlobalVariable used = globalIter.next();
+                useOut = this.typeToComp.get(used) != component;
+            }
+            
+            if(useOut)
+            {
+                toOut.add(function);
+            }
+        }
+        
+        return toOut;
     }
 
     /**
