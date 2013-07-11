@@ -46,7 +46,7 @@ public class ObjectiveFunction
      * Poids de la spécificité des composants dans le calcul de la validité
      * sémantique des composants.
      */
-    static final double WEIGHT_COMP_SPECI = 0.25;
+    static final double WEIGHT_COMP_SPECI = 1.0;
 
     /**
      * Poids de la composabilité des composants dans le calcul de la validité
@@ -64,13 +64,13 @@ public class ObjectiveFunction
      * Poids du nombre d'interfaces fournies dans le calcul de la spécificité
      * des composants
      */
-    static final double WEIGHT_SPECI_ITFS_PRO = 1.0;
+    static final double WEIGHT_SPECI_ITFS_PRO = 10.0;
 
     /**
      * Poids du nombre d'interfaces requises dans le calcul de la composabilité
      * des composants
      */
-    static final double WEIGHT_COMPO_ITFS_REQ = 1.0;
+    static final double WEIGHT_COMPO_ITFS_REQ = 10.0;
 
     /**
      * Poids de la maintenabilité des éléments architecturaux dans le calcul de
@@ -126,7 +126,7 @@ public class ObjectiveFunction
         this.maintainability = new Maintainability(this.coa);
 
         result += WEIGHT_SEM * this.evaluateSemanticArchitecture();
-        result +=  WEIGHT_QUAL * this.evaluateArchQuality();
+//        result +=  WEIGHT_QUAL * this.evaluateArchQuality();
 
         return result;
     }
@@ -196,24 +196,16 @@ public class ObjectiveFunction
     {
         double result = 0.0;
 
-        for (Connector comp : this.architecture.getConnectors())
+        for (Connector con : this.architecture.getConnectors())
         {
             double subresult = 0.0;
 
-            /*
-            double compo = this.composability(comp);
-            subresult = ObjectiveFunction.WEIGHT_COMP_COMPO * compo;
-             */
-            
-            double inde = this.independence(comp);
-            subresult += ObjectiveFunction.WEIGHT_COMP_INDE * inde;
-
-            double spec = this.specificity(comp);
+            double spec = this.specificity(con);
             subresult += ObjectiveFunction.WEIGHT_COMP_SPECI * spec;
 
-            subresult /= ObjectiveFunction.WEIGHT_COMP_COMPO
-                    + ObjectiveFunction.WEIGHT_COMP_INDE
-                    + ObjectiveFunction.WEIGHT_COMP_SPECI;
+//            subresult *= this.independence(con);
+            
+            subresult /= ObjectiveFunction.WEIGHT_COMP_SPECI;
 
             result += subresult;
         }
@@ -414,7 +406,7 @@ public class ObjectiveFunction
 
         result -= WEIGHT_SPECI_ITFS_PRO * nbProInterfaces;
 
-        return result;
+        return 0.25 * result; // TODO Déplacer dans une constante
     }
 
     /**
@@ -434,7 +426,7 @@ public class ObjectiveFunction
         result += this.cohesion.connectorInternalCohesion(con);
         result += coupling.connectorCoupling(con);
 
-        return result;
+        return 0.5 * result; // TODO Déplacer dans une constante
     }
 
     private double evaluateMaintainability()
