@@ -16,7 +16,6 @@ import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
-import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 
 public class Dendogram implements Iterable<Dendogram.Node>
 {
