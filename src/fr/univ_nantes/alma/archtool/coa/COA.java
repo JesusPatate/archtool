@@ -13,13 +13,13 @@ import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 
 public class COA
 {
-    private COAComponents coaComponents = new COAComponents();
+    private SubCOA<Component> coaComponents = new SubCOA<Component>();
     
-    private COAInterfaces coaInterfaces = new COAInterfaces();
+    private SubCOA<Interface> coaInterfaces = new SubCOA<Interface>();
     
-    private COAConnectors coaConnectors = new COAConnectors();
+    private SubCOA<Connector> coaConnectors = new SubCOA<Connector>();
     
-    private COAFacades coaFacades = new COAFacades();
+    private SubCOA<Facade> coaFacades = new SubCOA<Facade>();
     
     /**
      * Retourne l'ensemble des fonctions d'un composant.
@@ -32,17 +32,17 @@ public class COA
     /**
      * Retourne l'ensemble des variables d'un composant.
      */
-    public Set<GlobalVariable> getComponentVariables(Component comp)
+    public Set<GlobalVariable> getComponentGlobalVariables(Component comp)
     {
-        return this.coaComponents.getVariables(comp);
+        return this.coaComponents.getGlobalVariables(comp);
     }
     
     /**
      * Retourne l'ensemble des types d'un composant.
      */
-    public Set<ComplexType> getComponentTypes(Component comp)
+    public Set<ComplexType> getComponentComplexTypes(Component comp)
     {
-        return this.coaComponents.getTypes(comp);
+        return this.coaComponents.getComplexTypes(comp);
     }
     
     /**
@@ -56,17 +56,17 @@ public class COA
     /**
      * Retourne l'ensemble des variables d'une interface.
      */
-    public Set<GlobalVariable> getInterfaceVariables(Interface itf)
+    public Set<GlobalVariable> getInterfaceGlobalVariables(Interface itf)
     {
-        return this.coaInterfaces.getVariables(itf);
+        return this.coaInterfaces.getGlobalVariables(itf);
     }
     
     /**
      * Retourne l'ensemble des types d'une interface.
      */
-    public Set<ComplexType> getInterfaceTypes(Interface itf)
+    public Set<ComplexType> getInterfaceComplexTypes(Interface itf)
     {
-        return this.coaInterfaces.getTypes(itf);
+        return this.coaInterfaces.getComplexTypes(itf);
     }
     
     /**
@@ -80,17 +80,17 @@ public class COA
     /**
      * Retourne l'ensemble des variables d'une interface.
      */
-    public Set<GlobalVariable> getConnectorVariables(Connector con)
+    public Set<GlobalVariable> getConnectorGlobalVariables(Connector con)
     {
-        return this.coaConnectors.getVariables(con);
+        return this.coaConnectors.getGlobalVariables(con);
     }
     
     /**
      * Retourne l'ensemble des types d'une interface.
      */
-    public Set<ComplexType> getConnectorTypes(Connector con)
+    public Set<ComplexType> getConnectorComplexTypes(Connector con)
     {
-        return this.coaConnectors.getTypes(con);
+        return this.coaConnectors.getComplexTypes(con);
     }
     
     /**
@@ -104,17 +104,17 @@ public class COA
     /**
      * Retourne l'ensemble des variables d'une facade.
      */
-    public Set<GlobalVariable> getFacadeVariables(Facade fcd)
+    public Set<GlobalVariable> getFacadeGlobalVariables(Facade fcd)
     {
-        return this.coaFacades.getVariables(fcd);
+        return this.coaFacades.getGlobalVariables(fcd);
     }
     
     /**
      * Retourne l'ensemble des types d'une facade.
      */
-    public Set<ComplexType> getFacadeTypes(Facade fcd)
+    public Set<ComplexType> getFacadeComplexTypes(Facade fcd)
     {
-        return this.coaFacades.getTypes(fcd);
+        return this.coaFacades.getComplexTypes(fcd);
     }
     
     /**
@@ -124,7 +124,7 @@ public class COA
      */
     public Component getComponent(final Function fct)
     {
-        return this.coaComponents.getComponent(fct);
+        return this.coaComponents.getArchElement(fct);
     }
 
     /**
@@ -134,7 +134,7 @@ public class COA
      */
     public Component getComponent(final GlobalVariable var)
     {
-        return this.coaComponents.getComponent(var);
+        return this.coaComponents.getArchElement(var);
     }
 
     /**
@@ -144,7 +144,7 @@ public class COA
      */
     public Component getComponent(final ComplexType t)
     {
-        return this.coaComponents.getComponent(t);
+        return this.coaComponents.getArchElement(t);
     }
     
     /**
@@ -154,7 +154,7 @@ public class COA
      */
     public Interface getInterface(final Function fct)
     {
-        return this.coaInterfaces.getInterface(fct);
+        return this.coaInterfaces.getArchElement(fct);
     }
 
     /**
@@ -164,7 +164,7 @@ public class COA
      */
     public Interface getInterface(final GlobalVariable var)
     {
-        return this.coaInterfaces.getInterface(var);
+        return this.coaInterfaces.getArchElement(var);
     }
 
     /**
@@ -174,7 +174,7 @@ public class COA
      */
     public Interface getInterface(final ComplexType t)
     {
-        return this.coaInterfaces.getInterface(t);
+        return this.coaInterfaces.getArchElement(t);
     }
     
     /**
@@ -184,7 +184,7 @@ public class COA
      */
     public Connector getConnector(final Function fct)
     {
-        return this.coaConnectors.getConnector(fct);
+        return this.coaConnectors.getArchElement(fct);
     }
 
     /**
@@ -194,7 +194,7 @@ public class COA
      */
     public Connector getConnector(final GlobalVariable var)
     {
-        return this.coaConnectors.getConnector(var);
+        return this.coaConnectors.getArchElement(var);
     }
 
     /**
@@ -204,7 +204,7 @@ public class COA
      */
     public Connector getConnector(final ComplexType t)
     {
-        return this.coaConnectors.getConnector(t);
+        return this.coaConnectors.getArchElement(t);
     }
     
     /**
@@ -214,7 +214,7 @@ public class COA
      */
     public Facade getFacade(final Function fct)
     {
-        return this.coaFacades.getFacade(fct);
+        return this.coaFacades.getArchElement(fct);
     }
 
     /**
@@ -224,7 +224,7 @@ public class COA
      */
     public Facade getFacade(final GlobalVariable var)
     {
-        return this.coaFacades.getFacade(var);
+        return this.coaFacades.getArchElement(var);
     }
 
     /**
@@ -234,7 +234,7 @@ public class COA
      */
     public Facade getFacade(final ComplexType t)
     {
-        return this.coaFacades.getFacade(t);
+        return this.coaFacades.getArchElement(t);
     }
     
     /**
@@ -259,38 +259,38 @@ public class COA
     /**
      * Ajoute une variable à un composant.
      */
-    public boolean addVariable(GlobalVariable var, Component comp)
+    public boolean addGlobalVariable(GlobalVariable var, Component comp)
     {
-        return this.coaComponents.addVariable(var, comp);
+        return this.coaComponents.addGlobalVariable(var, comp);
     }
     
     /**
      * Ajoute un ensemble de variables à un composant.
      */
-    public void addVariables(Set<GlobalVariable> vars, Component comp)
+    public void addGlobalVariables(Set<GlobalVariable> vars, Component comp)
     {
        for(GlobalVariable v : vars)
        {
-           this.coaComponents.addVariable(v, comp);
+           this.coaComponents.addGlobalVariable(v, comp);
        }
     }
     
     /**
      * Ajoute un type à un composant.
      */
-    public boolean addType(ComplexType t, Component comp)
+    public boolean addComplexType(ComplexType t, Component comp)
     {
-        return this.coaComponents.addType(t, comp);
+        return this.coaComponents.addComplexType(t, comp);
     }
     
     /**
      * Ajoute un ensemble de types à un composant.
      */
-    public void addTypes(Set<ComplexType> types, Component comp)
+    public void addComplexTypes(Set<ComplexType> types, Component comp)
     {
        for(ComplexType t : types)
        {
-           this.coaComponents.addType(t, comp);
+           this.coaComponents.addComplexType(t, comp);
        }
     }
     
@@ -316,38 +316,38 @@ public class COA
     /**
      * Ajoute une variable à une interface.
      */
-    public boolean addVariable(GlobalVariable var, Interface itf)
+    public boolean addGlobalVariable(GlobalVariable var, Interface itf)
     {
-        return this.coaInterfaces.addVariable(var, itf);
+        return this.coaInterfaces.addGlobalVariable(var, itf);
     }
     
     /**
      * Ajoute un ensemble de variables à une interface.
      */
-    public void addVariables(Set<GlobalVariable> vars, Interface itf)
+    public void addGlobalVariables(Set<GlobalVariable> vars, Interface itf)
     {
        for(GlobalVariable v : vars)
        {
-           this.coaInterfaces.addVariable(v, itf);
+           this.coaInterfaces.addGlobalVariable(v, itf);
        }
     }
     
     /**
      * Ajoute un type à une interface.
      */
-    public boolean addType(ComplexType t, Interface itf)
+    public boolean addComplexType(ComplexType t, Interface itf)
     {
-        return this.coaInterfaces.addType(t, itf);
+        return this.coaInterfaces.addComplexType(t, itf);
     }
     
     /**
      * Ajoute un ensemble de types à une interface.
      */
-    public void addTypes(Set<ComplexType> types, Interface itf)
+    public void addComplexTypes(Set<ComplexType> types, Interface itf)
     {
        for(ComplexType t : types)
        {
-           this.coaInterfaces.addType(t, itf);
+           this.coaInterfaces.addComplexType(t, itf);
        }
     }
     
@@ -373,38 +373,38 @@ public class COA
     /**
      * Ajoute une variable à un connecteur.
      */
-    public boolean addVariable(GlobalVariable var, Connector con)
+    public boolean addGlobalVariable(GlobalVariable var, Connector con)
     {
-        return this.coaConnectors.addVariable(var, con);
+        return this.coaConnectors.addGlobalVariable(var, con);
     }
     
     /**
      * Ajoute un ensemble de variables à un connecteur.
      */
-    public void addVariables(Set<GlobalVariable> vars, Connector con)
+    public void addGlobalVariables(Set<GlobalVariable> vars, Connector con)
     {
        for(GlobalVariable v : vars)
        {
-           this.coaConnectors.addVariable(v, con);
+           this.coaConnectors.addGlobalVariable(v, con);
        }
     }
     
     /**
      * Ajoute un type à un connecteur.
      */
-    public boolean addType(ComplexType t, Connector con)
+    public boolean addComplexType(ComplexType t, Connector con)
     {
-        return this.coaConnectors.addType(t, con);
+        return this.coaConnectors.addComplexType(t, con);
     }
     
     /**
      * Ajoute un ensemble de types à un connecteur.
      */
-    public void addTypes(Set<ComplexType> types, Connector con)
+    public void addComplexTypes(Set<ComplexType> types, Connector con)
     {
        for(ComplexType t : types)
        {
-           this.coaConnectors.addType(t, con);
+           this.coaConnectors.addComplexType(t, con);
        }
     }
     
@@ -430,38 +430,38 @@ public class COA
     /**
      * Ajoute une variable à une facade.
      */
-    public boolean addVariable(GlobalVariable var, Facade itf)
+    public boolean addGlobalVariable(GlobalVariable var, Facade itf)
     {
-        return this.coaFacades.addVariable(var, itf);
+        return this.coaFacades.addGlobalVariable(var, itf);
     }
     
     /**
      * Ajoute un ensemble de variables à une facade.
      */
-    public void addVariables(Set<GlobalVariable> vars, Facade itf)
+    public void addGlobalVariables(Set<GlobalVariable> vars, Facade itf)
     {
        for(GlobalVariable v : vars)
        {
-           this.coaFacades.addVariable(v, itf);
+           this.coaFacades.addGlobalVariable(v, itf);
        }
     }
     
     /**
      * Ajoute un type à une facade.
      */
-    public boolean addType(ComplexType t, Facade itf)
+    public boolean addComplexType(ComplexType t, Facade itf)
     {
-        return this.coaFacades.addType(t, itf);
+        return this.coaFacades.addComplexType(t, itf);
     }
     
     /**
      * Ajoute un ensemble de types à une facade.
      */
-    public void addTypes(Set<ComplexType> types, Facade itf)
+    public void addComplexTypes(Set<ComplexType> types, Facade itf)
     {
        for(ComplexType t : types)
        {
-           this.coaFacades.addType(t, itf);
+           this.coaFacades.addComplexType(t, itf);
        }
     }
     
@@ -476,17 +476,17 @@ public class COA
     /**
      * Retire une variable d'un composant.
      */
-    public boolean removeVariable(GlobalVariable var, Component comp)
+    public boolean removeGlobalVariable(GlobalVariable var, Component comp)
     {
-        return this.coaComponents.removeVariable(var, comp);
+        return this.coaComponents.removeGlobalVariable(var, comp);
     }
     
     /**
      * Retire un type d'un composant.
      */
-    public boolean removeType(ComplexType t, Component comp)
+    public boolean removeComplexType(ComplexType t, Component comp)
     {
-        return this.coaComponents.removeType(t, comp);
+        return this.coaComponents.removeComplexType(t, comp);
     }
     
     /**
@@ -494,50 +494,23 @@ public class COA
      */
     public boolean removeFunction(Function fct, Interface itf)
     {
-        boolean done = this.coaInterfaces.removeFunction(fct, itf);
-        
-        if(done && this.coaInterfaces.getFunctions(itf).isEmpty() &&
-                this.coaInterfaces.getTypes(itf).isEmpty() &&
-                this.coaInterfaces.getVariables(itf).isEmpty())
-        {
-            this.removeInterface(itf);
-        }
-        
-        return done;
+        return this.coaInterfaces.removeFunction(fct, itf);
     }
     
     /**
      * Retire une variable d'une interface.
      */
-    public boolean removeVariable(GlobalVariable var, Interface itf)
+    public boolean removeGlobalVariable(GlobalVariable var, Interface itf)
     {
-        boolean done = this.coaInterfaces.removeVariable(var, itf);
-        
-        if(done && this.coaInterfaces.getFunctions(itf).isEmpty() &&
-                this.coaInterfaces.getTypes(itf).isEmpty() &&
-                this.coaInterfaces.getVariables(itf).isEmpty())
-        {
-            this.removeInterface(itf);
-        }
-        
-        return done;  
+        return this.coaInterfaces.removeGlobalVariable(var, itf);
     }
     
     /**
      * Retire un type d'une interface.
      */
-    public boolean removeType(ComplexType t, Interface itf)
+    public boolean removeComplexType(ComplexType t, Interface itf)
     {
-        boolean done = this.coaInterfaces.removeType(t, itf);
-        
-        if(done && this.coaInterfaces.getFunctions(itf).isEmpty() &&
-                this.coaInterfaces.getTypes(itf).isEmpty() &&
-                this.coaInterfaces.getVariables(itf).isEmpty())
-        {
-            this.removeInterface(itf);
-        }
-        
-        return done;
+        return this.coaInterfaces.removeComplexType(t, itf);
     }
     
     /**
@@ -551,17 +524,17 @@ public class COA
     /**
      * Retire une variable d'un connecteur.
      */
-    public boolean removeVariable(GlobalVariable var, Connector con)
+    public boolean removeGlobalVariable(GlobalVariable var, Connector con)
     {
-        return this.coaConnectors.removeVariable(var, con);
+        return this.coaConnectors.removeGlobalVariable(var, con);
     }
     
     /**
      * Retire un type d'un connecteur.
      */
-    public boolean removeType(ComplexType t, Connector con)
+    public boolean removeComplexType(ComplexType t, Connector con)
     {
-        return this.coaConnectors.removeType(t, con);
+        return this.coaConnectors.removeComplexType(t, con);
     }
     
     /**
@@ -575,17 +548,17 @@ public class COA
     /**
      * Retire une variable d'une facade.
      */
-    public boolean removeVariable(GlobalVariable var, Facade fcd)
+    public boolean removeGlobalVariable(GlobalVariable var, Facade fcd)
     {
-        return this.coaFacades.removeVariable(var, fcd);
+        return this.coaFacades.removeGlobalVariable(var, fcd);
     }
     
     /**
      * Retire un type d'une facade.
      */
-    public boolean removeType(ComplexType t, Facade fcd)
+    public boolean removeComplexType(ComplexType t, Facade fcd)
     {
-        return this.coaFacades.removeType(t, fcd);
+        return this.coaFacades.removeComplexType(t, fcd);
     }
     
     /**
@@ -601,7 +574,7 @@ public class COA
      */
     public boolean moveVariable(GlobalVariable var, Component from, Component to)
     {
-        return this.coaComponents.moveVariable(var, from, to);
+        return this.coaComponents.moveGlobalVariable(var, from, to);
     }
     
     /**
@@ -609,7 +582,7 @@ public class COA
      */
     public boolean moveType(ComplexType t, Component from, Component to)
     {
-        return this.coaComponents.moveType(t, from, to);
+        return this.coaComponents.moveComplexType(t, from, to);
     }
     
     /**
@@ -625,7 +598,7 @@ public class COA
      */
     public boolean moveVariable(GlobalVariable var, Interface from, Interface to)
     {
-        return this.coaInterfaces.moveVariable(var, from, to);
+        return this.coaInterfaces.moveGlobalVariable(var, from, to);
     }
     
     /**
@@ -633,7 +606,7 @@ public class COA
      */
     public boolean moveType(ComplexType t, Interface from, Interface to)
     {
-        return this.coaInterfaces.moveType(t, from, to);
+        return this.coaInterfaces.moveComplexType(t, from, to);
     }
     
     /**
@@ -649,7 +622,7 @@ public class COA
      */
     public boolean moveVariable(GlobalVariable var, Connector from, Connector to)
     {
-        return this.coaConnectors.moveVariable(var, from, to);
+        return this.coaConnectors.moveGlobalVariable(var, from, to);
     }
     
     /**
@@ -657,7 +630,7 @@ public class COA
      */
     public boolean moveType(ComplexType t, Connector from, Connector to)
     {
-        return this.coaConnectors.moveType(t, from, to);
+        return this.coaConnectors.moveComplexType(t, from, to);
     }
     
     /**
@@ -673,7 +646,7 @@ public class COA
      */
     public boolean moveVariable(GlobalVariable var, Facade from, Facade to)
     {
-        return this.coaFacades.moveVariable(var, from, to);
+        return this.coaFacades.moveGlobalVariable(var, from, to);
     }
     
     /**
@@ -681,7 +654,7 @@ public class COA
      */
     public boolean moveType(ComplexType t, Facade from, Facade to)
     {
-        return this.coaFacades.moveType(t, from, to);
+        return this.coaFacades.moveComplexType(t, from, to);
     }
     
     /**
@@ -689,7 +662,7 @@ public class COA
      */
     public boolean addComponent(Component comp)
     {
-       return this.coaComponents.newComponent(comp);
+       return this.coaComponents.newArchElement(comp);
     }
     
     /**
@@ -697,7 +670,7 @@ public class COA
      */
     public boolean addInterface(Interface itf)
     {
-        return this.coaInterfaces.newInterface(itf);
+        return this.coaInterfaces.newArchElement(itf);
     }
 
     /**
@@ -705,7 +678,7 @@ public class COA
      */
     public boolean addConnector(Connector con)
     {
-        return this.coaConnectors.newConnector(con);
+        return this.coaConnectors.newArchElement(con);
     }
     
     /**
@@ -713,7 +686,7 @@ public class COA
      */
     public boolean addFacade(Facade fcd)
     {
-        return this.coaFacades.newFacade(fcd);
+        return this.coaFacades.newArchElement(fcd);
     }
     
     /**
@@ -721,7 +694,7 @@ public class COA
      */
     public boolean removeComponent(Component comp)
     {
-       return this.coaComponents.removeComponent(comp);
+       return this.coaComponents.removeArchElement(comp);
     }
     
     /**
@@ -729,7 +702,7 @@ public class COA
      */
     public boolean removeInterface(Interface itf)
     {
-       return this.coaInterfaces.removeInterface(itf);
+       return this.coaInterfaces.removeArchElement(itf);
     }
     
     /**
@@ -737,7 +710,7 @@ public class COA
      */
     public boolean removeConnector(Connector con)
     {
-       return this.coaConnectors.removeConnector(con);
+       return this.coaConnectors.removeArchElement(con);
     }
     
     /**
@@ -745,7 +718,7 @@ public class COA
      */
     public boolean removeFacade(Facade fcd)
     {
-       return this.coaFacades.removeFacade(fcd);
+       return this.coaFacades.removeArchElement(fcd);
     }
     
     /**
@@ -759,16 +732,13 @@ public class COA
     {
         boolean found = false;
         
-        Iterator<Component> it = this.coaComponents.getComponents().iterator();
+        Iterator<Component> it = 
+                this.coaComponents.getaArchElements().iterator();
         
         while(it.hasNext() && found == false)
         {
             Component comp = it.next();
-            
-            if(comp.requiresInterface(itf) || comp.providesInterface(itf))
-            {
-                found = true;
-            }
+            found = comp.requiresInterface(itf) || comp.providesInterface(itf);
         }
         
         if(found == false)
@@ -784,7 +754,7 @@ public class COA
     
     public Set<GlobalVariable> getGlobalsToOut(Component component)
     {
-        return this.coaComponents.getGlobalsToOut(component);
+        return this.coaComponents.getGlobalVariablesToOut(component);
     }
     
     public Set<Function> getFunctionsToIn(Component component)
@@ -794,12 +764,12 @@ public class COA
     
     public Set<GlobalVariable> getGlobalsToIn(Component component)
     {
-        return this.coaComponents.getGlobalsToIn(component);
+        return this.coaComponents.getGlobalVariablesToIn(component);
     }
     
     public Set<ComplexType> getTypesToIn(Component component)
     {
-        return this.coaComponents.getTypesToIn(component);
+        return this.coaComponents.getComplexTypesToIn(component);
     }
     
     public String toString()

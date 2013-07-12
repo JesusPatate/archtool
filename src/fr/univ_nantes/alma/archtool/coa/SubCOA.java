@@ -38,6 +38,14 @@ public class SubCOA<A>
         return new HashSet<Function>(
                 this.archElementToFunctions.get(archElement));
     }
+    
+    /**
+     * Retourne l'ensemble des éléments architecturaux du COA.
+     */
+    public Set<A> getaArchElements()
+    {
+        return this.archElementToFunctions.keySet();
+    }
 
     /**
      * Retourne l'ensemble des variables globales d'un élément architectural.
@@ -142,25 +150,12 @@ public class SubCOA<A>
 
     /**
      * Ajoute une fonction à un élément architectural.
+     * L'élémnent architectural doit déjà être connu du coa.
      */
     public boolean addFunction(Function function, A archElement)
     {
-        boolean done = false;
         this.functionToArchElement.put(function, archElement);
-
-        if (this.archElementToFunctions.containsKey(archElement) == false)
-        {
-            Set<Function> compFcts = new HashSet<Function>();
-            compFcts.add(function);
-            this.archElementToFunctions.put(archElement, compFcts);
-            done = true;
-        }
-        else
-        {
-            done = this.archElementToFunctions.get(archElement).add(function);
-        }
-
-        return done;
+        return this.archElementToFunctions.get(archElement).add(function);
     }
 
     /**
@@ -174,11 +169,11 @@ public class SubCOA<A>
         if (compFcts.contains(function))
         {
             compFcts.remove(function);
-            this.archElementToFunctions.put(archElement, compFcts);
             this.functionToArchElement.remove(function);
             done = true;
+            this.removeArchElement(archElement);
         }
-
+        
         return done;
     }
 
@@ -193,12 +188,11 @@ public class SubCOA<A>
         if (fromFcts.contains(function))
         {
             fromFcts.remove(function);
-            this.archElementToFunctions.put(from, fromFcts);
             Set<Function> toFcts = this.archElementToFunctions.get(to);
             toFcts.add(function);
-            this.archElementToFunctions.put(from, toFcts);
             this.functionToArchElement.put(function, to);
             done = true;
+            this.removeArchElement(from);
         }
 
         return done;
@@ -206,31 +200,19 @@ public class SubCOA<A>
 
     /**
      * Ajoute une variable à un élément architectural.
+     * L'élémnent architectural doit déjà être connu du coa.
      */
-    public boolean addVariable(GlobalVariable globalVariable, A archElement)
+    public boolean addGlobalVariable(GlobalVariable globalVariable, A archElement)
     {
-        boolean done = false;
         this.globalVariableToArchElement.put(globalVariable, archElement);
-
-        if (this.archElementToGlobalVariables.containsKey(archElement) == false)
-        {
-            Set<GlobalVariable> compVars = new HashSet<GlobalVariable>();
-            compVars.add(globalVariable);
-            this.archElementToGlobalVariables.put(archElement, compVars);
-            done = true;
-        }
-        else
-        {
-            done = this.archElementToGlobalVariables.get(archElement).add(globalVariable);
-        }
-
-        return done;
+        return this.archElementToGlobalVariables.get(archElement).
+                add(globalVariable);
     }
 
     /**
      * Retire une variable d'un élément architectural.
      */
-    public boolean removeVariable(GlobalVariable globalVariable, A archElement)
+    public boolean removeGlobalVariable(GlobalVariable globalVariable, A archElement)
     {
         boolean done = false;
         Set<GlobalVariable> compVars = 
@@ -239,9 +221,9 @@ public class SubCOA<A>
         if (compVars.contains(globalVariable))
         {
             compVars.remove(globalVariable);
-            this.archElementToGlobalVariables.put(archElement, compVars);
             this.globalVariableToArchElement.remove(globalVariable);
             done = true;
+            this.removeArchElement(archElement);
         }
 
         return done;
@@ -250,7 +232,7 @@ public class SubCOA<A>
     /**
      * Déplace une variable d'un élément architectural à un autre.
      */
-    public boolean moveVariable(GlobalVariable var, A from, A to)
+    public boolean moveGlobalVariable(GlobalVariable var, A from, A to)
     {
         boolean done = false;
         Set<GlobalVariable> fromVars = 
@@ -259,13 +241,12 @@ public class SubCOA<A>
         if (fromVars.contains(var))
         {
             fromVars.remove(var);
-            this.archElementToGlobalVariables.put(from, fromVars);
             Set<GlobalVariable> toVars = 
                     this.archElementToGlobalVariables.get(to);
             toVars.add(var);
-            this.archElementToGlobalVariables.put(from, toVars);
             this.globalVariableToArchElement.put(var, to);
             done = true;
+            this.removeArchElement(from);
         }
 
         return done;
@@ -273,31 +254,18 @@ public class SubCOA<A>
 
     /**
      * Ajoute un type à un élément architectural.
+     * L'élémnent architectural doit déjà être connu du coa.
      */
-    public boolean addType(ComplexType t, A archElement)
+    public boolean addComplexType(ComplexType t, A archElement)
     {
-        boolean done = false;
         this.complexTypeToArchElement.put(t, archElement);
-
-        if (this.archElementToGlobalVariables.containsKey(archElement) == false)
-        {
-            Set<ComplexType> compTypes = new HashSet<ComplexType>();
-            compTypes.add(t);
-            this.archElementToComplexTypes.put(archElement, compTypes);
-            done = true;
-        }
-        else
-        {
-            done = this.archElementToComplexTypes.get(archElement).add(t);
-        }
-
-        return done;
+        return this.archElementToComplexTypes.get(archElement).add(t);
     }
 
     /**
      * Retire un type d'un élément architectural.
      */
-    public boolean removeType(ComplexType t, A archElement)
+    public boolean removeComplexType(ComplexType t, A archElement)
     {
         boolean done = false;
         Set<ComplexType> compTypes = 
@@ -306,9 +274,9 @@ public class SubCOA<A>
         if (compTypes.contains(t))
         {
             compTypes.remove(t);
-            this.archElementToComplexTypes.put(archElement, compTypes);
             this.complexTypeToArchElement.remove(t);
             done = true;
+            this.removeArchElement(archElement);
         }
 
         return done;
@@ -317,7 +285,7 @@ public class SubCOA<A>
     /**
      * Déplace un type d'un élément architectural à un autre.
      */
-    public boolean moveType(ComplexType t, A from, A to)
+    public boolean moveComplexType(ComplexType t, A from, A to)
     {
         boolean done = false;
         Set<ComplexType> fromTypes = this.archElementToComplexTypes.get(from);
@@ -325,12 +293,11 @@ public class SubCOA<A>
         if (fromTypes.contains(t))
         {
             fromTypes.remove(t);
-            this.archElementToComplexTypes.put(from, fromTypes);
             Set<ComplexType> toTypes = this.archElementToComplexTypes.get(to);
             toTypes.add(t);
-            this.archElementToComplexTypes.put(from, toTypes);
             this.complexTypeToArchElement.put(t, to);
             done = true;
+            this.removeArchElement(from);
         }
 
         return done;
@@ -364,7 +331,7 @@ public class SubCOA<A>
      * Retourne toutes les variables globales d'un élément architectural qui 
      * utilise des éléments extérieurs à lui.
      */
-    public Set<GlobalVariable> getGlobalsToOut(A archElement)
+    public Set<GlobalVariable> getGlobalVariablesToOut(A archElement)
     {
         Set<GlobalVariable> toOut = new HashSet<GlobalVariable>();
         
@@ -410,7 +377,7 @@ public class SubCOA<A>
      * Retourne toutes les variables globales de l'élément architectural 
      * utilisées par des fonctions n'appartenant pas à cet élément.
      */
-    public Set<GlobalVariable> getGlobalsToIn(A archElement)
+    public Set<GlobalVariable> getGlobalVariablesToIn(A archElement)
     {
         Set<GlobalVariable> toIn = new HashSet<GlobalVariable>();
         
@@ -431,7 +398,7 @@ public class SubCOA<A>
      * Retourne tous les types de l'élément architectural utilisés par des
      * fonctions ou des variables globales n'appartenant pas à cet élément.
      */
-    public Set<ComplexType> getTypesToIn(A archElement)
+    public Set<ComplexType> getComplexTypesToIn(A archElement)
     {
         Set<ComplexType> toIn = new HashSet<ComplexType>();
         
@@ -449,7 +416,6 @@ public class SubCOA<A>
         return toIn;
     }
     
-
     /**
      * Teste si un élément architectural est répertorié par le COA.
      */
