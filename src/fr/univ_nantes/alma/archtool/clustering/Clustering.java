@@ -16,19 +16,19 @@ public class Clustering
     private ObjectiveFunction objectiveFct;
 
     private Architecture resultArch = null;
-    
+
     private COA resultCOA = null;
-    
+
     public Clustering(ObjectiveFunction objFct)
     {
         this.objectiveFct = objFct;
     }
-    
+
     public Architecture getArchitecture()
     {
         return this.resultArch;
     }
-    
+
     public COA getCOA()
     {
         return this.resultCOA;
@@ -61,7 +61,7 @@ public class Clustering
      */
     private void buildDendogram()
     {
-        double bestScore = 0.0;
+        double bestScore = Double.NEGATIVE_INFINITY;
         Pair<Integer, Integer> bestPair = null;
 
         Dendogram dendo = null;
@@ -97,7 +97,7 @@ public class Clustering
                 this.dendogram = bestDendo;
             }
 
-            bestScore = 0.0;
+            bestScore = Double.NEGATIVE_INFINITY;
             bestPair = null;
             bestDendo = null;
         }

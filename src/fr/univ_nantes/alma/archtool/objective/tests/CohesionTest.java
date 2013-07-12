@@ -40,7 +40,7 @@ public class CohesionTest
     @Test
     public void testCohesion()
     {
-        Class[] classes = { Function.class, Function.class };
+        Class[] classes = {Function.class, Function.class};
 
         try
         {
@@ -53,11 +53,14 @@ public class CohesionTest
             {
                 for (int j = i + 1; j < functions.size(); ++j)
                 {
-                    Object[] args = { fctArray[i], fctArray[j] };
+                    Object[] args = {fctArray[i], fctArray[j]};
 
                     double result =
                             (Double) PrivateAccessor.invoke(cohesion,
                                     "cohesion", classes, args);
+
+                    assertTrue("Cohésion entre fonctions invalide (" + result
+                            + ")", result >= 0.0 && result <= 100.0);
                 }
             }
         }
@@ -71,7 +74,7 @@ public class CohesionTest
     @Test
     public void testCohesionCalls()
     {
-        Class[] classes = { Function.class, Function.class };
+        Class[] classes = {Function.class, Function.class};
 
         try
         {
@@ -84,21 +87,22 @@ public class CohesionTest
             {
                 for (int j = i + 1; j < functions.size(); ++j)
                 {
-                    Object[] args = { fctArray[i], fctArray[j] };
+                    Object[] args = {fctArray[i], fctArray[j]};
 
                     double result =
                             (Double) PrivateAccessor.invoke(cohesion,
                                     "cohesionCalls", classes, args);
 
-                    assertTrue("Cohésion sur les appels invalide (" + result
-                            + ")", result >= 0.0 && result <= 1.0);
+                    assertTrue("Cohésion entre fonctions sur les appels "
+                            + "invalide (" + result + ")", result >= 0.0
+                            && result <= 100.0);
                 }
             }
 
             for (int i = 0; i < functions.size() - 1; ++i)
             {
                 Function fct = fctArray[i];
-                Object[] args = { fct, fct };
+                Object[] args = {fct, fct};
 
                 double result =
                         (Double) PrivateAccessor.invoke(cohesion,
@@ -106,13 +110,13 @@ public class CohesionTest
 
                 if (fct.getCalls().size() > 0)
                 {
-                    assertTrue("Cohésion sur les appels invalide (" + result
-                            + ")", result == 1.0);
+                    assertTrue("Cohésion entre fonctions sur les appels "
+                            + "invalide (" + result + ")", result == 100.0);
                 }
                 else
                 {
-                    assertTrue("Cohésion sur les appels invalide (" + result
-                            + ")", result == 0.0);
+                    assertTrue("Cohésion entre fonctions sur les appels "
+                            + "invalide (" + result + ")", result == 0.0);
                 }
             }
         }
@@ -126,7 +130,7 @@ public class CohesionTest
     @Test
     public void testCohesionGlobalVars()
     {
-        Class[] classes = { Function.class, Function.class };
+        Class[] classes = {Function.class, Function.class};
 
         try
         {
@@ -135,26 +139,26 @@ public class CohesionTest
             Function[] fctArray = new Function[functions.size()];
             functions.toArray(fctArray);
 
-            // for (int i = 0; i < functions.size() - 1; ++i)
-            // {
-            // for (int j = i + 1; j < functions.size(); ++j)
-            // {
-            // Object[] args = { fctArray[i], fctArray[j] };
-            //
-            // double result =
-            // (Double) PrivateAccessor.invoke(cohesion,
-            // "cohesionGlobalVars", classes, args);
-            //
-            // assertTrue("Cohésion sur les variables globales invalide ("
-            // + result + ")",
-            // result >= 0.0 && result <= 1.0);
-            // }
-            // }
+            for (int i = 0; i < functions.size() - 1; ++i)
+            {
+                for (int j = i + 1; j < functions.size(); ++j)
+                {
+                    Object[] args = {fctArray[i], fctArray[j]};
+
+                    double result =
+                            (Double) PrivateAccessor.invoke(cohesion,
+                                    "cohesionGlobalVars", classes, args);
+
+                    assertTrue("Cohésion entre fonctions sur les variables "
+                            + "globales invalide (" + result + ")",
+                            result >= 0.0 && result <= 100.0);
+                }
+            }
 
             for (int i = 0; i < functions.size() - 1; ++i)
             {
                 Function fct = fctArray[i];
-                Object[] args = { fct, fct };
+                Object[] args = {fct, fct};
 
                 double result =
                         (Double) PrivateAccessor.invoke(cohesion,
@@ -162,13 +166,15 @@ public class CohesionTest
 
                 if (fct.getGlobalVariables().size() > 0)
                 {
-                    assertTrue("Cohésion sur les variables globales invalide ("
-                            + result + ")", result == 1.0);
+                    assertTrue("Cohésion entre fonctions sur les variables "
+                            + "globales invalide (" + result + ")",
+                            result == 100.0);
                 }
                 else
                 {
-                    assertTrue("Cohésion sur les variables globales invalide ("
-                            + fct.getName() + ")", result == 0.0);
+                    assertTrue("Cohésion entre fonctions sur les variables "
+                            + "globales invalide (" + fct.getName() + ")",
+                            result == 0.0);
                 }
             }
         }
@@ -182,7 +188,7 @@ public class CohesionTest
     @Test
     public void testCohesionLocalVars()
     {
-        Class[] classes = { Function.class, Function.class };
+        Class[] classes = {Function.class, Function.class};
 
         try
         {
@@ -195,14 +201,16 @@ public class CohesionTest
             {
                 for (int j = i + 1; j < functions.size(); ++j)
                 {
-                    Object[] args = { fctArray[i], fctArray[j] };
+                    Object[] args = {fctArray[i], fctArray[j]};
 
                     double result =
                             (Double) PrivateAccessor.invoke(cohesion,
                                     "cohesionLocalVars", classes, args);
 
-                    assertTrue("Cohésion sur les variables locales invalide ("
-                            + result + ")", result >= 0.0 && result <= 1.0);
+                    assertTrue(
+                            "Cohésion entre fonctions sur les variables locales"
+                                    + "invalide (" + result + ")",
+                            result >= 0.0 && result <= 100.0);
                 }
             }
         }
@@ -216,7 +224,7 @@ public class CohesionTest
     @Test
     public void testCohesionTypes()
     {
-        Class[] classes = { Function.class, Function.class };
+        Class[] classes = {Function.class, Function.class};
 
         try
         {
@@ -229,21 +237,22 @@ public class CohesionTest
             {
                 for (int j = i + 1; j < functions.size(); ++j)
                 {
-                    Object[] args = { fctArray[i], fctArray[j] };
+                    Object[] args = {fctArray[i], fctArray[j]};
 
                     double result =
                             (Double) PrivateAccessor.invoke(cohesion,
                                     "cohesionTypes", classes, args);
 
-                    assertTrue("Cohésion sur les types invalide (" + result
-                            + ")", result >= 0.0 && result <= 1.0);
+                    assertTrue("Cohésion entre fonctions sur les types "
+                            + "invalide (" + result + ")", result >= 0.0
+                            && result <= 100.0);
                 }
             }
 
             for (int i = 0; i < functions.size() - 1; ++i)
             {
                 Function fct = fctArray[i];
-                Object[] args = { fct, fct };
+                Object[] args = {fct, fct};
 
                 double result =
                         (Double) PrivateAccessor.invoke(cohesion,
@@ -251,13 +260,13 @@ public class CohesionTest
 
                 if (fct.getTotalComplexTypes().size() > 0)
                 {
-                    assertTrue("Cohésion sur les types invalide (" + result
-                            + ")", result == 1.0);
+                    assertTrue("Cohésion entre fonctions sur les types "
+                            + "invalide (" + result + ")", result == 100.0);
                 }
                 else
                 {
-                    assertTrue("Cohésion sur les types invalide (" + result
-                            + ")", result == 0.0);
+                    assertTrue("Cohésion entre fonctions sur les types "
+                            + "invalide (" + result + ")", result == 0.0);
                 }
             }
         }
@@ -271,7 +280,7 @@ public class CohesionTest
     @Test
     public void testCohesionArguments()
     {
-        Class[] classes = { Function.class, Function.class };
+        Class[] classes = {Function.class, Function.class};
 
         try
         {
@@ -284,14 +293,15 @@ public class CohesionTest
             {
                 for (int j = i + 1; j < functions.size(); ++j)
                 {
-                    Object[] args = { fctArray[i], fctArray[j] };
+                    Object[] args = {fctArray[i], fctArray[j]};
 
                     double result =
                             (Double) PrivateAccessor.invoke(cohesion,
                                     "cohesionCalls", classes, args);
 
-                    assertTrue("Cohésion sur les arguments invalide",
-                            result >= 0.0 && result <= 1.0);
+                    assertTrue("Cohésion entre fonctions sur les arguments "
+                            + "invalide (" + result + ")", result >= 0.0
+                            && result <= 100.0);
                 }
             }
 
@@ -299,7 +309,7 @@ public class CohesionTest
             {
                 Function fct = fctArray[i];
 
-                Object[] args = { fct, fct };
+                Object[] args = {fct, fct};
 
                 double result =
                         (Double) PrivateAccessor.invoke(cohesion,
@@ -307,14 +317,14 @@ public class CohesionTest
 
                 if (fct.getArguments().size() > 0)
                 {
-                    assertTrue("Cohésion sur les arguments invalide",
-                            result == 1.0);
+                    assertTrue("Cohésion entre fonctions sur les arguments "
+                            + "invalide (" + result + ")", result >= 0.0
+                            && result <= 100.0);
                 }
                 else
                 {
-                    assertTrue(
-                            "Cohésion sur les arguments invalide ("
-                                    + fct.getName() + ")", result == 0.0);
+                    assertTrue("Cohésion entre fonctions sur les arguments "
+                            + " invalide (" + result + ")", result == 0.0);
                 }
             }
         }

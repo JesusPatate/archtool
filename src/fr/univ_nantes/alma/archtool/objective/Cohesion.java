@@ -76,6 +76,8 @@ public class Cohesion
 
     /**
      * Évalue la cohésion entre 2 interfaces.
+     * 
+     * @return Un double entre 0.0 et 100.0
      */
     public double interfacesCohesion(Interface itf1, Interface itf2)
     {
@@ -142,7 +144,7 @@ public class Cohesion
      * @param comp
      *            Le composant à évaluer
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     public double componentInternalCohesion(final Component comp)
     {
@@ -199,7 +201,7 @@ public class Cohesion
      * @param itf
      *            L'interface à évaluer
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     public double interfaceInternalCohesion(final Interface itf)
     {
@@ -256,7 +258,7 @@ public class Cohesion
      * @param con
      *            Le connecteur à évaluer
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     public double connectorInternalCohesion(final Connector con)
     {
@@ -313,7 +315,7 @@ public class Cohesion
      * @param comp
      *            Le composant évalué
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionCompFct(final Component comp)
     {
@@ -357,7 +359,7 @@ public class Cohesion
      * @param itf
      *            L'interface évaluée
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionItfFct(final Interface itf)
     {
@@ -395,7 +397,7 @@ public class Cohesion
      * @param con
      *            Le connecteur évalué
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionConFct(final Connector con)
     {
@@ -434,7 +436,7 @@ public class Cohesion
      * @param comp
      *            Le composant évalué
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionCompFctVar(final Component comp)
     {
@@ -469,7 +471,7 @@ public class Cohesion
      * @param itf
      *            L'interface évaluée
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionItfFctVar(final Interface itf)
     {
@@ -504,7 +506,7 @@ public class Cohesion
      * @param con
      *            Le connecteur évalué
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionConFctVar(final Connector con)
     {
@@ -539,7 +541,7 @@ public class Cohesion
      * @param comp
      *            Le composant évalué
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionCompFctType(Component comp)
     {
@@ -574,7 +576,7 @@ public class Cohesion
      * @param itf
      *            L'interface évaluée
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionItfFctType(Interface itf)
     {
@@ -609,7 +611,7 @@ public class Cohesion
      * @param comp
      *            Le connecteur évalué
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionConFctType(Connector con)
     {
@@ -642,14 +644,14 @@ public class Cohesion
      * composant.
      * 
      * <p>
-     * Calcule le ration de paires (<em>v</em>,<em>t</em>) telles que la
+     * Calcule le pourcentage de paires (<em>v</em>,<em>t</em>) telles que la
      * variable <em>v</em> est de type <em>t</em>.
      * </p>
      * 
      * @param comp
      *            Le composant évalué
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionCompVarType(Component comp)
     {
@@ -674,7 +676,7 @@ public class Cohesion
 
         if (nbPairs > 0)
         {
-            result = sum / nbPairs;
+            result = 100.0 * sum / nbPairs;
         }
 
         return result;
@@ -685,14 +687,14 @@ public class Cohesion
      * interface.
      * 
      * <p>
-     * Calcule le ration de paires (<em>v</em>,<em>t</em>) telles que la
+     * Calcule le pourcentage de paires (<em>v</em>,<em>t</em>) telles que la
      * variable <em>v</em> est de type <em>t</em>.
      * </p>
      * 
      * @param itf
      *            L'interface évaluée
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionItfVarType(Interface itf)
     {
@@ -717,7 +719,7 @@ public class Cohesion
 
         if (nbPairs > 0)
         {
-            result = sum / nbPairs;
+            result = 100.0 * sum / nbPairs;
         }
 
         return result;
@@ -728,14 +730,14 @@ public class Cohesion
      * connecteur.
      * 
      * <p>
-     * Calcule le ration de paires (<em>v</em>,<em>t</em>) telles que la
+     * Calcule le pourcentage de paires (<em>v</em>,<em>t</em>) telles que la
      * variable <em>v</em> est de type <em>t</em>.
      * </p>
      * 
      * @param con
      *            Le connecteur évalué
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double internalCohesionConVarType(Connector con)
     {
@@ -760,7 +762,7 @@ public class Cohesion
 
         if (nbPairs > 0)
         {
-            result = sum / nbPairs;
+            result = 100.0 * sum / nbPairs;
         }
 
         return result;
@@ -770,7 +772,7 @@ public class Cohesion
      * Évalue la cohésion de 2 fonctions.
      * 
      * <p>
-     * La cohésion de 2 fonctions est évaluée sur la moyenne des ratios :
+     * La cohésion de 2 fonctions est évaluée sur la moyenne des pourcentages :
      * <ul>
      * <li>de variables globales communes</li>
      * <li>de variables locales communes</li>
@@ -785,7 +787,7 @@ public class Cohesion
      * @param f2
      *            Une autre fonction d'un modèle de code source
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double cohesion(final Function f1, final Function f2)
     {
@@ -816,7 +818,7 @@ public class Cohesion
                         + WEIGHT_FCT_COHESION_LOCALS
                         + WEIGHT_FCT_COHESION_TYPES + WEIGHT_FCT_COHESION_ARGS;
 
-        result = (result > 1.0) ? 1.0 : result;
+        result = (result > 100.0) ? 100.0 : result;
 
 //         System.out.println(f1.getName() + " - " + f2.getName() + " : "
 //         + "CC=" + cc + " CG=" + cg + " CL=" + cl + " CT=" + ct
@@ -830,10 +832,8 @@ public class Cohesion
      * 
      * <p>
      * La cohésion entre une fonction f et une variable globale au programme
-     * (resp. au fichier) v est évaluée sur le ratio des accès à v sur le nombre
-     * total d'accès à des variables globales au programme (resp. au fichier).
-     * Si v à une portée limitée à un fichier, l'appartenance au même fichier
-     * est aussi prise en compte.
+     * (resp. au fichier) v est égale au pourcentage d'accès à v sur le nombre
+     * total d'accès à des variables globales.
      * </p>
      * 
      * @param fct
@@ -841,7 +841,7 @@ public class Cohesion
      * @param var
      *            Une variable d'un modèle de code source
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double cohesion(final Function fct, GlobalVariable var)
     {
@@ -872,7 +872,7 @@ public class Cohesion
 
         if (total > 0)
         {
-            result = nbAccessToVar / total;
+            result = 100.0 * nbAccessToVar / total;
         }
 
         return result;
@@ -883,7 +883,7 @@ public class Cohesion
      * 
      * <p>
      * La cohésion entre une fonction <em>f</em> et un type <em>t</em> est égal
-     * au ratio du nombre d'utilisations de <em>t</em> par <em>f</em> sur le
+     * au pourcentage d'utilisations de <em>t</em> par <em>f</em> sur le
      * nombre total d'utilisations de l'ensemble des types utilisés par
      * <em>f</em>.
      * </p>
@@ -893,7 +893,7 @@ public class Cohesion
      * @param type
      *            Un type d'un modèle de code source
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      */
     private double cohesion(final Function fct, ComplexType type)
     {
@@ -924,7 +924,7 @@ public class Cohesion
 
         if (total > 0)
         {
-            result = nbUsesOfType / total;
+            result = 100.0 * nbUsesOfType / total;
         }
 
         return result;
@@ -934,7 +934,7 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le ratio des variables globales au programme accédées en commun
+     * Calcule le pourcentage de variables globales au programme accédées en commun
      * sur le nombre total de variables globales au programme accédées dans les
      * deux fonctions.
      * </p>
@@ -944,7 +944,7 @@ public class Cohesion
      * @param f2
      *            Une autre fonction d'un modèle de code source
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -975,7 +975,7 @@ public class Cohesion
 
         if (globalVarsTotal.size() > 0)
         {
-            result = globalVarsCommon.size() / globalVarsTotal.size();
+            result = (100.0 * globalVarsCommon.size()) / globalVarsTotal.size();
         }
 
         return result;
@@ -985,7 +985,7 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le ratio de variables locales similaires entre les deux fonctions
+     * Calcule le pourcentage de variables locales similaires entre les deux fonctions
      * sur le nombre total de variables locales utilisées dans les deux
      * fonctions.
      * </p>
@@ -995,7 +995,7 @@ public class Cohesion
      * @param f2
      *            Une autre fonction d'un modèle de code source
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -1029,7 +1029,7 @@ public class Cohesion
 
         if (nbPairs > 0)
         {
-            result = nbCommon / nbPairs;
+            result = 100.0 * nbCommon / nbPairs;
         }
 
         return result;
@@ -1039,7 +1039,7 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le ratio de types utilisés en commun dans les deux fonctions sur
+     * Calcule le pourcentage de types utilisés en commun dans les deux fonctions sur
      * le nombre total de types utilisés dans les deux fonctions.
      * </p>
      * 
@@ -1048,7 +1048,7 @@ public class Cohesion
      * @param f2
      *            Une autre fonction d'un modèle de code source
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -1087,7 +1087,7 @@ public class Cohesion
 
         if (usedTypesTotal.size() > 0)
         {
-            result = ((double) usedTypesCommon.size()) / usedTypesTotal.size();
+            result = (100.0 * usedTypesCommon.size()) / usedTypesTotal.size();
         }
 
         return result;
@@ -1097,7 +1097,7 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le ratio d'appels de fonction communs dans les deux fonctions sur
+     * Calcule le pourcentage d'appels de fonction communs dans les deux fonctions sur
      * le nombre total d'appels dans les deux fonctions. Les paramètres des
      * appels ne sont pas pris en compte.
      * </p>
@@ -1107,7 +1107,7 @@ public class Cohesion
      * @param f2
      *            Une autre fonction d'un modèle de code source
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -1140,7 +1140,7 @@ public class Cohesion
 
         if (fctCalledTotal.size() > 0)
         {
-            result = ((double) fctCalledCommon.size()) / fctCalledTotal.size();
+            result = (100.0 * fctCalledCommon.size()) / fctCalledTotal.size();
         }
 
         return result;
@@ -1150,7 +1150,7 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le ratio de paramètres similaires entre les deux fonctions sur
+     * Calcule le pourcentage de paramètres similaires entre les deux fonctions sur
      * l'ensemble des paramètres des deux fonctions.
      * </p>
      * 
@@ -1159,7 +1159,7 @@ public class Cohesion
      * @param f2
      *            Une autre fonction d'un modèle de code source
      * 
-     * @return Un double entre 0.0 et 1.0
+     * @return Un double entre 0.0 et 100.0
      * 
      * @see #cohesion(Function, Function)
      */
@@ -1191,7 +1191,7 @@ public class Cohesion
 
         if (args.size() > 0)
         {
-            result = nbCommon / args.size();
+            result = 100.0 * nbCommon / args.size();
         }
 
         return result;
