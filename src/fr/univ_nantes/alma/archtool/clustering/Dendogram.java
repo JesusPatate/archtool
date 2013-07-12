@@ -164,8 +164,6 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
     private final SourceCode sourceCode;
 
-    private COA coa;
-
     /**
      * Initialise un nouveau dendogramme à partir d'un modèle de code source.
      * 
@@ -180,14 +178,12 @@ public class Dendogram implements Iterable<Dendogram.Node>
     public Dendogram(SourceCode sourceCode)
     {
         this.sourceCode = sourceCode;
-        this.coa = new COA(sourceCode);
         this.init();
     }
 
     public Dendogram(Dendogram dendo)
     {
         this.sourceCode = dendo.sourceCode;
-        this.coa = null;
         this.architecture = null;
 
         for (Node node : dendo.nodes)
@@ -225,11 +221,6 @@ public class Dendogram implements Iterable<Dendogram.Node>
         }
 
         return this.architecture;
-    }
-
-    public COA getCOA()
-    {
-        return this.coa;
     }
 
     /**
@@ -388,17 +379,16 @@ public class Dendogram implements Iterable<Dendogram.Node>
     private void buildArchitecture()
     {
         this.architecture = new Architecture();
-        this.coa = new COA(this.sourceCode);
 
         for (Node node : this.nodes)
         {
             Component comp = new Component();
             this.architecture.addComponent(comp);
 
-            this.coa.addComponent(comp);
-            this.coa.addFunctions(node.getFunctions(), comp);
-            this.coa.addVariables(node.getVariables(), comp);
-            this.coa.addTypes(node.getTypes(), comp);
+            this.architecture.addComponent(comp);
+            comp.addFunctions(node.getFunctions());
+            comp.addVariables(node.getVariables());
+            comp.addTypes(node.getTypes());
         }
 
         this.buildInterfaces();
@@ -428,18 +418,17 @@ public class Dendogram implements Iterable<Dendogram.Node>
      */
     private void processInterfacesFct(final Component comp)
     {
-        for (final Function fct : this.coa.getComponentFunctions(comp))
+        for (final Function fct : comp.getFunctions())
         {
             Interface itf = new Interface();
 
             boolean required = false;
             
-            Set<Function> callers =
-                    this.sourceCode.getCoreFunctionsCalling(fct);
+            Set<Function> callers = fct.getCoreCallingFunctions().keySet();
 
             for (Function fct2 : callers)
             {
-                Component comp2 = this.coa.getComponent(fct2);
+                Component comp2 = this.architecture.getComponent(fct2);
                 comp2.addRequiredInterface(itf);
                 required = true;
             }
@@ -447,9 +436,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
             if(required == true)
             {
                 comp.addProvidedInterface(itf);
-
-                this.coa.addInterface(itf);
-                this.coa.addFunction(fct, itf);
+                itf.addFunction(fct);
             }
         }
     }
@@ -464,17 +451,16 @@ public class Dendogram implements Iterable<Dendogram.Node>
      */
     private void processInterfacesVar(Component comp)
     {
-        for (final GlobalVariable var : this.coa.getComponentVariables(comp))
+        for (final GlobalVariable var : comp.getGlobalVariables())
         {
             Interface itf = new Interface();
-
-            Set<Function> userFcts = this.sourceCode.getCoreFunctionUsing(var);
+            Set<Function> userFcts = var.getCoreUsingFunctions().keySet();
 
             boolean required = false;
 
             for (Function fct : userFcts)
             {
-                Component comp2 = this.coa.getComponent(fct);
+                Component comp2 = this.architecture.getComponent(fct);
 
                 if (comp2.equals(comp) == false)
                 {
@@ -486,9 +472,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
             if (required == true)
             {
                 comp.addProvidedInterface(itf);
-
-                this.coa.addInterface(itf);
-                this.coa.addVariable(var, itf);
+                itf.addVariable(var);
             }
         }
     }
@@ -513,20 +497,18 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
     private void processInterfacesType(Component comp)
     {
-        for (final ComplexType t : this.coa.getComponentTypes(comp))
+        for (final ComplexType t : comp.getComplexTypes())
         {
             Interface itf = new Interface();
 
             boolean required = false;
 
-            Set<Function> userFcts = this.sourceCode.getCoreFunctionUsing(t);
-
-            Set<GlobalVariable> userVars =
-                    this.sourceCode.getCoreGlobalsUsing(t);
+            Set<Function> userFcts = t.getCoreUsingFunctions().keySet();
+            Set<GlobalVariable> userVars = t.getCoreUsingGlobalVariables();
 
             for (Function fct : userFcts)
             {
-                Component comp2 = this.coa.getComponent(fct);
+                Component comp2 = this.architecture.getComponent(fct);
 
                 if (comp2.equals(comp) == false)
                 {
@@ -537,7 +519,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
             for (GlobalVariable var : userVars)
             {
-                Component comp2 = this.coa.getComponent(var);
+                Component comp2 = this.architecture.getComponent(var);
 
                 if (comp2.equals(comp) == false)
                 {
@@ -549,9 +531,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
             if (required == true)
             {
                 comp.addProvidedInterface(itf);
-
-                this.coa.addInterface(itf);
-                this.coa.addType(t, itf);
+                itf.addType(t);
             }
         }
     }
@@ -564,8 +544,6 @@ public class Dendogram implements Iterable<Dendogram.Node>
             {
                 Connector con = new Connector();
                 this.architecture.addConnector(con);
-                this.coa.addConnector(con);
-
                 this.architecture.addConnection(comp, con, itf);
 
                 for (Component comp2 : this.architecture.getComponents())
