@@ -150,10 +150,32 @@ public class Configuration
             
             if(connection.participates(con))
             {
-                this.connections.remove(connection);
+                conIter.remove();
             }
         }
         
         return this.connectors.remove(con);
+    }
+    
+    /**
+     * Efface l'ensemble des interfaces et connecteurs.
+     */
+    public void clear()
+    {
+        for(Component comp : this.components)
+        {
+            comp.clearInterfaces();
+        }
+        
+        Iterator<Connector> it = this.connectors.iterator();
+        
+        while(it.hasNext())
+        {
+            Connector con = it.next();
+            
+            con.clearFacades();
+            this.coa.removeConnector(con);
+            it.remove();
+        }
     }
 }

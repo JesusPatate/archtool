@@ -7,7 +7,7 @@ import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 
-public class Interface
+public class Facade
 {
     private COA coa = null;
 
@@ -18,17 +18,17 @@ public class Interface
     
     public Set<Function> getFunctions()
     {
-        return this.coa.getInterfaceFunctions(this);
+        return this.coa.getFacadeFunctions(this);
     }
     
     public Set<GlobalVariable> getGlobalVariables()
     {
-        return this.coa.getInterfaceVariables(this);
+        return this.coa.getFacadeVariables(this);
     }
     
     public Set<ComplexType> getComplexTypes()
     {
-        return this.coa.getInterfaceTypes(this);
+        return this.coa.getFacadeTypes(this);
     }
     
     public boolean addFunction(Function fct)
@@ -80,7 +80,7 @@ public class Interface
     @Override
     public String toString()
     {
-        StringBuffer buf = new StringBuffer("Interface [");
+        StringBuffer buf = new StringBuffer("Facade [");
         
         for(Function fct : this.getFunctions())
         {

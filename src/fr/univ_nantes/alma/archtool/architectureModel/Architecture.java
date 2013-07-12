@@ -193,6 +193,14 @@ public class Architecture
     {
         return this.coa.moveType(t, from, to);
     }
+    
+    /**
+     * Efface l'ensemble des interfaces et connecteurs de l'architecture.
+     */
+    public void clear()
+    {
+        this.configuration.clear();
+    }
 
     @Override
     public String toString()

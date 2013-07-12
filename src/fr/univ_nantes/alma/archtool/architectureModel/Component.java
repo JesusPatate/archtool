@@ -31,17 +31,17 @@ public class Component
         return this.requiredInterfaces.contains(i);
     }
 
-    public boolean addRequiredInterface(final Interface i)
+    public void addRequiredInterface(final Interface i)
     { 
         i.setCOA(this.coa);
-        return this.coa.addInterface(i) && 
-                this.requiredInterfaces.add(i);
+        this.coa.addInterface(i);
+        this.requiredInterfaces.add(i);
     }
 
-    public boolean removeRequiredInterface(final Interface i)
+    public void removeRequiredInterface(final Interface i)
     {
-        return this.coa.removeInterface(i) && 
-                this.requiredInterfaces.remove(i);
+        this.requiredInterfaces.remove(i);
+        this.coa.checkInterface(i);
     }
 
     public Set<Interface> getProvidedInterfaces()
@@ -54,17 +54,17 @@ public class Component
         return this.providedInterfaces.contains(i);
     }
 
-    public boolean addProvidedInterface(final Interface i)
+    public void addProvidedInterface(final Interface i)
     {
         i.setCOA(this.coa);
-        return this.coa.addInterface(i) &&
-                this.providedInterfaces.add(i);
+        this.coa.addInterface(i);
+        this.providedInterfaces.add(i);
     }
 
-    public boolean removeProvidedInterface(final Interface i)
+    public void removeProvidedInterface(final Interface i)
     {
-        return this.coa.removeInterface(i) &&
-                this.providedInterfaces.remove(i);
+        this.providedInterfaces.remove(i);
+        this.coa.checkInterface(i);
     }
     
     public Set<Function> getFunctions()
@@ -150,5 +150,65 @@ public class Component
     public Set<ComplexType> getTypesToIn()
     {
         return this.coa.getTypesToIn(this);
+    }
+    
+    public void clearInterfaces()
+    {
+        for(Interface itf : this.getProvidedInterfaces())
+        {
+            removeProvidedInterface(itf);
+        }
+        
+        for(Interface itf : this.getRequiredInterfaces())
+        {
+            removeRequiredInterface(itf);
+        }
+    }
+    
+    @Override
+    public String toString()
+    {
+        StringBuffer buf = new StringBuffer("Composant [");
+        
+        for(Function fct : this.getFunctions())
+        {
+            buf.append(fct);
+            buf.append(", ");
+        }
+        
+        for(GlobalVariable var : this.getGlobalVariables())
+        {
+            buf.append(var);
+            buf.append(", ");
+        }
+        
+        for(ComplexType t : this.getComplexTypes())
+        {
+            buf.append(t);
+            buf.append(", ");
+        }
+        
+        for(Interface itf : this.getProvidedInterfaces())
+        {
+            buf.append(itf);
+            buf.append(", ");
+        }
+        
+        for(Interface itf : this.getRequiredInterfaces())
+        {
+            buf.append(itf);
+            buf.append(", ");
+        }
+        
+        int idx = buf.lastIndexOf(",");
+        
+        if(idx > 0)
+        {
+            buf.delete(idx, buf.length());
+        }
+        
+        buf.append("]");
+        
+        return buf.toString();
     }
 }
