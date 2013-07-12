@@ -1,9 +1,7 @@
 package fr.univ_nantes.alma.archtool.coa;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,7 +9,6 @@ import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 
 class COAComponents
@@ -33,13 +30,6 @@ class COAComponents
 
     private Map<Component, Set<ComplexType>> compToTypes = 
             new HashMap<Component, Set<ComplexType>>();
-
-    private SourceCode sourceCode;
-    
-    public COAComponents(SourceCode sourceCode)
-    {
-        this.sourceCode = sourceCode;
-    }
     
     /**
      * Retourne l'ensemble des fonctions d'un composant.
@@ -378,12 +368,11 @@ class COAComponents
         for(Function function : this.compToFcts.get(component))
         {
             if(!this.compToFcts.get(component).
-                    containsAll(this.sourceCode.
-                    getCoreFunctionsCalledBy(function)) ||
+                    containsAll(function.getCoreCalledFunctions().keySet()) ||
                     !this.compToTypes.get(component).
-                    containsAll(this.sourceCode.getCoreTypesUsedBy(function)) ||
-                    !this.compToVars.get(component).containsAll(this.sourceCode.
-                    getCoreGlobalsUsedBy(function)))
+                    containsAll(function.getCoreComplexTypes().keySet()) ||
+                    !this.compToVars.get(component).
+                    containsAll(function.getCoreGlobalVariables().keySet()))
             {
                 toOut.add(function);
             }
@@ -425,8 +414,8 @@ class COAComponents
         
         for(Function function : componentFunctions)
         {
-            if(!componentFunctions.containsAll(
-                    this.sourceCode.getCoreFunctionsCalling(function)))
+            if(!componentFunctions.
+                    containsAll(function.getCoreCallingFunctions().keySet()))
             {
                 toIn.add(function);
             }
@@ -445,8 +434,8 @@ class COAComponents
         
         for(GlobalVariable global : this.compToVars.get(component))
         {
-            if(!this.compToFcts.get(component).containsAll(
-                    this.sourceCode.getCoreFunctionUsing(global)))
+            if(!this.compToFcts.get(component).
+                    containsAll(global.getCoreUsingFunctions().keySet()))
             {
                 toIn.add(global);
             }
@@ -466,9 +455,9 @@ class COAComponents
         for(ComplexType type : this.compToTypes.get(component))
         {
             if(!this.compToFcts.get(component).containsAll(
-                    this.sourceCode.getCoreFunctionUsing(type)) ||
-                    !this.compToVars.get(component).containsAll(
-                    this.sourceCode.getCoreGlobalsUsing(type)))
+                    type.getCoreUsingFunctions().keySet()) ||
+                    !this.compToVars.get(component).
+                    containsAll(type.getCoreUsingGlobalVariables()))
             {
                 toIn.add(type);
             }

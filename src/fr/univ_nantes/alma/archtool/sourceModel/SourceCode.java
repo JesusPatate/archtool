@@ -15,7 +15,8 @@ public class SourceCode
     private final Set<GlobalVariable> coreGlobalVariables =
             new HashSet<GlobalVariable>();
 
-    private final Set<ComplexType> coreComplexTypes = new HashSet<ComplexType>();
+    private final Set<ComplexType> coreComplexTypes = 
+            new HashSet<ComplexType>();
 
     private boolean hasChanged = false;
     
@@ -38,18 +39,6 @@ public class SourceCode
         
         return total;
     }
-    
-    /*public Set<ComplexType> getTotalComplexTypes()
-    {
-        Set<ComplexType> total = new HashSet<ComplexType>();
-        
-        for(Function f : this.functions)
-        {
-            
-        }
-        
-        return total;
-    }*/
     
     public boolean hasChanged()
     {
@@ -121,75 +110,5 @@ public class SourceCode
         {
             this.addComplexType(type);
         }
-    }
-    
-    public Set<Function> getCoreFunctionsCalledBy(Function function)
-    {
-        return function.getCoreCalledFunctions().keySet();
-    }
-    
-    public Set<Function> getCoreFunctionsCalling(Function function)
-    {
-        return function.getCoreCallingFunctions().keySet();
-    }
-    
-    public Set<GlobalVariable> getCoreGlobalsUsedBy(Function function)
-    {
-        return function.getCoreGlobalVariables().keySet();
-    }
-    
-    public Set<Function> getCoreFunctionUsing(GlobalVariable global)
-    {
-        return global.getCoreUsingFunctions().keySet();
-    }
-    
-    public Set<ComplexType> getCoreTypesUsedBy(Function function)
-    {
-        return function.getCoreComplexTypes().keySet();
-    }
-    
-    public Set<Function> getCoreFunctionUsing(ComplexType type)
-    {
-        return type.getCoreUsingFunctions().keySet();
-    }
-    
-    public Set<GlobalVariable> getCoreGlobalsUsing(ComplexType type)
-    {
-        return type.getCoreUsingGlobalVariables();
-    }
-    
-    public Set<Function> getTotalFunctionsCalledBy(Function function)
-    {
-        return function.getTotalCalledFunctions().keySet();
-    }
-    
-    public Set<Function> getTotalFunctionsCalling(Function function)
-    {
-        return function.getCoreCallingFunctions().keySet();
-    }
-    
-    public Set<GlobalVariable> getTotalGlobalsUsedBy(Function function)
-    {
-        return function.getCoreGlobalVariables().keySet();
-    }
-    
-    public Set<Function> getTotalFunctionUsing(GlobalVariable global)
-    {
-        return global.getCoreUsingFunctions().keySet();
-    }
-    
-    public Set<ComplexType> getTotalTypesUsedBy(Function function)
-    {
-        return function.getTotalComplexTypes().keySet();
-    }
-    
-    public Set<Function> getTotalFunctionUsing(ComplexType type)
-    {
-        return type.getTotalUsingFunctions().keySet();
-    }
-    
-    public Set<GlobalVariable> getTotalGlobalsUsing(ComplexType type)
-    {
-        return type.getCoreUsingGlobalVariables();
     }
 }

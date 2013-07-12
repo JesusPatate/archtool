@@ -1,6 +1,5 @@
 package fr.univ_nantes.alma.archtool.coa;
 
-import java.util.Collection;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
@@ -9,31 +8,14 @@ import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 
 public class COA
 {
-    private COAComponents coaComponents;
+    private COAComponents coaComponents = new COAComponents();
     
-    private COAInterfaces coaInterfaces;
+    private COAInterfaces coaInterfaces = new COAInterfaces();
     
-    private COAConnectors coaConnectors;
-    
-    
-    private SourceCode sourceCode;
-    
-    public COA(SourceCode sourceCode)
-    {
-        this.sourceCode = sourceCode;
-        this.coaComponents = new COAComponents(this.sourceCode);
-        this.coaInterfaces = new COAInterfaces();
-        this.coaConnectors = new COAConnectors();
-    }
-    
-    public SourceCode getSourceCode()
-    {
-        return this.sourceCode;
-    }
+    private COAConnectors coaConnectors = new COAConnectors();
     
     /**
      * Retourne l'ensemble des fonctions d'un composant.
