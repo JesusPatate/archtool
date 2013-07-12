@@ -162,7 +162,7 @@ public class COA
      * 
      * @param t Le type recherché.
      */
-    public Set<Interface> getInterface(final ComplexType t)
+    public Interface getInterface(final ComplexType t)
     {
         return this.coaInterfaces.getInterface(t);
     }

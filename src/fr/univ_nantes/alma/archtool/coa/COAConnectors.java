@@ -5,13 +5,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.architectureModel.Component;
-import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.Type;
 
 public class COAConnectors
 {
@@ -19,7 +16,7 @@ public class COAConnectors
     
     private Map<GlobalVariable, Connector> varToCon = new HashMap<GlobalVariable, Connector>();
     
-    private Map<Type, Connector> typeToCon = new HashMap<Type, Connector>();
+    private Map<ComplexType, Connector> typeToCon = new HashMap<ComplexType, Connector>();
     
     private Map<Connector, Set<Function>> conToFcts = new HashMap<Connector, Set<Function>>();
     
@@ -139,15 +136,20 @@ public class COAConnectors
     {
         boolean done = false;
         
-        Set<Function> conFcts = this.conToFcts.get(con);
-        
-        if (conFcts.contains(fct) == false)
+        this.fctToCon.put(fct, con);
+
+        if (this.conToFcts.containsKey(con) == false)
         {
+            Set<Function> conFcts = new HashSet<Function>();
             conFcts.add(fct);
+
             this.conToFcts.put(con, conFcts);
-            this.fctToCon.put(fct, con);
-            
             done = true;
+        }
+
+        else
+        {
+            done = this.conToFcts.get(con).add(fct);
         }
         
         return done;
@@ -208,15 +210,20 @@ public class COAConnectors
     {
         boolean done = false;
         
-        Set<GlobalVariable> conVars = this.conToVars.get(con);
-        
-        if (this.varToCon.containsKey(var) == false)
+        this.varToCon.put(var, con);
+
+        if (this.conToVars.containsKey(con) == false)
         {
+            Set<GlobalVariable> conVars = new HashSet<GlobalVariable>();
             conVars.add(var);
+
             this.conToVars.put(con, conVars);
-            this.varToCon.put(var, con);
-            
             done = true;
+        }
+
+        else
+        {
+            done = this.conToVars.get(con).add(var);
         }
         
         return done;
@@ -277,15 +284,20 @@ public class COAConnectors
     {
         boolean done = false;
 
-        Set<ComplexType> conTypes = this.conToTypes.get(con);
-        
-        if (this.typeToCon.containsKey(t) == false)
+        this.typeToCon.put(t, con);
+
+        if (this.conToVars.containsKey(con) == false)
         {
+            Set<ComplexType> conTypes = new HashSet<ComplexType>();
             conTypes.add(t);
+
             this.conToTypes.put(con, conTypes);
-            this.typeToCon.put(t, con);
-            
             done = true;
+        }
+
+        else
+        {
+            done = this.conToTypes.get(con).add(t);
         }
         
         return done;
@@ -367,7 +379,7 @@ public class COAConnectors
                 buf.append(", ");
             }
             
-            for(Type type : this.conToTypes.get(con))
+            for(ComplexType type : this.conToTypes.get(con))
             {
                 buf.append(type.getName());
                 buf.append(", ");
