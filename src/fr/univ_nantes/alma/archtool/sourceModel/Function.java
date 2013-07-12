@@ -324,29 +324,31 @@ public class Function
     @Override
     public String toString()
     {
-        return this.name;
-        
-        /*StringBuffer function = new StringBuffer(this.returnType.getName()
-                + " ");
+        StringBuffer buf = new StringBuffer();
 
-        function.append(this.name);
+        buf.append(this.returnType.getName() + " " + this.name);
 
         if (this.isStatic)
         {
-            function.append("static ");
+            buf.append("static ");
         }
 
-        function.append("(");
+        buf.append("(");
 
         for (LocalVariable arg : this.arguments)
         {
-            function.append(arg + ", ");
+            buf.append(arg + ", ");
         }
 
-        function.append(")");
+        int idx = buf.lastIndexOf(",");
         
-        function.append("\n" + this.body.getCalls());
+        if(idx > 0)
+        {
+            buf.delete(idx, buf.length());
+        }
         
-        return function.toString();*/
+        buf.append(")");
+        
+        return buf.toString();
     }
 }

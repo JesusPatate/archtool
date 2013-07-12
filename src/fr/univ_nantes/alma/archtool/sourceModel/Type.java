@@ -32,6 +32,6 @@ public abstract class Type
     @Override
     public String toString()
     {
-        return String.format("Type : %s", this.name);
+        return this.name;
     }
 }
