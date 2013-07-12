@@ -94,20 +94,23 @@ public class InterfaceIdentifier
                 
                 for(Function functionOut : functionsOut)
                 {
-                    Interface inteface = coa.getInterface(functionOut);
-                    coa.removeFunction(functionOut, inteface);
+                    Interface itf = coa.getInterface(functionOut);
+                    coa.removeFunction(functionOut, itf);
+                    component.removeRequiredInterface(itf);
                 }
                 
                 for(ComplexType typeOut : typesOut)
                 {
-                    Interface inteface = coa.getInterface(typeOut);
-                    coa.removeType(typeOut, inteface);
+                    Interface itf = coa.getInterface(typeOut);
+                    coa.removeType(typeOut, itf);
+                    component.removeRequiredInterface(itf);
                 }
                 
                 for(GlobalVariable globalOut : globalsOut)
                 {
-                    Interface inteface = coa.getInterface(globalOut);
-                    coa.removeVariable(globalOut, inteface);
+                    Interface itf = coa.getInterface(globalOut);
+                    coa.removeVariable(globalOut, itf);
+                    component.removeRequiredInterface(itf);
                 }
             }
         }
@@ -152,8 +155,9 @@ public class InterfaceIdentifier
                 
                 if(typeOut.isComplex())
                 {
-                    Interface itf = coa.getInterface((ComplexType) typeOut));
+                    Interface itf = coa.getInterface((ComplexType) typeOut);
                     coa.removeType((ComplexType) typeOut, itf);
+                    component.removeRequiredInterface(itf);
                 }
             }
         }
