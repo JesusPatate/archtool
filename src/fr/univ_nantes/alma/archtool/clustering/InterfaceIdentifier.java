@@ -65,7 +65,11 @@ public class InterfaceIdentifier
                 
                 for(Function functionOut : functionsOut)
                 {
-                    Interface requiredInterface = new Interface();
+//                    Interface requiredInterface = new Interface();
+                    
+                    Interface requiredInterface =
+                            architecture.getInterface(functionOut);
+                    
                     component.addRequiredInterface(requiredInterface);
                     requiredInterface.addFunction(functionOut);
                 }

@@ -11,15 +11,12 @@ import fr.univ_nantes.alma.archtool.utils.Pair;
 public class Clustering
 {
     private Dendogram dendogram;
+    
+    private InterfaceIdentifier itfIdentifier = new InterfaceIdentifier();
 
-    private ObjectiveFunction objectiveFct;
+    private ObjectiveFunction objectiveFct = new ObjectiveFunction();
 
     private Architecture resultArch = null;
-
-    public Clustering(ObjectiveFunction objFct)
-    {
-        this.objectiveFct = objFct;
-    }
 
     public Architecture getArchitecture()
     {
@@ -39,6 +36,10 @@ public class Clustering
         this.dendogram = new Dendogram(sourceCode);
         this.buildDendogram();
         this.phase2();
+        
+        this.resultArch.clear();
+        this.itfIdentifier.identify(this.resultArch);
+        
         return this.resultArch;
     }
 
