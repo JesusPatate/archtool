@@ -12,7 +12,7 @@ public class SourceCode
 {    
     private final Set<Function> coreFunctions = new HashSet<Function>();
 
-    private final Set<GlobalVariable> globalVariables =
+    private final Set<GlobalVariable> coreGlobalVariables =
             new HashSet<GlobalVariable>();
 
     private final Set<ComplexType> coreComplexTypes = new HashSet<ComplexType>();
@@ -30,7 +30,7 @@ public class SourceCode
         
         for(Function f : this.coreFunctions)
         {
-            for(Call c : f.getCalls())
+            for(Call c : f.getTotalCalls())
             {
                 total.add(c.getFunction());
             }
@@ -74,52 +74,20 @@ public class SourceCode
             this.addFunction(function);
         }
     }
-
-    public Set<GlobalVariable> getProgramGlobals()
-    {
-        Set<GlobalVariable> programGlobals = 
-                new HashSet<GlobalVariable>();
-        
-        for(GlobalVariable gv : this.globalVariables)
-        {
-            if(!gv.isStatic())
-            {
-                programGlobals.add(gv);
-            }
-        }
-        
-        return programGlobals;
-    }
     
-    public Set<GlobalVariable> getFileGlobals()
+    public Set<GlobalVariable> getCoreGlobalVariables()
     {
-        Set<GlobalVariable> programGlobals = 
-                new HashSet<GlobalVariable>();
-        
-        for(GlobalVariable gv : this.globalVariables)
-        {
-            if(gv.isStatic())
-            {
-                programGlobals.add(gv);
-            }
-        }
-        
-        return programGlobals;
-    }
-    
-    public Set<GlobalVariable> getGlobalVariables()
-    {
-        return new HashSet<GlobalVariable>(this.globalVariables);
+        return new HashSet<GlobalVariable>(this.coreGlobalVariables);
     }
 
     public void addGlobalVariable(final GlobalVariable globalVariable)
     {
-        if(!this.globalVariables.contains(globalVariable))
+        if(!this.coreGlobalVariables.contains(globalVariable))
         {
             this.hasChanged = true;
         }
         
-        this.globalVariables.add(globalVariable);
+        this.coreGlobalVariables.add(globalVariable);
         globalVariable.setSourceCode(this);
     }
 
@@ -162,17 +130,17 @@ public class SourceCode
     
     public Set<Function> getCoreFunctionsCalling(Function function)
     {
-        return function.getCallingFunctions().keySet();
+        return function.getCoreCallingFunctions().keySet();
     }
     
     public Set<GlobalVariable> getCoreGlobalsUsedBy(Function function)
     {
-        return function.getGlobalVariables().keySet();
+        return function.getCoreGlobalVariables().keySet();
     }
     
     public Set<Function> getCoreFunctionUsing(GlobalVariable global)
     {
-        return global.getUsingFunctions().keySet();
+        return global.getCoreUsingFunctions().keySet();
     }
     
     public Set<ComplexType> getCoreTypesUsedBy(Function function)
@@ -187,7 +155,7 @@ public class SourceCode
     
     public Set<GlobalVariable> getCoreGlobalsUsing(ComplexType type)
     {
-        return type.getUsingGlobalVariables();
+        return type.getCoreUsingGlobalVariables();
     }
     
     public Set<Function> getTotalFunctionsCalledBy(Function function)
@@ -197,17 +165,17 @@ public class SourceCode
     
     public Set<Function> getTotalFunctionsCalling(Function function)
     {
-        return function.getCallingFunctions().keySet();
+        return function.getCoreCallingFunctions().keySet();
     }
     
     public Set<GlobalVariable> getTotalGlobalsUsedBy(Function function)
     {
-        return function.getGlobalVariables().keySet();
+        return function.getCoreGlobalVariables().keySet();
     }
     
     public Set<Function> getTotalFunctionUsing(GlobalVariable global)
     {
-        return global.getUsingFunctions().keySet();
+        return global.getCoreUsingFunctions().keySet();
     }
     
     public Set<ComplexType> getTotalTypesUsedBy(Function function)
@@ -222,6 +190,6 @@ public class SourceCode
     
     public Set<GlobalVariable> getTotalGlobalsUsing(ComplexType type)
     {
-        return type.getUsingGlobalVariables();
+        return type.getCoreUsingGlobalVariables();
     }
 }

@@ -212,7 +212,7 @@ public class Coupling
 
         if ((f1 != null) && (f2 != null) && (f1.equals(f2) == false))
         {
-            Set<Call> calls = f1.getCalls();
+            Set<Call> calls = f1.getTotalCalls();
             Function fctCalled = null;
 
             for (Call call1 : calls)
@@ -249,7 +249,7 @@ public class Coupling
         if (fct != null && var != null)
         {
             Map<GlobalVariable, Integer> globalVarsFct = fct
-                    .getGlobalVariables();
+                    .getCoreGlobalVariables();
             
             if (globalVarsFct.containsKey(var))
             {

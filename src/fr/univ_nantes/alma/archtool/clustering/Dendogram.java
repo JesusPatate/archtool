@@ -355,7 +355,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
      */
     private void extractVariables()
     {
-        for (final GlobalVariable var : this.sourceCode.getGlobalVariables())
+        for (final GlobalVariable var : this.sourceCode.getCoreGlobalVariables())
         {
             final Dendogram.Node node = new Node();
             node.addVariable(var);

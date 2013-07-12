@@ -10,7 +10,7 @@ public class GlobalVariable extends Variable
     private SourceCode sourceCode = null;
     
     // Cached data
-    private Map<Function, Integer> usingFunctions = null;   
+    private Map<Function, Integer> coreUsingFunctions = null;   
 
     public GlobalVariable(final String name, final Type type, boolean isStatic,
             final File sourceFile)
@@ -47,28 +47,28 @@ public class GlobalVariable extends Variable
         this.sourceCode = sourceCode;
     }
     
-    public Map<Function, Integer> getUsingFunctions()
+    public Map<Function, Integer> getCoreUsingFunctions()
     {
-        if(this.sourceCode != null && (this.usingFunctions == null ||
+        if(this.sourceCode != null && (this.coreUsingFunctions == null ||
                 this.sourceCode.hasChanged()))
         {            
-            this.usingFunctions = new HashMap<Function, Integer>();
+            this.coreUsingFunctions = new HashMap<Function, Integer>();
             
             for(Function function : this.sourceCode.getCoreFunctions())
             {
                 Map<GlobalVariable, Integer> usedGlobalVariables = 
-                        function.getGlobalVariables();
+                        function.getCoreGlobalVariables();
                 
                 if(usedGlobalVariables.containsKey(this))
                 {
-                    this.usingFunctions.put(function,
-                            usingFunctions.get(this));
+                    this.coreUsingFunctions.put(function,
+                            coreUsingFunctions.get(this));
                 }
             }
         }
         
-        return this.usingFunctions == null ?
+        return this.coreUsingFunctions == null ?
                 new HashMap<Function, Integer>() : 
-                new HashMap<Function, Integer>(this.usingFunctions);
+                new HashMap<Function, Integer>(this.coreUsingFunctions);
     }   
 }

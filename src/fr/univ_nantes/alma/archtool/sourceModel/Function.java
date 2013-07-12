@@ -51,7 +51,7 @@ public class Function
     private Map<LocalVariable, Integer> localVariablesUse = null;
     
     // Cached data
-    private Map<GlobalVariable, Integer> globalVariablesUse = null;
+    private Map<GlobalVariable, Integer> coreGlobalVariablesUse = null;
     
     // Cached data
     private Map<ComplexType, Integer> totalComplexTypeUse = null;
@@ -60,7 +60,7 @@ public class Function
     private Map<ComplexType, Integer> coreComplexTypeUse = null;
     
     // Cached data
-    private Map<Function, Integer> callingFunctions = null;
+    private Map<Function, Integer> coreCallingFunctions = null;
 
     /**
      * Constructeur pour les fonctions dont on ne connait pas la définition.
@@ -146,40 +146,14 @@ public class Function
      * @return Une map ayant pour clés les variables globales accédées dans le
      *         corps de la fonction et pour valeurs leur nombre d'accès.
      */
-    public Map<GlobalVariable, Integer> getGlobalVariables()
+    public Map<GlobalVariable, Integer> getCoreGlobalVariables()
     {
-        if(this.globalVariablesUse == null)
+        if(this.coreGlobalVariablesUse == null)
         {
-            this.globalVariablesUse = this.body.getGlobalVariables();
+            this.coreGlobalVariablesUse = this.body.getGlobalVariables();
         }
         
-        return new HashMap<GlobalVariable, Integer>(this.globalVariablesUse);
-    }
-
-    /**
-     * Renvoie l'ensemble des variables globales au programme utilisées par la
-     * fonction.
-     * 
-     * @return Une map ayant pour clés les variables globales au programme
-     *         accédées dans le corps de la fonction et pour valeurs leur nombre
-     *         d'accès.
-     */
-    public Map<GlobalVariable, Integer> getProgramGlobals()
-    {
-        return this.body.getProgramGlobals();
-    }
-
-    /**
-     * Renvoie l'ensemble des variables globales au fichier utilisées par la
-     * fonction.
-     * 
-     * @return Une map ayant pour clés les variables globales au fichier
-     *         accédées dans le corps de la fonction et pour valeurs leur nombre
-     *         d'accès.
-     */
-    public Map<GlobalVariable, Integer> getFileGlobals()
-    {
-        return this.body.getFileGlobals();
+        return new HashMap<GlobalVariable, Integer>(this.coreGlobalVariablesUse);
     }
 
     /**
@@ -208,7 +182,7 @@ public class Function
      * @return Un set contenant les appels réalisés dans le corps de la
      *         fonction.
      */
-    public Set<Call> getCalls()
+    public Set<Call> getTotalCalls()
     {
         if(this.calls == null)
         {
@@ -287,7 +261,7 @@ public class Function
             MultiCounter<Function> functionCounter = 
                     new MultiCounter<Function>();
             
-            for(Call call : this.getCalls())
+            for(Call call : this.getTotalCalls())
             {
                 functionCounter.increment(call.getFunction());
             }
@@ -322,12 +296,12 @@ public class Function
                 new HashMap<Function, Integer>(this.coreCalledFunctions);
     }
     
-    public Map<Function, Integer> getCallingFunctions()
+    public Map<Function, Integer> getCoreCallingFunctions()
     {
-        if(this.sourceCode != null && (this.callingFunctions == null ||
+        if(this.sourceCode != null && (this.coreCallingFunctions == null ||
                 this.sourceCode.hasChanged()))
         {            
-            this.callingFunctions = new HashMap<Function, Integer>();
+            this.coreCallingFunctions = new HashMap<Function, Integer>();
             
             for(Function function : this.sourceCode.getCoreFunctions())
             {
@@ -336,15 +310,15 @@ public class Function
                 
                 if(calledFunctions.containsKey(this))
                 {
-                    this.callingFunctions.put(function,
+                    this.coreCallingFunctions.put(function,
                             calledFunctions.get(this));
                 }
             }
         }
         
-        return this.callingFunctions == null ?
+        return this.coreCallingFunctions == null ?
                 new HashMap<Function, Integer>() : 
-                new HashMap<Function, Integer>(this.callingFunctions);
+                new HashMap<Function, Integer>(this.coreCallingFunctions);
     }   
 
     @Override

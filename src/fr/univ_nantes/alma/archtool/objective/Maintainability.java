@@ -249,7 +249,7 @@ public class Maintainability
             this.functionNodes.put(fct, new HashSet<Object>());
         }
 
-        for (Call call : fct.getCalls())
+        for (Call call : fct.getTotalCalls())
         {
             Function callee = call.getFunction();
             
@@ -267,7 +267,7 @@ public class Maintainability
             }
         }
 
-        for (GlobalVariable var : fct.getGlobalVariables().keySet())
+        for (GlobalVariable var : fct.getCoreGlobalVariables().keySet())
         {
             this.functionNodes.get(fct).add(var);
 

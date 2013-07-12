@@ -42,7 +42,7 @@ public class InterfaceIdentifier
                     function.getCoreCalledFunctions().keySet();
             Set<ComplexType> typesOut = function.getCoreComplexTypes().keySet();
             Set<GlobalVariable> globalsOut = 
-                    function.getGlobalVariables().keySet();
+                    function.getCoreGlobalVariables().keySet();
             
             // Entities of the component
             Set<Function> functionsComponent = 
@@ -53,7 +53,7 @@ public class InterfaceIdentifier
                     coa.getComponentVariables(component);
             
             // Entities using function
-            Set<Function> functionsIn = function.getCallingFunctions().keySet();
+            Set<Function> functionsIn = function.getCoreCallingFunctions().keySet();
             
             if((!Collections.disjoint(functionsOut, functionsComponent) && 
                     !Collections.disjoint(typesOut, typesComponent) && 
@@ -130,7 +130,7 @@ public class InterfaceIdentifier
                     coa.getComponentTypes(component);
             
             // Entities using global variable
-            Set<Function> functionsIn = variable.getUsingFunctions().keySet();
+            Set<Function> functionsIn = variable.getCoreUsingFunctions().keySet();
             
             if((typeOut.isComplex() &&
                     typesComponent.contains((ComplexType) typeOut)) ||
@@ -169,14 +169,14 @@ public class InterfaceIdentifier
             Function function = functionsToIn.poll();
             
             // Entities using function
-            Set<Function> functionsIn = function.getCallingFunctions().keySet();
+            Set<Function> functionsIn = function.getCoreCallingFunctions().keySet();
             
             // Entities used by function
             Set<Function> functionsOut = 
                     function.getCoreCalledFunctions().keySet();
             Set<ComplexType> typesOut = function.getCoreComplexTypes().keySet();
             Set<GlobalVariable> globalsOut = 
-                    function.getGlobalVariables().keySet();
+                    function.getCoreGlobalVariables().keySet();
     
             // Entities of the component
             Set<Function> functionsComponent = 
@@ -207,7 +207,8 @@ public class InterfaceIdentifier
             GlobalVariable variable = globalsToIn.poll();
             
             // Entities using global variable
-            Set<Function> functionsIn = variable.getUsingFunctions().keySet();
+            Set<Function> functionsIn = 
+                    variable.getCoreUsingFunctions().keySet();
             
             // Entities used by global variable
             Type typeOut = variable.getType();

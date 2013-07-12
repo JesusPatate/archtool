@@ -108,7 +108,7 @@ public class CohesionTest
                         (Double) PrivateAccessor.invoke(cohesion,
                                 "cohesionCalls", classes, args);
 
-                if (fct.getCalls().size() > 0)
+                if (fct.getTotalCalls().size() > 0)
                 {
                     assertTrue("Cohésion entre fonctions sur les appels "
                             + "invalide (" + result + ")", result == 100.0);
@@ -164,7 +164,7 @@ public class CohesionTest
                         (Double) PrivateAccessor.invoke(cohesion,
                                 "cohesionGlobalVars", classes, args);
 
-                if (fct.getGlobalVariables().size() > 0)
+                if (fct.getCoreGlobalVariables().size() > 0)
                 {
                     assertTrue("Cohésion entre fonctions sur les variables "
                             + "globales invalide (" + result + ")",

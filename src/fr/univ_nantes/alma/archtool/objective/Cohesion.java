@@ -849,7 +849,7 @@ public class Cohesion
         double total = 0.0; // Total accesses
         double nbAccessToVar = 0.0;
 
-        Map<GlobalVariable, Integer> fctVars = fct.getGlobalVariables();
+        Map<GlobalVariable, Integer> fctVars = fct.getCoreGlobalVariables();
 
         for (Integer n : fctVars.values())
         {
@@ -952,8 +952,8 @@ public class Cohesion
     {
         double result = 0.0;
 
-        Map<GlobalVariable, Integer> globalVars1 = f1.getGlobalVariables();
-        Map<GlobalVariable, Integer> globalVars2 = f2.getGlobalVariables();
+        Map<GlobalVariable, Integer> globalVars1 = f1.getCoreGlobalVariables();
+        Map<GlobalVariable, Integer> globalVars2 = f2.getCoreGlobalVariables();
         
         Set<GlobalVariable> globalVarsTotal = new HashSet<GlobalVariable>();
         Set<GlobalVariable> globalVarsCommon = new HashSet<GlobalVariable>();
@@ -1115,8 +1115,8 @@ public class Cohesion
     {
         double result = 0.0;
 
-        Set<Call> calls1 = f1.getCalls();
-        Set<Call> calls2 = f2.getCalls();
+        Set<Call> calls1 = f1.getTotalCalls();
+        Set<Call> calls2 = f2.getTotalCalls();
 
         Set<Function> fctCalledTotal = new HashSet<Function>();
         Set<Function> fctCalledCommon = new HashSet<Function>();

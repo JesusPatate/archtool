@@ -308,7 +308,7 @@ public class ObjectiveFunction
         
         for(Function fct : conFcts)
         {
-            for(GlobalVariable var : fct.getGlobalVariables().keySet())
+            for(GlobalVariable var : fct.getCoreGlobalVariables().keySet())
             {
                 graph.addEdge(fct, var);
             }

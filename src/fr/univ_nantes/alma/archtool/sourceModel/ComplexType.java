@@ -12,7 +12,7 @@ public class ComplexType extends Type
     private SourceCode sourceCode = null;
     
     // Cached data
-    private Set<GlobalVariable> usingGlobalVariables = null;
+    private Set<GlobalVariable> coreUsingGlobalVariables = null;
     
     // Cached data
     private Map<Function, Integer> totalUsingFunctions = null;
@@ -31,28 +31,28 @@ public class ComplexType extends Type
         this.sourceCode = sourceCode;
     }
     
-    public Set<GlobalVariable> getUsingGlobalVariables()
+    public Set<GlobalVariable> getCoreUsingGlobalVariables()
     {
-        if(this.sourceCode != null && (this.usingGlobalVariables == null ||
+        if(this.sourceCode != null && (this.coreUsingGlobalVariables == null ||
                 this.sourceCode.hasChanged()))
         {            
-            this.usingGlobalVariables = new HashSet<GlobalVariable>();
+            this.coreUsingGlobalVariables = new HashSet<GlobalVariable>();
             
             for(GlobalVariable globalVariable : 
-                this.sourceCode.getGlobalVariables())
+                this.sourceCode.getCoreGlobalVariables())
             {
                 Type type = globalVariable.getType();
                 
                 if(type.isComplex && (ComplexType) type == this)
                 {
-                    this.usingGlobalVariables.add(globalVariable);
+                    this.coreUsingGlobalVariables.add(globalVariable);
                 }
             }
         }
         
-        return this.usingGlobalVariables == null ?
+        return this.coreUsingGlobalVariables == null ?
                 new HashSet<GlobalVariable>() : 
-                new HashSet<GlobalVariable>(this.usingGlobalVariables);
+                new HashSet<GlobalVariable>(this.coreUsingGlobalVariables);
     }   
     
     public Map<Function, Integer> getTotalUsingFunctions()
