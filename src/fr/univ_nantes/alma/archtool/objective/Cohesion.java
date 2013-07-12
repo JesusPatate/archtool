@@ -7,7 +7,6 @@ import java.util.Set;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
-import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -65,14 +64,8 @@ public class Cohesion
      */
     static final int VARNAME_MIN_LEN = 3;
 
-    private final COA coa;
-
     private static final Similarity similarity = new Similarity();
 
-    public Cohesion(final COA coa)
-    {
-        this.coa = coa;
-    }
 
     /**
      * Évalue la cohésion entre 2 interfaces.
@@ -83,14 +76,14 @@ public class Cohesion
     {
         double result = 0.0;
 
-        Set<Function> functions1 = this.coa.getInterfaceFunctions(itf1);
-        Set<Function> functions2 = this.coa.getInterfaceFunctions(itf2);
+        Set<Function> functions1 = itf1.getFunctions();
+        Set<Function> functions2 = itf2.getFunctions();
 
-        Set<GlobalVariable> variables1 = this.coa.getInterfaceVariables(itf1);
-        Set<GlobalVariable> variables2 = this.coa.getInterfaceVariables(itf2);
+        Set<GlobalVariable> variables1 = itf1.getGlobalVariables();
+        Set<GlobalVariable> variables2 = itf2.getGlobalVariables();
 
-        Set<ComplexType> types1 = this.coa.getInterfaceTypes(itf1);
-        Set<ComplexType> types2 = this.coa.getInterfaceTypes(itf2);
+        Set<ComplexType> types1 = itf1.getComplexTypes();
+        Set<ComplexType> types2 = itf2.getComplexTypes();
 
         int nbPairs = 0;
 
@@ -150,9 +143,9 @@ public class Cohesion
     {
         double result = 0.0;
 
-        int nbFcts = this.coa.getComponentFunctions(comp).size();
-        int nbVars = this.coa.getComponentVariables(comp).size();
-        int nbTypes = this.coa.getComponentTypes(comp).size();
+        int nbFcts = comp.getFunctions().size();
+        int nbVars = comp.getGlobalVariables().size();
+        int nbTypes = comp.getComplexTypes().size();
 
         if (nbFcts + nbVars + nbTypes > 1)
         {
@@ -207,9 +200,9 @@ public class Cohesion
     {
         double result = 0.0;
 
-        int nbFcts = this.coa.getInterfaceFunctions(itf).size();
-        int nbVars = this.coa.getInterfaceVariables(itf).size();
-        int nbTypes = this.coa.getInterfaceTypes(itf).size();
+        int nbFcts = itf.getFunctions().size();
+        int nbVars = itf.getGlobalVariables().size();
+        int nbTypes = itf.getComplexTypes().size();
 
         if (nbFcts + nbVars + nbTypes > 1)
         {
@@ -264,9 +257,9 @@ public class Cohesion
     {
         double result = 0.0;
 
-        int nbFcts = this.coa.getConnectorFunctions(con).size();
-        int nbVars = this.coa.getConnectorVariables(con).size();
-        int nbTypes = this.coa.getConnectorTypes(con).size();
+        int nbFcts = con.getFunctions().size();
+        int nbVars = con.getGlobalVariables().size();
+        int nbTypes = con.getComplexTypes().size();
 
         if (nbFcts + nbVars + nbTypes > 1)
         {
@@ -321,19 +314,14 @@ public class Cohesion
     {
         double result = 0.0;
         double sum = 0.0;
+        
+        Function[] fctArray = (Function[]) comp.getFunctions().toArray();
 
-        Set<Function> functions = this.coa.getComponentFunctions(comp);
-        int nbFunctions = functions.size();
-
-        if (nbFunctions > 0)
+        if (fctArray.length > 0)
         {
-
-            Function[] fctArray = new Function[nbFunctions];
-            this.coa.getComponentFunctions(comp).toArray(fctArray);
-
-            for (int i = 0; i < (nbFunctions - 1); ++i)
+            for (int i = 0; i < (fctArray.length - 1); ++i)
             {
-                for (int j = (i + 1); j < nbFunctions; ++j)
+                for (int j = (i + 1); j < fctArray.length; ++j)
                 {
                     final Function f1 = fctArray[i];
                     final Function f2 = fctArray[j];
@@ -342,7 +330,7 @@ public class Cohesion
                 }
             }
 
-            result = sum / (nbFunctions * (nbFunctions - 1) / 2);
+            result = sum / (fctArray.length * (fctArray.length - 1) / 2);
         }
 
         else
@@ -366,17 +354,13 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<Function> functions = this.coa.getInterfaceFunctions(itf);
-        int nbFunctions = functions.size();
+        Function[] fctArray = (Function[]) itf.getFunctions().toArray();
 
-        if (nbFunctions > 0)
+        if (fctArray.length > 0)
         {
-            Function[] fctArray = new Function[nbFunctions];
-            this.coa.getInterfaceFunctions(itf).toArray(fctArray);
-
-            for (int i = 0; i < (nbFunctions - 2); ++i)
+            for (int i = 0; i < (fctArray.length - 2); ++i)
             {
-                for (int j = (i + 1); j < (nbFunctions - 1); ++j)
+                for (int j = (i + 1); j < (fctArray.length - 1); ++j)
                 {
                     final Function f1 = fctArray[i];
                     final Function f2 = fctArray[j];
@@ -385,7 +369,7 @@ public class Cohesion
                 }
             }
 
-            result = sum / (nbFunctions * (nbFunctions - 1) / 2);
+            result = sum / (fctArray.length * (fctArray.length - 1) / 2);
         }
 
         return result;
@@ -404,17 +388,13 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<Function> functions = this.coa.getConnectorFunctions(con);
-        int nbFunctions = functions.size();
+        Function[] fctArray = (Function[]) con.getFunctions().toArray();
 
-        if (nbFunctions > 0)
+        if (fctArray.length > 0)
         {
-            Function[] fctArray = new Function[nbFunctions];
-            this.coa.getConnectorFunctions(con).toArray(fctArray);
-
-            for (int i = 0; i < (nbFunctions - 2); ++i)
+            for (int i = 0; i < (fctArray.length - 2); ++i)
             {
-                for (int j = (i + 1); j < (nbFunctions - 1); ++j)
+                for (int j = (i + 1); j < (fctArray.length - 1); ++j)
                 {
                     final Function f1 = fctArray[i];
                     final Function f2 = fctArray[j];
@@ -423,7 +403,7 @@ public class Cohesion
                 }
             }
 
-            result = sum / (nbFunctions * (nbFunctions - 1) / 2);
+            result = sum / (fctArray.length * (fctArray.length - 1) / 2);
         }
 
         return result;
@@ -443,8 +423,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<Function> compFcts = this.coa.getComponentFunctions(comp);
-        Set<GlobalVariable> compVars = this.coa.getComponentVariables(comp);
+        Set<Function> compFcts = comp.getFunctions();
+        Set<GlobalVariable> compVars = comp.getGlobalVariables();
 
         for (Function fct : compFcts)
         {
@@ -478,8 +458,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<Function> itfFcts = this.coa.getInterfaceFunctions(itf);
-        Set<GlobalVariable> itfVars = this.coa.getInterfaceVariables(itf);
+        Set<Function> itfFcts = itf.getFunctions();
+        Set<GlobalVariable> itfVars = itf.getGlobalVariables();
 
         for (Function fct : itfFcts)
         {
@@ -513,8 +493,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<Function> conFcts = this.coa.getConnectorFunctions(con);
-        Set<GlobalVariable> conVars = this.coa.getConnectorVariables(con);
+        Set<Function> conFcts = con.getFunctions();
+        Set<GlobalVariable> conVars = con.getGlobalVariables();
 
         for (Function fct : conFcts)
         {
@@ -548,8 +528,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<Function> compFcts = this.coa.getComponentFunctions(comp);
-        Set<ComplexType> compTypes = this.coa.getComponentTypes(comp);
+        Set<Function> compFcts = comp.getFunctions();
+        Set<ComplexType> compTypes = comp.getComplexTypes();
 
         for (Function fct : compFcts)
         {
@@ -583,8 +563,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<Function> itfFcts = this.coa.getInterfaceFunctions(itf);
-        Set<ComplexType> itfTypes = this.coa.getInterfaceTypes(itf);
+        Set<Function> itfFcts = itf.getFunctions();
+        Set<ComplexType> itfTypes = itf.getComplexTypes();
 
         for (Function fct : itfFcts)
         {
@@ -618,8 +598,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<Function> conFcts = this.coa.getConnectorFunctions(con);
-        Set<ComplexType> conTypes = this.coa.getConnectorTypes(con);
+        Set<Function> conFcts = con.getFunctions();
+        Set<ComplexType> conTypes = con.getComplexTypes();
 
         for (Function fct : conFcts)
         {
@@ -658,8 +638,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<GlobalVariable> compVars = this.coa.getComponentVariables(comp);
-        Set<ComplexType> compTypes = this.coa.getComponentTypes(comp);
+        Set<GlobalVariable> compVars = comp.getGlobalVariables();
+        Set<ComplexType> compTypes = comp.getComplexTypes();
 
         for (Variable var : compVars)
         {
@@ -701,8 +681,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<GlobalVariable> compVars = this.coa.getInterfaceVariables(itf);
-        Set<ComplexType> compTypes = this.coa.getInterfaceTypes(itf);
+        Set<GlobalVariable> compVars = itf.getGlobalVariables();
+        Set<ComplexType> compTypes = itf.getComplexTypes();
 
         for (Variable var : compVars)
         {
@@ -744,8 +724,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Set<GlobalVariable> compVars = this.coa.getConnectorVariables(con);
-        Set<ComplexType> compTypes = this.coa.getConnectorTypes(con);
+        Set<GlobalVariable> compVars = con.getGlobalVariables();
+        Set<ComplexType> compTypes = con.getComplexTypes();
 
         for (Variable var : compVars)
         {

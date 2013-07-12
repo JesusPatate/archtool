@@ -6,7 +6,6 @@ import java.util.Set;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
-import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -14,14 +13,7 @@ import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
 public class Coupling
-{
-    private final COA coa;
-    
-    public Coupling(COA coa)
-    {
-        this.coa = coa;
-    }
-    
+{    
     /**
      * Évalue le couplage interne d'un composant.
      * 
@@ -37,9 +29,9 @@ public class Coupling
     {
         int result = 0;
 
-        Set<Function> functions = this.coa.getComponentFunctions(comp);
-        Set<GlobalVariable> variables = this.coa.getComponentVariables(comp);
-        Set<ComplexType> types = this.coa.getComponentTypes(comp);
+        Set<Function> functions = comp.getFunctions();
+        Set<GlobalVariable> variables = comp.getGlobalVariables();
+        Set<ComplexType> types = comp.getComplexTypes();
 
         if (functions.size() > 0)
         {
@@ -94,9 +86,9 @@ public class Coupling
     {
         int result = 0;
 
-        Set<Function> functions = this.coa.getInterfaceFunctions(itf);
-        Set<GlobalVariable> variables = this.coa.getInterfaceVariables(itf);
-        Set<ComplexType> types = this.coa.getInterfaceTypes(itf);
+        Set<Function> functions = itf.getFunctions();
+        Set<GlobalVariable> variables = itf.getGlobalVariables();
+        Set<ComplexType> types = itf.getComplexTypes();
 
         if (functions.size() > 0)
         {
@@ -151,9 +143,9 @@ public class Coupling
     {
         int result = 0;
 
-        Set<Function> functions = this.coa.getConnectorFunctions(con);
-        Set<GlobalVariable> variables = this.coa.getConnectorVariables(con);
-        Set<ComplexType> types = this.coa.getConnectorTypes(con);
+        Set<Function> functions = con.getFunctions();
+        Set<GlobalVariable> variables = con.getGlobalVariables();
+        Set<ComplexType> types = con.getComplexTypes();
 
         if (functions.size() > 0)
         {

@@ -9,7 +9,6 @@ import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Configuration;
 import fr.univ_nantes.alma.archtool.architectureModel.Connection;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
-import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
@@ -26,15 +25,8 @@ public class Maintainability
     private Map<Component, Set<Object>> componentNodes;
 
     private Map<Integer, Integer> degreesMap;
-
-    private COA coa;
     
-    public Maintainability(COA coa)
-    {
-        this.coa = coa;
-    }
-    
-    public double process(Component comp, COA coa)
+    public double process(Component comp)
     {
         double result = 0.0;
         
@@ -43,7 +35,7 @@ public class Maintainability
         this.typeNodes = new HashMap<Type, Set<Object>>();
         this.degreesMap = new HashMap<Integer, Integer>();
         
-        this.computeDegrees(comp, coa);
+        this.computeDegrees(comp);
         this.fillDegreesMap();
         
         int solution = this.resolveEquation();
@@ -74,7 +66,7 @@ public class Maintainability
         return result;
     }
 
-    public double process(Connector con, COA coa)
+    public double process(Connector con)
     {
         double result = 0.0;
 
@@ -83,7 +75,7 @@ public class Maintainability
         this.typeNodes = new HashMap<Type, Set<Object>>();
         this.degreesMap = new HashMap<Integer, Integer>();
         
-        this.computeDegrees(con, coa);
+        this.computeDegrees(con);
         this.fillDegreesMap();
         
         int solution = this.resolveEquation();
@@ -151,10 +143,10 @@ public class Maintainability
         return result;
     }
 
-    private void computeDegrees(Component comp, COA coa)
+    private void computeDegrees(Component comp)
     {
-        Set<Function> fcts = coa.getComponentFunctions(comp);
-        Set<GlobalVariable> vars = coa.getComponentVariables(comp);
+        Set<Function> fcts = comp.getFunctions();
+        Set<GlobalVariable> vars = comp.getGlobalVariables();
 
         for (Function fct : fcts)
         {
@@ -167,10 +159,10 @@ public class Maintainability
         }
     }
 
-    private void computeDegrees(Connector con, COA coa)
+    private void computeDegrees(Connector con)
     {
-        Set<Function> fcts = coa.getConnectorFunctions(con);
-        Set<GlobalVariable> vars = coa.getConnectorVariables(con);
+        Set<Function> fcts = con.getFunctions();
+        Set<GlobalVariable> vars = con.getGlobalVariables();
 
         for (Function fct : fcts)
         {

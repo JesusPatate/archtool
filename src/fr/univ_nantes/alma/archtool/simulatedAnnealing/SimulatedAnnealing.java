@@ -4,10 +4,8 @@ import java.util.Random;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.clustering.Clustering;
-import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
-import fr.univ_nantes.alma.archtool.utils.Pair;
 
 /**
  * Métaheuristique de recuit simulé.
@@ -65,24 +63,14 @@ public class SimulatedAnnealing
     private Architecture currentSolution = null;
 
     /**
-     * COA courant
-     */
-    private COA currentCOA = null;
-
-    /**
      * Valeur de la fonction objectif pour l'architecture courante
      */
     private double currentScore = 0.0;
 
     /**
-     * Meilleure architecure connue
+     * Meilleure architecture connue
      */
     private Architecture bestSolution = null;
-
-    /**
-     * Meilleure architecure connue
-     */
-    private COA bestCOA = null;
 
     /**
      * Valeur de la fonction objectif pour la meilleure architecture connue
@@ -104,7 +92,7 @@ public class SimulatedAnnealing
     /**
      * Fonction objectif.
      */
-    private static ObjectiveFunction objFunction = new ObjectiveFunction();
+    private ObjectiveFunction objFunction = new ObjectiveFunction();
 
     /**
      * Algorithme de clustering pour générer la solution initiale.
@@ -113,19 +101,12 @@ public class SimulatedAnnealing
 
     public Architecture process(SourceCode sourceCode)
     {
-        Pair<Architecture, COA> clusteringResult =
-                this.clusteringAlgo.process(sourceCode);
-
-        this.currentSolution = clusteringResult.getFirst();
-        this.currentCOA = clusteringResult.getSecond();
-
-        currentScore = this.objFunction.evaluate(currentSolution, currentCOA);
+        this.currentSolution = this.clusteringAlgo.process(sourceCode);
+        currentScore = this.objFunction.evaluate(currentSolution);
 
         boolean stop = false;
         
-        Pair<Architecture, COA> neighbour = null;
-        Architecture neighbourArch = null;
-        COA neighbourCOA = null;
+        Architecture neighbour = null;
 
         Random randomGen = null;
 
@@ -138,28 +119,23 @@ public class SimulatedAnnealing
             
             while (nbMoves < PLATEAU_LENGTH)
             {
-                neighbour = move(currentSolution, currentCOA);
-                neighbourArch = neighbour.getFirst();
-                neighbourCOA = neighbour.getSecond();
+                neighbour = move(currentSolution);
 
-                double neighbourScore =
-                        objFunction.evaluate(neighbourArch, neighbourCOA);
+                double neighbourScore = objFunction.evaluate(neighbour);
 
                 double proba = acceptanceFct(neighbourScore);
                 double rand = randomGen.nextDouble();
 
                 if (rand < proba)
                 {
-                    this.currentSolution = neighbourArch;
-                    this.currentCOA = neighbourCOA;
+                    this.currentSolution = neighbour;
                     this.currentScore = neighbourScore;
 
                     ++nbMoves;
 
                     if (currentScore > bestScore)
                     {
-                        this.bestSolution = neighbourArch;
-                        this.bestCOA = neighbourCOA;
+                        this.bestSolution = neighbour;
                         this.bestScore = neighbourScore;
                     }
                 }
@@ -176,10 +152,9 @@ public class SimulatedAnnealing
         return bestSolution;
     }
 
-    private Pair<Architecture, COA> move(Architecture currentSolution,
-            COA currentCOA)
+    private Architecture move(Architecture currentSolution)
     {
-        Pair<Architecture, COA> result = null;
+        Architecture result = null;
 
         return result;
     }

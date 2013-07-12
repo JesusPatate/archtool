@@ -6,7 +6,6 @@ import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
-import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
@@ -98,8 +97,6 @@ public class ObjectiveFunction
 
     private Architecture architecture;
 
-    private COA coa;
-
     private Cohesion cohesion;
 
     private Coupling coupling;
@@ -114,16 +111,14 @@ public class ObjectiveFunction
      * 
      * @return Le résultat de la fonction objectif
      */
-    public double evaluate(final Architecture arch, final COA coa)
+    public double evaluate(final Architecture arch)
     {
         double result = 0.0;
 
         this.architecture = arch;
-        this.coa = coa;
-
-        this.cohesion = new Cohesion(this.coa);
-        this.coupling = new Coupling(this.coa);
-        this.maintainability = new Maintainability(this.coa);
+        this.cohesion = new Cohesion();
+        this.coupling = new Coupling();
+        this.maintainability = new Maintainability();
 
         result += WEIGHT_SEM * this.evaluateSemanticArchitecture();
 //        result +=  WEIGHT_QUAL * this.evaluateArchQuality();
@@ -287,9 +282,9 @@ public class ObjectiveFunction
 
         Graph<Object> graph = new Graph<Object>();
         
-        Set<Function> conFcts = this.coa.getConnectorFunctions(con);
-        Set<GlobalVariable> conVars = this.coa.getConnectorVariables(con);
-        Set<ComplexType> conTypes = this.coa.getConnectorTypes(con);
+        Set<Function> conFcts = con.getFunctions();
+        Set<GlobalVariable> conVars = con.getGlobalVariables();
+        Set<ComplexType> conTypes = con.getComplexTypes();
         
         for(Function fct : conFcts)
         {
@@ -436,7 +431,7 @@ public class ObjectiveFunction
 
         for (Component comp : this.architecture.getComponents())
         {
-            subresult += this.maintainability.process(comp, this.coa);
+            subresult += this.maintainability.process(comp);
         }
 
         if(this.architecture.nbComponents() > 0)
@@ -449,7 +444,7 @@ public class ObjectiveFunction
 
         for (Connector con : this.architecture.getConnectors())
         {
-            subresult += this.maintainability.process(con, this.coa);
+            subresult += this.maintainability.process(con);
         }
 
         if(this.architecture.nbConnectors() > 0)

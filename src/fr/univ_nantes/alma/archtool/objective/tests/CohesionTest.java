@@ -19,7 +19,7 @@ import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 
 public class CohesionTest
 {
-    private static Cohesion cohesion = new Cohesion(null);
+    private static Cohesion cohesion = new Cohesion();
     private static CProcessor cp = new CProcessor();
 
     @BeforeClass

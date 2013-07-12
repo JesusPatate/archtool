@@ -14,7 +14,6 @@ import org.junit.Test;
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
-import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.Block;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
@@ -40,9 +39,10 @@ public class ObjectiveFunctionTest
     private static LocalVariable v3;
 
     private static GlobalVariable v4;
+    
+    private Architecture architecture = new Architecture();
 
     private ObjectiveFunction obj;
-    private COA coa;
 
     @BeforeClass
     public static void setUpBeforeClass()
@@ -72,7 +72,6 @@ public class ObjectiveFunctionTest
     @Before
     public void setUp()
     {
-        this.coa = new COA(new SourceCode());
         this.obj = new ObjectiveFunction();
     }
 
@@ -85,35 +84,30 @@ public class ObjectiveFunctionTest
     public void testEvaluate1()
     {
         Component comp1 = new Component();
-        this.coa.addComponent(comp1);
-        this.coa.addFunction(fct1, comp1);
+        this.architecture.addComponent(comp1);
+        comp1.addFunction(fct1);
 
         Component comp2 = new Component();
-        this.coa.addComponent(comp2);
-        this.coa.addFunction(fct1, comp2);
+        this.architecture.addComponent(comp2);
+        comp2.addFunction(fct1);
 
         Interface itf1 = new Interface();
-        this.coa.addInterface(itf1);
-        this.coa.addFunction(fct1, itf1);
+        comp1.addProvidedInterface(itf1);
+        itf1.addFunction(fct1);
 
         Interface itf2 = new Interface();
-        this.coa.addInterface(itf2);
-        this.coa.addFunction(fct2, itf2);
-
-        comp1.addProvidedInterface(itf1);
         comp2.addRequiredInterface(itf2);
+        itf2.addFunction(fct2);        
 
         Architecture arch1 = new Architecture();
-        arch1.addComponent(comp1);
-        arch1.addComponent(comp2);
 
-        Double result1 = this.obj.evaluate(arch1, this.coa);
+        Double result1 = this.obj.evaluate(arch1);
 
         Architecture arch2 = new Architecture();
         arch2.addComponent(comp2);
         arch2.addComponent(comp1);
 
-        Double result2 = this.obj.evaluate(arch2, this.coa);
+        Double result2 = this.obj.evaluate(arch2);
 
         assertEquals(result1, result2);
         
@@ -128,14 +122,14 @@ public class ObjectiveFunctionTest
     public void testEvaluate2()
     {
         Component comp1 = new Component();
-        this.coa.addComponent(comp1);
+        this.a.addComponent(comp1);
         this.coa.addFunction(fct1, comp1);
         this.coa.addFunction(fct2, comp1);
 
         Architecture arch1 = new Architecture();
         arch1.addComponent(comp1);
 
-        Double result1 = this.obj.evaluate(arch1, this.coa);
+        Double result1 = this.obj.evaluate(arch1);
 
         Component comp2 = new Component();
         this.coa.addComponent(comp2);
@@ -145,7 +139,7 @@ public class ObjectiveFunctionTest
         Architecture arch2 = new Architecture();
         arch2.addComponent(comp2);
 
-        Double result2 = this.obj.evaluate(arch2, this.coa);
+        Double result2 = this.obj.evaluate(arch2);
 
         assertEquals(result1, result2);
         

@@ -1,7 +1,6 @@
 package fr.univ_nantes.alma.archtool.clustering;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
-import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.utils.Pair;
@@ -17,8 +16,6 @@ public class Clustering
 
     private Architecture resultArch = null;
 
-    private COA resultCOA = null;
-
     public Clustering(ObjectiveFunction objFct)
     {
         this.objectiveFct = objFct;
@@ -29,11 +26,6 @@ public class Clustering
         return this.resultArch;
     }
 
-    public COA getCOA()
-    {
-        return this.resultCOA;
-    }
-
     /**
      * Applique l'algorithme de clustering à un modèle de code source..
      * 
@@ -42,11 +34,12 @@ public class Clustering
      * 
      * @return Un ensemble de composants générés par l'algorithme.
      */
-    public void process(final SourceCode sourceCode)
+    public Architecture process(final SourceCode sourceCode)
     {
         this.dendogram = new Dendogram(sourceCode);
         this.buildDendogram();
         this.phase2();
+        return this.resultArch;
     }
 
     /**
@@ -68,7 +61,6 @@ public class Clustering
         Dendogram bestDendo = null;
 
         Architecture arch = null;
-        COA coa = null;
 
         while (this.dendogram.size() > 1)
         {
@@ -79,9 +71,8 @@ public class Clustering
                     dendo = this.dendogram.clusterNodes(i, j);
 
                     arch = dendo.getArchitecture();
-                    coa = dendo.getCOA();
 
-                    final double score = this.objectiveFct.evaluate(arch, coa);
+                    final double score = this.objectiveFct.evaluate(arch);
 
                     if (score > bestScore)
                     {
@@ -111,13 +102,11 @@ public class Clustering
     private void phase2()
     {
         Architecture currentArch = null;
-        COA currentCOA = null;
         double currentScore = 0.0;
 
         Dendogram dendo = null;
 
         Architecture arch2 = null;
-        COA coa2 = null;
         double score2 = 0.0;
 
         int idx = 0;
@@ -130,12 +119,10 @@ public class Clustering
             if (dendo != null)
             {
                 currentArch = this.dendogram.getArchitecture();
-                currentCOA = this.dendogram.getCOA();
-                currentScore = objectiveFct.evaluate(currentArch, currentCOA);
+                currentScore = objectiveFct.evaluate(currentArch);
 
                 arch2 = dendo.getArchitecture();
-                coa2 = dendo.getCOA();
-                score2 = objectiveFct.evaluate(arch2, coa2);
+                score2 = objectiveFct.evaluate(arch2);
 
                 // Better architecture when the node is splitted
                 if (score2 > currentScore)
@@ -158,6 +145,5 @@ public class Clustering
         }
 
         this.resultArch = this.dendogram.getArchitecture();
-        this.resultCOA = this.dendogram.getCOA();
     }
 }
