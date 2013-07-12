@@ -149,7 +149,6 @@ sourceCode = new SourceCode();
             Dendogram.Node node2 = nodes.get(1);
 
             Architecture arch = this.dendogram.getArchitecture();
-            COA coa = this.dendogram.getCOA();
             
             assertEquals(4, arch.getComponents().size());
             
@@ -158,8 +157,8 @@ sourceCode = new SourceCode();
             Component comp1 = it.next();
             Component comp2 = it.next();
             
-            Set<Function> functions1 = coa.getComponentFunctions(comp1);
-            Set<Function> functions2 = coa.getComponentFunctions(comp2);
+            Set<Function> functions1 = comp1.getFunctions();
+            Set<Function> functions2 = comp2.getFunctions();
             
             assertEquals("node1 ne contient pas de fonction -",
                     1, functions1.size());

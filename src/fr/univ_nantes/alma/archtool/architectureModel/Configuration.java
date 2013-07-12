@@ -103,7 +103,7 @@ public class Configuration
     }
 
     /**
-     * Retourne l'ensemble des connexions auxquelles participe un composant.
+     * Retourne l'ensemble des connexions auxquelles participe un connecteur.
      * 
      * @param con
      *            Le composant recherché
@@ -133,10 +133,10 @@ public class Configuration
             
             if(connection.participates(comp))
             {
-                this.connections.remove(connection);
+                conIter.remove();
             }
         }
-        
+       
         return this.components.remove(comp);
     }
 

@@ -20,11 +20,10 @@ import fr.univ_nantes.alma.archtool.simulatedAnnealing.SimulatedAnnealing;
 import fr.univ_nantes.alma.archtool.sourceModel.Block;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.File;
-import fr.univ_nantes.alma.archtool.sourceModel.FileGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
+import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.LocalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.PrimitiveType;
-import fr.univ_nantes.alma.archtool.sourceModel.ProgramGlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
@@ -43,7 +42,7 @@ public class SimulatedAnnealingTest
     private static LocalVariable v2;
     private static LocalVariable v3;
 
-    private static ProgramGlobalVariable v4;
+    private static GlobalVariable v4;
 
     @BeforeClass
     public static void setUpBeforeClass()
@@ -53,12 +52,12 @@ public class SimulatedAnnealingTest
         sourceCode = new SourceCode();
         
         file = new File("file");
-        v1 = new LocalVariable("x", PrimitiveType.charType());
-        v2 = new LocalVariable("v", PrimitiveType.intType());
-        v3 = new LocalVariable("y", PrimitiveType.intType());
+        v1 = new LocalVariable("x", PrimitiveType.charType);
+        v2 = new LocalVariable("v", PrimitiveType.intType);
+        v3 = new LocalVariable("y", PrimitiveType.intType);
 
-        v4 = new ProgramGlobalVariable("g", PrimitiveType.charType(), file);
-        sourceCode.addProgramGlobal(v4);
+        v4 = new GlobalVariable("g", PrimitiveType.charType, false, file);
+        sourceCode.addGlobalVariable(v4);
         
         fct1 = createFct1();
         sourceCode.addFunction(fct1);
@@ -66,7 +65,7 @@ public class SimulatedAnnealingTest
         fct2 = createFct2();
         sourceCode.addFunction(fct2);
         
-        Function fct3 = new Function("fct3", PrimitiveType.longType(), false,
+        Function fct3 = new Function("fct3", PrimitiveType.longType, false,
                 new HashSet<LocalVariable>(), new Block(), new File("file2"));
         
         sourceCode.addFunction(fct3);
@@ -185,8 +184,8 @@ public class SimulatedAnnealingTest
         Set<LocalVariable> args = new HashSet<LocalVariable>();
         args.add(v1);
 
-        Map<ProgramGlobalVariable, Integer> pGlobals =
-                new HashMap<ProgramGlobalVariable, Integer>();
+        Map<GlobalVariable, Integer> pGlobals =
+                new HashMap<GlobalVariable, Integer>();
          pGlobals.put(v4, 2);
 
         Map<LocalVariable, Integer> locals =
@@ -194,11 +193,11 @@ public class SimulatedAnnealingTest
         locals.put(v2, 1);
         locals.put(v3, 1);
 
-        Block body1 = new Block(new HashSet<Call>(),
-                pGlobals, new HashMap<FileGlobalVariable, Integer>(), locals,
+        Block body1 = new Block(new HashSet<Call>(), pGlobals, locals,
                 new HashSet<Block>());
 
-        return new Function("fct1", PrimitiveType.intType(), args, body1, file);
+        return new Function("fct1", PrimitiveType.intType, false, args, body1,
+                file);
     }
 
     /**
@@ -214,8 +213,8 @@ public class SimulatedAnnealingTest
                 new HashMap<LocalVariable, Integer>();
         locals.put(v3, 1);
 
-        Map<ProgramGlobalVariable, Integer> pGlobals =
-                new HashMap<ProgramGlobalVariable, Integer>();
+        Map<GlobalVariable, Integer> pGlobals =
+                new HashMap<GlobalVariable, Integer>();
         // pGlobals.put(v4, 2);
 
         Set<Variable> params = new HashSet<Variable>();
@@ -225,11 +224,9 @@ public class SimulatedAnnealingTest
         Set<Call> calls = new HashSet<Call>();
         calls.add(new Call(fct1, params));
 
-        Block body2 = new Block(calls, pGlobals,
-                new HashMap<FileGlobalVariable, Integer>(), locals,
-                new HashSet<Block>());
+        Block body2 = new Block(calls, pGlobals, locals, new HashSet<Block>());
 
-        return new Function("fct2", PrimitiveType.charType(), args, body2,
+        return new Function("fct2", PrimitiveType.charType, false, args, body2,
                 file);
     }
 }

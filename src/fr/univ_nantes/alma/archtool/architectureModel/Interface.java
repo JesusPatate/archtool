@@ -1,5 +1,6 @@
 package fr.univ_nantes.alma.archtool.architectureModel;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.coa.COA;
@@ -9,72 +10,298 @@ import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 
 public class Interface
 {
+    private Set<Function> cachedFunctions = null;
+
+    private Set<GlobalVariable> cachedGlobalVariables = null;
+    
+    private Set<ComplexType> cachedComplexType = null;
+    
     private COA coa = null;
 
+    /**
+     * On crèe ou on coupe la connection avec le coa.
+     */
     public void setCOA(COA coa)
     {
         this.coa = coa;
+        
+        if(this.coa != null)
+        {
+            this.coa.addInterface(this);
+            
+            if(this.cachedFunctions != null)
+            {
+                this.coa.addFunctions(this.cachedFunctions, this);
+                this.cachedFunctions = null;
+            }
+            
+            if(this.cachedComplexType != null)
+            {
+                this.coa.addComplexTypes(this.cachedComplexType, this);
+                this.cachedComplexType = null;
+            }
+            
+            if(this.cachedGlobalVariables != null)
+            {
+                this.coa.addGlobalVariables(this.cachedGlobalVariables, this);
+                this.cachedGlobalVariables = null;
+            }
+        }
     }    
     
+    /**
+     * On prend les infos du coa si on le connait sinon on fait avec les
+     *  informations mises en cache.
+     */
     public Set<Function> getFunctions()
     {
-        return this.coa.getInterfaceFunctions(this);
+        Set<Function> functions = null;
+        
+        if(this.coa == null)
+        {
+            functions = this.cachedFunctions == null ?
+                    new HashSet<Function>() : 
+                    new HashSet<Function>(this.cachedFunctions);
+        }
+        else
+        {
+            functions = this.coa.getInterfaceFunctions(this);
+        }
+                
+        return functions;
     }
     
+    /**
+     * On prend les infos du coa si on le connait sinon on fait avec les
+     *  informations mises en cache.
+     */
     public Set<GlobalVariable> getGlobalVariables()
     {
-        return this.coa.getInterfaceVariables(this);
+        Set<GlobalVariable> globalVariables = null;
+        
+        if(this.coa == null)
+        {
+            globalVariables = this.cachedGlobalVariables == null ?
+                    new HashSet<GlobalVariable>() : 
+                    new HashSet<GlobalVariable>(this.cachedGlobalVariables);
+        }
+        else
+        {
+            globalVariables = this.coa.getInterfaceGlobalVariables(this);
+        }
+                
+        return globalVariables;
     }
     
+    /**
+     * On prend les infos du coa si on le connait sinon on fait avec les
+     *  informations mises en cache.
+     */
     public Set<ComplexType> getComplexTypes()
     {
-        return this.coa.getInterfaceTypes(this);
+        Set<ComplexType> complexTypes = null;
+        
+        if(this.coa == null)
+        {
+            complexTypes = this.cachedComplexType == null ?
+                    new HashSet<ComplexType>() : 
+                    new HashSet<ComplexType>(this.cachedComplexType);
+        }
+        else
+        {
+            complexTypes = this.coa.getInterfaceComplexTypes(this);
+        }
+                
+        return complexTypes;
     }
     
+    /**
+     * On informe le coa uniquement si on le connait sinon on met en cache.
+     */
     public boolean addFunction(Function fct)
     {
-        return this.coa.addFunction(fct, this);
+        boolean done;
+        
+        if(this.coa == null)
+        {
+            if(this.cachedFunctions == null)
+            {
+                this.cachedFunctions = new HashSet<Function>();
+            }
+            
+            done = this.cachedFunctions.add(fct);
+        }
+        else
+        {
+            done = this.coa.addFunction(fct, this);
+        }
+        
+        return done;
     }
     
+    /**
+     * On informe le coa uniquement si on le connait sinon on met en cache.
+     */
     public void addFunctions(Set<Function> fcts)
     {
-       this.coa.addFunctions(fcts, this); 
+        if(this.coa == null)
+        {
+            if(this.cachedFunctions == null)
+            {
+                this.cachedFunctions = new HashSet<Function>();
+            }
+            
+            this.cachedFunctions.addAll(fcts);
+        }
+        else
+        {
+            this.coa.addFunctions(fcts, this);
+        }
     }
     
-    public boolean addVariable(GlobalVariable var)
+    /**
+     * On informe le coa uniquement si on le connait sinon on met en cache.
+     */
+    public boolean addGlobalVariable(GlobalVariable var)
     {
-        return this.coa.addVariable(var, this);
+        boolean done;
+        
+        if(this.coa == null)
+        {
+            if(this.cachedGlobalVariables == null)
+            {
+                this.cachedGlobalVariables = new HashSet<GlobalVariable>();
+            }
+            
+            done = this.cachedGlobalVariables.add(var);
+        }
+        else
+        {
+            done = this.coa.addGlobalVariable(var, this);
+        }
+        
+        return done;
     }
     
-    public void addVariables(Set<GlobalVariable> vars)
+    /**
+     * On informe le coa uniquement si on le connait sinon on met en cache.
+     */
+    public void addGlobalVariables(Set<GlobalVariable> vars)
     {
-       this.coa.addVariables(vars, this);
+        if(this.coa == null)
+        {
+            if(this.cachedGlobalVariables == null)
+            {
+                this.cachedGlobalVariables = new HashSet<GlobalVariable>();
+            }
+            
+            this.cachedGlobalVariables.addAll(vars);
+        }
+        else
+        {
+            this.coa.addGlobalVariables(vars, this);
+        }
     }
     
-    public boolean addType(ComplexType t)
+    /**
+     * On informe le coa uniquement si on le connait sinon on met en cache.
+     */
+    public boolean addComplexType(ComplexType t)
     {
-        return this.coa.addType(t, this);
+        boolean done;
+        
+        if(this.coa == null)
+        {
+            if(this.cachedComplexType == null)
+            {
+                this.cachedComplexType = new HashSet<ComplexType>();
+            }
+            
+            done = this.cachedComplexType.add(t);
+        }
+        else
+        {
+            done = this.coa.addComplexType(t, this);
+        }
+        
+        return done;
     }
     
-    public void addTypes(Set<ComplexType> types)
+    /**
+     * On informe le coa uniquement si on le connait sinon on met en cache.
+     */
+    public void addComplexTypes(Set<ComplexType> types)
     {
-       this.coa.addTypes(types, this);
+        if(this.coa == null)
+        {
+            if(this.cachedComplexType == null)
+            {
+                this.cachedComplexType = new HashSet<ComplexType>();
+            }
+            
+            this.cachedComplexType.addAll(types);
+        }
+        else
+        {
+            this.coa.addComplexTypes(types, this);
+        }
     }
     
+    /**
+     * On informe le coa uniquement si on le connait sinon on met en cache.
+     */
     public boolean removeFunction(Function fct)
     {
-        return this.coa.removeFunction(fct, this);
+        boolean done = false;
+        
+        if(this.coa == null && this.cachedFunctions != null)
+        {            
+            done = this.cachedFunctions.remove(fct);
+        }
+        else if(this.coa != null)
+        {
+            done = this.coa.removeFunction(fct, this);
+        }
+        
+        return done;
     }
     
-    public boolean removeVariable(GlobalVariable var)
+    /**
+     * On informe le coa uniquement si on le connait sinon on met en cache.
+     */
+    public boolean removeGlobalVariable(GlobalVariable var)
     {
-        return this.coa.removeVariable(var, this);
+        boolean done = false;
+        
+        if(this.coa == null && this.cachedGlobalVariables != null)
+        {            
+            done = this.cachedGlobalVariables.remove(var);
+        }
+        else if(this.coa != null)
+        {
+            done = this.coa.removeGlobalVariable(var, this);
+        }
+        
+        return done;
     }
     
-    public boolean removeType(ComplexType t)
+    /**
+     * On informe le coa uniquement si on le connait sinon on met en cache.
+     */
+    public boolean removeComplexType(ComplexType t)
     {
-        return this.coa.removeType(t, this);
-                
+        boolean done = false;
+        
+        if(this.coa == null && this.cachedComplexType != null)
+        {            
+            done = this.cachedComplexType.remove(t);
+        }
+        else if(this.coa != null)
+        {
+            done = this.coa.removeComplexType(t, this);
+        }
+        
+        return done;     
     }
     
     @Override

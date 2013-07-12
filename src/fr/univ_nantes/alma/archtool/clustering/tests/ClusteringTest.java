@@ -74,7 +74,7 @@ public class ClusteringTest
     @Before
     public void setUp() throws Exception
     {
-        this.clustering = new Clustering(ClusteringTest.obj);
+        this.clustering = new Clustering();
     }
 
     @After
@@ -90,10 +90,9 @@ public class ClusteringTest
         this.clustering.process(this.sourceCode);
 
         System.out.println(this.clustering.getArchitecture());
-        System.out.println(this.clustering.getCOA());
         
-        System.out.println(this.obj.evaluate(this.clustering.getArchitecture(),
-                this.clustering.getCOA()));
+        System.out.println(
+                this.obj.evaluate(this.clustering.getArchitecture()));
     }
 
     /**

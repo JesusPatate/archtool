@@ -78,14 +78,14 @@ public class InterfaceIdentifier
                 {
                     Interface requiredInterface = new Interface();
                     component.addRequiredInterface(requiredInterface);
-                    requiredInterface.addType(typeOut);
+                    requiredInterface.addComplexType(typeOut);
                 }
                 
                 for(GlobalVariable globalOut : globalsOut)
                 {
                     Interface requiredInterface = new Interface();
                     component.addRequiredInterface(requiredInterface);
-                    requiredInterface.addVariable(globalOut);
+                    requiredInterface.addGlobalVariable(globalOut);
                 }
             }
             else
@@ -145,14 +145,14 @@ public class InterfaceIdentifier
                 {
                     Interface requiredInterface = new Interface();
                     component.addRequiredInterface(requiredInterface);
-                    requiredInterface.addType((ComplexType) typeOut);
+                    requiredInterface.addComplexType((ComplexType) typeOut);
                 }
             }
             else
             {
                 Interface requiredInterface = new Interface();
                 component.addRequiredInterface(requiredInterface);
-                requiredInterface.addVariable(variable);
+                requiredInterface.addGlobalVariable(variable);
                 
                 if(typeOut.isComplex())
                 {
@@ -225,7 +225,7 @@ public class InterfaceIdentifier
             {
                 Interface providedInterface = new Interface();
                 component.addProvidedInterface(providedInterface);
-                providedInterface.addVariable(variable);
+                providedInterface.addGlobalVariable(variable);
             }
         }
     }
@@ -240,7 +240,7 @@ public class InterfaceIdentifier
             ComplexType type = typesToIn.poll();                            
             Interface providedInterface = new Interface();
             component.addProvidedInterface(providedInterface);
-            providedInterface.addType(type);
+            providedInterface.addComplexType(type);
         }
     }
 }

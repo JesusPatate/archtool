@@ -386,8 +386,8 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
             this.architecture.addComponent(comp);
             comp.addFunctions(node.getFunctions());
-            comp.addVariables(node.getVariables());
-            comp.addTypes(node.getTypes());
+            comp.addGlobalVariables(node.getVariables());
+            comp.addComplexTypes(node.getTypes());
         }
 
         this.buildInterfaces();
@@ -471,7 +471,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
             if (required == true)
             {
                 comp.addProvidedInterface(itf);
-                itf.addVariable(var);
+                itf.addGlobalVariable(var);
             }
         }
     }
@@ -530,7 +530,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
             if (required == true)
             {
                 comp.addProvidedInterface(itf);
-                itf.addType(t);
+                itf.addComplexType(t);
             }
         }
     }

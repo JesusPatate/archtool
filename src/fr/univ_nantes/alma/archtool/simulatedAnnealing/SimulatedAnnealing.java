@@ -97,7 +97,7 @@ public class SimulatedAnnealing
     /**
      * Algorithme de clustering pour générer la solution initiale.
      */
-    private Clustering clusteringAlgo = new Clustering(objFunction);
+    private Clustering clusteringAlgo = new Clustering();
 
     public Architecture process(SourceCode sourceCode)
     {
