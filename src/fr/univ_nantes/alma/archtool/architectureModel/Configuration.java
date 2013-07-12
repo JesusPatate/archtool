@@ -1,7 +1,10 @@
 package fr.univ_nantes.alma.archtool.architectureModel;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+
+import fr.univ_nantes.alma.archtool.coa.COA;
 
 public class Configuration
 {
@@ -10,6 +13,13 @@ public class Configuration
     private Set<Connector> connectors = new HashSet<Connector>();
 
     private Set<Connection> connections = new HashSet<Connection>();
+    
+    private COA coa;
+    
+    public Configuration(COA coa)
+    {
+        this.coa = coa;
+    }
     
     /**
      * Retourne l'ensemble des composants.
@@ -32,6 +42,7 @@ public class Configuration
      */
     public boolean addComponent(Component comp)
     {
+        comp.setCOA(coa);
         return this.components.add(comp);
     }
 
@@ -56,6 +67,7 @@ public class Configuration
      */
     public boolean addConnector(Connector con)
     {
+        con.setCOA(this.coa);
         return this.connectors.add(con);
     }
     
@@ -109,5 +121,39 @@ public class Configuration
         }
 
         return connections;
+    }
+
+    public boolean removeComponent(Component comp)
+    {
+        Iterator<Connection> conIter = this.connections.iterator();
+        
+        while(conIter.hasNext())
+        {
+            Connection connection = conIter.next();
+            
+            if(connection.participates(comp))
+            {
+                this.connections.remove(connection);
+            }
+        }
+        
+        return this.components.remove(comp);
+    }
+
+    public boolean removeConnector(Connector con)
+    {
+        Iterator<Connection> conIter = this.connections.iterator();
+        
+        while(conIter.hasNext())
+        {
+            Connection connection = conIter.next();
+            
+            if(connection.participates(con))
+            {
+                this.connections.remove(connection);
+            }
+        }
+        
+        return this.connectors.remove(con);
     }
 }
