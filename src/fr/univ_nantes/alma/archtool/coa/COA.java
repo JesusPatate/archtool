@@ -161,7 +161,7 @@ public class COA
      * 
      * @param t Le type recherché.
      */
-    public Set<Interface> getInterface(final ComplexType t)
+    public Interface getInterface(final ComplexType t)
     {
         return this.coaInterfaces.getInterface(t);
     }
@@ -398,9 +398,9 @@ public class COA
     {
         boolean done = this.coaInterfaces.removeFunction(fct, itf);
         
-        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        if(done && this.coaInterfaces.getFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getTypes(itf).isEmpty() &&
+                this.coaInterfaces.getVariables(itf).isEmpty())
         {
             this.removeInterface(itf);
         }
@@ -415,9 +415,9 @@ public class COA
     {
         boolean done = this.coaInterfaces.removeVariable(var, itf);
         
-        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        if(done && this.coaInterfaces.getFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getTypes(itf).isEmpty() &&
+                this.coaInterfaces.getVariables(itf).isEmpty())
         {
             this.removeInterface(itf);
         }
@@ -433,9 +433,9 @@ public class COA
     {
         boolean done = this.coaInterfaces.removeType(t, itf);
         
-        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        if(done && this.coaInterfaces.getFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getTypes(itf).isEmpty() &&
+                this.coaInterfaces.getVariables(itf).isEmpty())
         {
             this.removeInterface(itf);
         }
