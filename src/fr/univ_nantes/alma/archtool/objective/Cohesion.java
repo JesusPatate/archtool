@@ -315,7 +315,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
         
-        Function[] fctArray = (Function[]) comp.getFunctions().toArray();
+        Function[] fctArray = new Function[comp.getFunctions().size()];
+        comp.getFunctions().toArray(fctArray);
 
         if (fctArray.length > 0)
         {
@@ -354,7 +355,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Function[] fctArray = (Function[]) itf.getFunctions().toArray();
+        Function[] fctArray = new Function[itf.getFunctions().size()];
+        itf.getFunctions().toArray(fctArray);
 
         if (fctArray.length > 0)
         {
@@ -388,7 +390,8 @@ public class Cohesion
         double result = 0.0;
         double sum = 0.0;
 
-        Function[] fctArray = (Function[]) con.getFunctions().toArray();
+        Function[] fctArray = new Function[con.getFunctions().size()];
+        con.getFunctions().toArray(fctArray);
 
         if (fctArray.length > 0)
         {
