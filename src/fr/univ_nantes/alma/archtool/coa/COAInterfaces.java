@@ -161,11 +161,13 @@ public class COAInterfaces
         this.fctToItf.put(fct, itf);
 
         if (this.itfToFcts.containsKey(itf) == false)
-        {           
+        {
             Set<Function> itfFcts = new HashSet<Function>();
             itfFcts.add(fct);
 
             this.itfToFcts.put(itf, itfFcts);
+            this.itfToTypes.put(itf, new HashSet<ComplexType>());
+            this.itfToVars.put(itf, new HashSet<GlobalVariable>());
             done = true;
         }
 
@@ -186,14 +188,17 @@ public class COAInterfaces
 
         Set<Function> itfFcts = this.itfToFcts.get(itf);
 
-        if (itfFcts.contains(fct))
+        if (itfFcts != null)
         {
-            itfFcts.remove(fct);
-            this.itfToFcts.put(itf, itfFcts);
+            if (itfFcts.contains(fct))
+            {
+                itfFcts.remove(fct);
+                this.itfToFcts.put(itf, itfFcts);
 
-            this.fctToItf.remove(fct);
+                this.fctToItf.remove(fct);
 
-            done = true;
+                done = true;
+            }
         }
 
         return done;
@@ -209,17 +214,20 @@ public class COAInterfaces
         Set<Function> fromFcts = this.itfToFcts.get(from);
         Set<Function> toFcts = this.itfToFcts.get(to);
 
-        if (fromFcts.contains(fct) && (toFcts.contains(fct) == false))
+        if(fromFcts != null && toFcts != null)
         {
-            fromFcts.remove(fct);
-            this.itfToFcts.put(from, fromFcts);
-
-            toFcts.add(fct);
-            this.itfToFcts.put(from, toFcts);
-
-            this.fctToItf.put(fct, to);
-
-            done = true;
+            if (fromFcts.contains(fct) && (toFcts.contains(fct) == false))
+            {
+                fromFcts.remove(fct);
+                this.itfToFcts.put(from, fromFcts);
+    
+                toFcts.add(fct);
+                this.itfToFcts.put(from, toFcts);
+    
+                this.fctToItf.put(fct, to);
+    
+                done = true;
+            }
         }
 
         return done;
@@ -240,6 +248,8 @@ public class COAInterfaces
             itfVars.add(var);
 
             this.itfToVars.put(itf, itfVars);
+            this.itfToFcts.put(itf, new HashSet<Function>());
+            this.itfToTypes.put(itf, new HashSet<ComplexType>());
             done = true;
         }
 
@@ -260,14 +270,17 @@ public class COAInterfaces
 
         Set<GlobalVariable> itfVars = this.itfToVars.get(itf);
 
-        if (itfVars.contains(var))
+        if (itfVars != null)
         {
-            itfVars.remove(var);
-            this.itfToVars.put(itf, itfVars);
+            if (itfVars.contains(var))
+            {
+                itfVars.remove(var);
+                this.itfToVars.put(itf, itfVars);
 
-            this.varToItf.remove(var);
+                this.varToItf.remove(var);
 
-            done = true;
+                done = true;
+            }
         }
 
         return done;
@@ -284,17 +297,20 @@ public class COAInterfaces
         Set<GlobalVariable> fromVars = this.itfToVars.get(from);
         Set<GlobalVariable> toVars = this.itfToVars.get(to);
 
-        if (fromVars.contains(var) && (toVars.contains(var) == false))
+        if(fromVars != null && toVars != null)
         {
-            fromVars.remove(var);
-            this.itfToVars.put(from, fromVars);
-
-            toVars.add(var);
-            this.itfToVars.put(from, toVars);
-
-            this.varToItf.put(var, to);
-
-            done = true;
+            if (fromVars.contains(var) && (toVars.contains(var) == false))
+            {
+                fromVars.remove(var);
+                this.itfToVars.put(from, fromVars);
+    
+                toVars.add(var);
+                this.itfToVars.put(from, toVars);
+    
+                this.varToItf.put(var, to);
+    
+                done = true;
+            }
         }
 
         return done;
@@ -315,6 +331,8 @@ public class COAInterfaces
             itfTypes.add(t);
 
             this.itfToTypes.put(itf, itfTypes);
+            this.itfToFcts.put(itf, new HashSet<Function>());
+            this.itfToVars.put(itf, new HashSet<GlobalVariable>());
             done = true;
         }
 
@@ -335,14 +353,17 @@ public class COAInterfaces
 
         Set<ComplexType> itfTypes = this.itfToTypes.get(itf);
 
-        if (itfTypes.contains(t))
+        if (itfTypes != null)
         {
-            itfTypes.remove(t);
-            this.itfToTypes.put(itf, itfTypes);
+            if (itfTypes.contains(t))
+            {
+                itfTypes.remove(t);
+                this.itfToTypes.put(itf, itfTypes);
 
-            this.typeToItf.remove(t);
+                this.typeToItf.remove(t);
 
-            done = true;
+                done = true;
+            }
         }
 
         return done;
@@ -358,17 +379,20 @@ public class COAInterfaces
         Set<ComplexType> fromTypes = this.itfToTypes.get(from);
         Set<ComplexType> toTypes = this.itfToTypes.get(to);
 
-        if (fromTypes.contains(t) && (toTypes.contains(t) == false))
+        if(fromTypes != null & toTypes != null)
         {
-            fromTypes.remove(t);
-            this.itfToTypes.put(from, fromTypes);
-
-            toTypes.add(t);
-            this.itfToTypes.put(to, toTypes);
-
-            this.typeToItf.put(t, to);
-
-            done = true;
+            if (fromTypes.contains(t) && (toTypes.contains(t) == false))
+            {
+                fromTypes.remove(t);
+                this.itfToTypes.put(from, fromTypes);
+    
+                toTypes.add(t);
+                this.itfToTypes.put(to, toTypes);
+    
+                this.typeToItf.put(t, to);
+    
+                done = true;
+            }
         }
 
         return done;
