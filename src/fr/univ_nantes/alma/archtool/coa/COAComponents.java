@@ -152,15 +152,20 @@ class COAComponents
     {
         boolean done = false;
 
-        Set<Function> compFcts = this.compToFcts.get(comp);
+        this.fctToComp.put(fct, comp);
 
-        if (compFcts.contains(fct) == false)
+        if (this.compToFcts.containsKey(comp) == false)
         {
+            Set<Function> compFcts = new HashSet<Function>();
             compFcts.add(fct);
-            this.compToFcts.put(comp, compFcts);
-            this.fctToComp.put(fct, comp);
 
+            this.compToFcts.put(comp, compFcts);
             done = true;
+        }
+
+        else
+        {
+            done = this.compToFcts.get(comp).add(fct);
         }
 
         return done;
@@ -221,15 +226,20 @@ class COAComponents
     {
         boolean done = false;
 
-        Set<GlobalVariable> compVars = this.compToVars.get(comp);
+        this.varToComp.put(var, comp);
 
-        if (compVars.contains(var) == false)
+        if (this.compToVars.containsKey(comp) == false)
         {
+            Set<GlobalVariable> compVars = new HashSet<GlobalVariable>();
             compVars.add(var);
-            this.compToVars.put(comp, compVars);
-            this.varToComp.put(var, comp);
 
+            this.compToVars.put(comp, compVars);
             done = true;
+        }
+
+        else
+        {
+            done = this.compToVars.get(comp).add(var);
         }
 
         return done;
@@ -290,15 +300,20 @@ class COAComponents
     {
         boolean done = false;
 
-        Set<ComplexType> compTypes = this.compToTypes.get(comp);
+        this.typeToComp.put(t, comp);
 
-        if (compTypes.contains(t) == false)
+        if (this.compToVars.containsKey(comp) == false)
         {
+            Set<ComplexType> compTypes = new HashSet<ComplexType>();
             compTypes.add(t);
-            this.compToTypes.put(comp, compTypes);
-            this.typeToComp.put(t, comp);
 
+            this.compToTypes.put(comp, compTypes);
             done = true;
+        }
+
+        else
+        {
+            done = this.compToTypes.get(comp).add(t);
         }
 
         return done;
