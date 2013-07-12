@@ -56,6 +56,14 @@ class COAComponents
     }
     
     /**
+     * Retourne l'ensemble des composants du COA.
+     */
+    public Set<Component> getComponents()
+    {
+        return this.compToFcts.keySet();
+    }
+    
+    /**
      * Retourne le composant qui contient une fonction donnée.
      * 
      * @param fct La fonction recherchée.

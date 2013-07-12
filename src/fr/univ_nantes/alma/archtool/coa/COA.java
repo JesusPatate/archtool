@@ -1,9 +1,11 @@
 package fr.univ_nantes.alma.archtool.coa;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
+import fr.univ_nantes.alma.archtool.architectureModel.Facade;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -16,6 +18,8 @@ public class COA
     private COAInterfaces coaInterfaces = new COAInterfaces();
     
     private COAConnectors coaConnectors = new COAConnectors();
+    
+    private COAFacades coaFacades = new COAFacades();
     
     /**
      * Retourne l'ensemble des fonctions d'un composant.
@@ -87,6 +91,30 @@ public class COA
     public Set<ComplexType> getConnectorTypes(Connector con)
     {
         return this.coaConnectors.getTypes(con);
+    }
+    
+    /**
+     * Retourne l'ensemble des fonctions d'une facade.
+     */
+    public Set<Function> getFacadeFunctions(Facade fcd)
+    {
+        return this.coaFacades.getFunctions(fcd);
+    }
+    
+    /**
+     * Retourne l'ensemble des variables d'une facade.
+     */
+    public Set<GlobalVariable> getFacadeVariables(Facade fcd)
+    {
+        return this.coaFacades.getVariables(fcd);
+    }
+    
+    /**
+     * Retourne l'ensemble des types d'une facade.
+     */
+    public Set<ComplexType> getFacadeTypes(Facade fcd)
+    {
+        return this.coaFacades.getTypes(fcd);
     }
     
     /**
@@ -177,6 +205,36 @@ public class COA
     public Connector getConnector(final ComplexType t)
     {
         return this.coaConnectors.getConnector(t);
+    }
+    
+    /**
+     * Retourne la facade qui contient une fonction donnée.
+     * 
+     * @param fct La fonction recherchée.
+     */
+    public Facade getFacade(final Function fct)
+    {
+        return this.coaFacades.getFacade(fct);
+    }
+
+    /**
+     * Retourne la facade qui contient une variable donnée.
+     * 
+     * @param var La variable recherchée.
+     */
+    public Facade getFacade(final GlobalVariable var)
+    {
+        return this.coaFacades.getFacade(var);
+    }
+
+    /**
+     * Retourne la facade qui contient un type donné.
+     * 
+     * @param t Le type recherché.
+     */
+    public Facade getFacade(final ComplexType t)
+    {
+        return this.coaFacades.getFacade(t);
     }
     
     /**
@@ -351,6 +409,63 @@ public class COA
     }
     
     /**
+     * Ajoute une fonction à une facade.
+     */
+    public boolean addFunction(Function fct, Facade itf)
+    {
+        return this.coaFacades.addFunction(fct, itf);
+    }
+    
+    /**
+     * Ajoute un ensemble de fonctions à une facade.
+     */
+    public void addFunctions(Set<Function> fcts, Facade itf)
+    {
+       for(Function f : fcts)
+       {
+           this.coaFacades.addFunction(f, itf);
+       }
+    }
+    
+    /**
+     * Ajoute une variable à une facade.
+     */
+    public boolean addVariable(GlobalVariable var, Facade itf)
+    {
+        return this.coaFacades.addVariable(var, itf);
+    }
+    
+    /**
+     * Ajoute un ensemble de variables à une facade.
+     */
+    public void addVariables(Set<GlobalVariable> vars, Facade itf)
+    {
+       for(GlobalVariable v : vars)
+       {
+           this.coaFacades.addVariable(v, itf);
+       }
+    }
+    
+    /**
+     * Ajoute un type à une facade.
+     */
+    public boolean addType(ComplexType t, Facade itf)
+    {
+        return this.coaFacades.addType(t, itf);
+    }
+    
+    /**
+     * Ajoute un ensemble de types à une facade.
+     */
+    public void addTypes(Set<ComplexType> types, Facade itf)
+    {
+       for(ComplexType t : types)
+       {
+           this.coaFacades.addType(t, itf);
+       }
+    }
+    
+    /**
      * Retire une fonction d'un composant.
      */
     public boolean removeFunction(Function fct, Component comp)
@@ -450,6 +565,30 @@ public class COA
     }
     
     /**
+     * Retire une fonction d'une facade.
+     */
+    public boolean removeFunction(Function fct, Facade fcd)
+    {
+        return this.coaFacades.removeFunction(fct, fcd);
+    }
+    
+    /**
+     * Retire une variable d'une facade.
+     */
+    public boolean removeVariable(GlobalVariable var, Facade fcd)
+    {
+        return this.coaFacades.removeVariable(var, fcd);
+    }
+    
+    /**
+     * Retire un type d'une facade.
+     */
+    public boolean removeType(ComplexType t, Facade fcd)
+    {
+        return this.coaFacades.removeType(t, fcd);
+    }
+    
+    /**
      * Déplace une fonction d'un composant à un autre.
      */
     public boolean moveFunction(Function fct, Component from, Component to)
@@ -522,35 +661,35 @@ public class COA
     }
     
     /**
+     * Déplace une fonction d'une facade à une autre.
+     */
+    public boolean moveFunction(Function fct, Facade from, Facade to)
+    {
+        return this.coaFacades.moveFunction(fct, from, to);
+    }
+    
+    /**
+     * Déplace une variable d'une facade à une autre.
+     */
+    public boolean moveVariable(GlobalVariable var, Facade from, Facade to)
+    {
+        return this.coaFacades.moveVariable(var, from, to);
+    }
+    
+    /**
+     * Déplace un type d'une facade à une autre.
+     */
+    public boolean moveType(ComplexType t, Facade from, Facade to)
+    {
+        return this.coaFacades.moveType(t, from, to);
+    }
+    
+    /**
      * Ajoute un composant au COA.
      */
     public boolean addComponent(Component comp)
     {
        return this.coaComponents.newComponent(comp);
-    }
-    
-    /**
-     * Supprime un composant.
-     */
-    public boolean removeComponent(Component comp)
-    {
-       return this.coaComponents.removeComponent(comp);
-    }
-    
-    /**
-     * Supprime une interface.
-     */
-    public boolean removeInterface(Interface itf)
-    {
-       return this.coaInterfaces.removeInterface(itf);
-    }
-    
-    /**
-     * Supprime un connecteur.
-     */
-    public boolean removeConnector(Connector con)
-    {
-       return this.coaConnectors.removeConnector(con);
     }
     
     /**
@@ -567,6 +706,75 @@ public class COA
     public boolean addConnector(Connector con)
     {
         return this.coaConnectors.newConnector(con);
+    }
+    
+    /**
+     * Ajoute une facade au COA.
+     */
+    public boolean addFacade(Facade fcd)
+    {
+        return this.coaFacades.newFacade(fcd);
+    }
+    
+    /**
+     * Supprime un composant du COA.
+     */
+    public boolean removeComponent(Component comp)
+    {
+       return this.coaComponents.removeComponent(comp);
+    }
+    
+    /**
+     * Supprime une interface du COA.
+     */
+    public boolean removeInterface(Interface itf)
+    {
+       return this.coaInterfaces.removeInterface(itf);
+    }
+    
+    /**
+     * Supprime un connecteur du COA.
+     */
+    public boolean removeConnector(Connector con)
+    {
+       return this.coaConnectors.removeConnector(con);
+    }
+    
+    /**
+     * Supprime une facade du COA.
+     */
+    public boolean removeFacade(Facade fcd)
+    {
+       return this.coaFacades.removeFacade(fcd);
+    }
+    
+    /**
+     * Vérifie si une interface est encore utile.
+     * 
+     * <p>
+     * Méthode à appeler après avoir retiré une interface d'un composant.
+     * </p>
+     */
+    public void checkInterface(Interface itf)
+    {
+        boolean found = false;
+        
+        Iterator<Component> it = this.coaComponents.getComponents().iterator();
+        
+        while(it.hasNext() && found == false)
+        {
+            Component comp = it.next();
+            
+            if(comp.requiresInterface(itf) || comp.providesInterface(itf))
+            {
+                found = true;
+            }
+        }
+        
+        if(found == false)
+        {
+            this.removeInterface(itf);
+        }
     }
     
     public Set<Function> getFunctionsToOut(Component component)
@@ -599,7 +807,6 @@ public class COA
         StringBuffer buf = new StringBuffer("COA [");
         
         buf.append(this.coaComponents);
-        buf.append(this.coaInterfaces);
         buf.append(this.coaConnectors);
         
         int idx = buf.lastIndexOf(",");
