@@ -282,7 +282,7 @@ public class Coupling
     {
         int result = 0;
 
-        Map<ComplexType, Integer> usedTypes = fct.getUsedTypes();
+        Map<ComplexType, Integer> usedTypes = fct.getTotalComplexTypes();
 
         if (usedTypes.containsKey(type))
         {

@@ -40,8 +40,8 @@ public class SourceCodeBuilder
 			    context = context.merge(this.cProcessor.getContext());
 			    System.out.println("finishing parse source: " + sourceFile);
 			    this.sourceCode.addFunctions(this.cProcessor.getFunctions());
-			    this.sourceCode.addTypes(this.cProcessor.getComplexTypes());
-			    this.sourceCode.addGlobals(this.cProcessor.getGlobalVariables());
+			    this.sourceCode.addComplexTypes(this.cProcessor.getComplexTypes());
+			    this.sourceCode.addGlobalVariables(this.cProcessor.getGlobalVariables());
 			}
 			catch(IOException e)
 			{

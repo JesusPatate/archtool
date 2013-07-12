@@ -1,8 +1,7 @@
 package fr.univ_nantes.alma.archtool.parsing;
 
-import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
-import fr.univ_nantes.alma.archtool.sourceModel.Function;
-import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SourceCodeBuilderTest
 {
@@ -20,7 +19,7 @@ public class SourceCodeBuilderTest
                 root + "sou/hr/srclib/hrrseh.c"*/};
         ExtensionFilter sourceFileFilter = 
                 new ExtensionFilter(new String [] {".c"});        
-        SourceCodeBuilder builder = new SourceCodeBuilder(sourceFilePaths,
+        /*SourceCodeBuilder builder = new SourceCodeBuilder(sourceFilePaths,
                 sourceFileFilter);
         builder.build();
         
@@ -34,6 +33,8 @@ public class SourceCodeBuilderTest
             System.out.println(f);
             System.out.println(sc.getTotalFunctionsCalledBy(f));
             System.out.println();
-        }
+        }*/
+        
+        Set<Integer> s = new HashSet<Integer>(null);
     }
 }

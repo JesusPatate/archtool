@@ -1,5 +1,6 @@
 package fr.univ_nantes.alma.archtool.coa;
 
+import java.util.Collection;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
@@ -398,9 +399,9 @@ public class COA
     {
         boolean done = this.coaInterfaces.removeFunction(fct, itf);
         
-        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        if(done && this.coaInterfaces.getFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getTypes(itf).isEmpty() &&
+                this.coaInterfaces.getVariables(itf).isEmpty())
         {
             this.removeInterface(itf);
         }
@@ -415,15 +416,14 @@ public class COA
     {
         boolean done = this.coaInterfaces.removeVariable(var, itf);
         
-        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        if(done && this.coaInterfaces.getFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getTypes(itf).isEmpty() &&
+                this.coaInterfaces.getVariables(itf).isEmpty())
         {
             this.removeInterface(itf);
         }
         
-        return done;
-        
+        return done;  
     }
     
     /**
@@ -433,9 +433,9 @@ public class COA
     {
         boolean done = this.coaInterfaces.removeType(t, itf);
         
-        if(done && this.coaInterfaces.getInterfaceFunctions(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceTypes(itf).isEmpty() &&
-                this.coaInterfaces.getInterfaceVariables(itf).isEmpty())
+        if(done && this.coaInterfaces.getFunctions(itf).isEmpty() &&
+                this.coaInterfaces.getTypes(itf).isEmpty() &&
+                this.coaInterfaces.getVariables(itf).isEmpty())
         {
             this.removeInterface(itf);
         }
@@ -605,6 +605,11 @@ public class COA
     public Set<GlobalVariable> getGlobalsToIn(Component component)
     {
         return this.coaComponents.getGlobalsToIn(component);
+    }
+    
+    public Set<ComplexType> getTypesToIn(Component component)
+    {
+        return this.coaComponents.getTypesToIn(component);
     }
     
     public String toString()

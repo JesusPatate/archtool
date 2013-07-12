@@ -70,7 +70,7 @@ public class SourceCodeCoreMediator implements SourceCodeMediator
             }
             
             for(Entry<ComplexType, Integer> typeUse : 
-                function.getUsedTypes().entrySet())
+                function.getTotalComplexTypes().entrySet())
             {
                 if(types.contains(typeUse.getKey()))
                 {

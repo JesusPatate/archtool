@@ -3,21 +3,13 @@ package fr.univ_nantes.alma.archtool.sourceModel;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import fr.univ_nantes.alma.archtool.utils.MultiMultiCounter;
 
 public class SourceCodeTotalMediator implements SourceCodeMediator
-{
-    private MultiMultiCounter<Function, Function> functionsCalledBy =
-            new MultiMultiCounter<Function, Function>();
-    
+{    
     private MultiMultiCounter<Function, Function> functionsCalling = 
             new MultiMultiCounter<Function, Function>();
-    
-    private MultiMultiCounter<Function, ComplexType> typesUsedByFunction = 
-            new MultiMultiCounter<Function, ComplexType>();
-    
-    private MultiMultiCounter<Function, GlobalVariable> globalsUsedByFunction = 
-            new MultiMultiCounter<Function, GlobalVariable>();
     
     private MultiMultiCounter<ComplexType, Function> typesUsingFunction = 
             new MultiMultiCounter<ComplexType, Function>();
@@ -32,10 +24,7 @@ public class SourceCodeTotalMediator implements SourceCodeMediator
     public void createRelations(Set<Function> functions,
             Set<ComplexType> types, Set<GlobalVariable> globals)
     {
-        functionsCalledBy.clear();
         functionsCalling.clear();
-        typesUsedByFunction.clear();
-        globalsUsedByFunction.clear();
         typesUsingFunction.clear();
         typesUsingGlobals.clear();
         globalsUsingFunction.clear();
@@ -52,23 +41,18 @@ public class SourceCodeTotalMediator implements SourceCodeMediator
             for(Call call : function.getCalls())
             {
                 this.functionsCalling.increment(call.getFunction(), function);     
-                this.functionsCalledBy.increment(function, call.getFunction());
             }
             
             for(Entry<GlobalVariable, Integer> variableUse : 
                 function.getGlobalVariables().entrySet())
             {
-                this.globalsUsedByFunction.increment(function,
-                        variableUse.getKey(), variableUse.getValue());
                 this.globalsUsingFunction.increment(variableUse.getKey(),
                         function, variableUse.getValue());
             }
             
             for(Entry<ComplexType, Integer> typeUse : 
-                function.getUsedTypes().entrySet())
+                function.getTotalComplexTypes().entrySet())
             {
-                this.typesUsedByFunction.increment(function, typeUse.getKey(),
-                        typeUse.getValue());
                 this.typesUsingFunction.increment(typeUse.getKey(),
                             function, typeUse.getValue());
             }
@@ -91,7 +75,7 @@ public class SourceCodeTotalMediator implements SourceCodeMediator
     @Override
     public Set<Function> getFunctionsCalledBy(Function function)
     {
-        return this.functionsCalledBy.getCounters(function);
+        throw new NotImplementedException();
     }
     
     @Override
@@ -103,7 +87,7 @@ public class SourceCodeTotalMediator implements SourceCodeMediator
     @Override
     public Set<GlobalVariable> getGlobalsUsedBy(Function function)
     {
-        return this.globalsUsedByFunction.getCounters(function);
+        throw new NotImplementedException();
     }
     
     @Override
@@ -115,7 +99,7 @@ public class SourceCodeTotalMediator implements SourceCodeMediator
     @Override
     public Set<ComplexType> getTypesUsedBy(Function function)
     {
-        return this.typesUsedByFunction.getCounters(function);
+        throw new NotImplementedException();
     }
     
     @Override

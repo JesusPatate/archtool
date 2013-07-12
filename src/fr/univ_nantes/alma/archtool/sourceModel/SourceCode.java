@@ -9,29 +9,26 @@ import java.util.Set;
  * programme.
  */
 public class SourceCode
-{
-    private final Set<Function> functions = new HashSet<Function>();
+{    
+    private final Set<Function> coreFunctions = new HashSet<Function>();
 
-    private final Set<GlobalVariable> globals =
+    private final Set<GlobalVariable> globalVariables =
             new HashSet<GlobalVariable>();
 
-    private final Set<ComplexType> types = new HashSet<ComplexType>();
-    
-    private SourceCodeCoreMediator coreMediator = new SourceCodeCoreMediator();
-    
-    private SourceCodeTotalMediator totalMediator = new SourceCodeTotalMediator();
+    private final Set<ComplexType> coreComplexTypes = new HashSet<ComplexType>();
 
+    private boolean hasChanged = false;
     
-    public Set<Function> getFunctions()
+    public Set<Function> getCoreFunctions()
     {
-        return new HashSet<Function>(this.functions);
+        return new HashSet<Function>(this.coreFunctions);
     }
     
     public Set<Function> getTotalFunctions()
     {
-        Set<Function> total = new HashSet<Function>(this.functions);
+        Set<Function> total = new HashSet<Function>(this.coreFunctions);
         
-        for(Function f : this.functions)
+        for(Function f : this.coreFunctions)
         {
             for(Call c : f.getCalls())
             {
@@ -42,16 +39,40 @@ public class SourceCode
         return total;
     }
     
+    /*public Set<ComplexType> getTotalComplexTypes()
+    {
+        Set<ComplexType> total = new HashSet<ComplexType>();
+        
+        for(Function f : this.functions)
+        {
+            
+        }
+        
+        return total;
+    }*/
     
-
+    public boolean hasChanged()
+    {
+        return this.hasChanged;
+    }
+    
     public void addFunction(final Function function)
     {
-        this.functions.add(function);
+        if(!this.coreFunctions.contains(function))
+        {
+            this.hasChanged = true;
+        }
+           
+        this.coreFunctions.add(function);
+        function.setSourceCode(this);
     }
 
     public void addFunctions(final Set<Function> functions)
     {
-        this.functions.addAll(functions);
+        for(Function function : functions)
+        {
+            this.addFunction(function);
+        }
     }
 
     public Set<GlobalVariable> getProgramGlobals()
@@ -59,7 +80,7 @@ public class SourceCode
         Set<GlobalVariable> programGlobals = 
                 new HashSet<GlobalVariable>();
         
-        for(GlobalVariable gv : this.globals)
+        for(GlobalVariable gv : this.globalVariables)
         {
             if(!gv.isStatic())
             {
@@ -75,7 +96,7 @@ public class SourceCode
         Set<GlobalVariable> programGlobals = 
                 new HashSet<GlobalVariable>();
         
-        for(GlobalVariable gv : this.globals)
+        for(GlobalVariable gv : this.globalVariables)
         {
             if(gv.isStatic())
             {
@@ -88,109 +109,119 @@ public class SourceCode
     
     public Set<GlobalVariable> getGlobalVariables()
     {
-        return new HashSet<GlobalVariable>(this.globals);
+        return new HashSet<GlobalVariable>(this.globalVariables);
     }
 
-    public void addGlobal(final GlobalVariable var)
+    public void addGlobalVariable(final GlobalVariable globalVariable)
     {
-        this.globals.add(var);
+        if(!this.globalVariables.contains(globalVariable))
+        {
+            this.hasChanged = true;
+        }
+        
+        this.globalVariables.add(globalVariable);
+        globalVariable.setSourceCode(this);
     }
 
-    public void addGlobals(final Set<GlobalVariable> vars)
+    public void addGlobalVariables(final Set<GlobalVariable> globalVariables)
     {
-        this.globals.addAll(vars);
+        for(GlobalVariable globalVariable : globalVariables)
+        {
+            this.addGlobalVariable(globalVariable);
+        }
     }
 
-    public Set<ComplexType> getTypes()
+    public Set<ComplexType> getCoreComplexTypes()
     {
-        return new HashSet<ComplexType>(this.types);
+        return new HashSet<ComplexType>(this.coreComplexTypes);
     }
 
-    public void addType(final ComplexType t1)
+    public void addComplexType(final ComplexType type)
     {
-        this.types.add(t1);
+        if(!this.coreComplexTypes.contains(type))
+        {
+            this.hasChanged = true;
+        }
+        
+        this.coreComplexTypes.add(type);
+        type.setSourceCode(this);
     }
 
-    public void addTypes(final Set<ComplexType> types)
+    public void addComplexTypes(final Set<ComplexType> types)
     {
-        this.types.addAll(types);
-    }
-  
-    public void optimizeRelations()
-    {
-        this.coreMediator.createRelations(this.functions, this.types,
-                this.globals);
-        this.totalMediator.createRelations(this.functions, this.types,
-                this.globals);
+        for(ComplexType type : types)
+        {
+            this.addComplexType(type);
+        }
     }
     
     public Set<Function> getCoreFunctionsCalledBy(Function function)
     {
-        return this.coreMediator.getFunctionsCalledBy(function);
+        return function.getCoreCalledFunctions().keySet();
     }
     
     public Set<Function> getCoreFunctionsCalling(Function function)
     {
-        return this.coreMediator.getFunctionsCalling(function);
+        return function.getCallingFunctions().keySet();
     }
     
     public Set<GlobalVariable> getCoreGlobalsUsedBy(Function function)
     {
-        return this.coreMediator.getGlobalsUsedBy(function);
+        return function.getGlobalVariables().keySet();
     }
     
     public Set<Function> getCoreFunctionUsing(GlobalVariable global)
     {
-        return this.coreMediator.getFunctionUsing(global);
+        return global.getUsingFunctions().keySet();
     }
     
     public Set<ComplexType> getCoreTypesUsedBy(Function function)
     {
-        return this.coreMediator.getTypesUsedBy(function);
+        return function.getCoreComplexTypes().keySet();
     }
     
     public Set<Function> getCoreFunctionUsing(ComplexType type)
     {
-        return this.coreMediator.getFunctionUsing(type);
+        return type.getCoreUsingFunctions().keySet();
     }
     
     public Set<GlobalVariable> getCoreGlobalsUsing(ComplexType type)
     {
-        return this.coreMediator.getGlobalsUsing(type);
+        return type.getUsingGlobalVariables();
     }
     
     public Set<Function> getTotalFunctionsCalledBy(Function function)
     {
-        return this.totalMediator.getFunctionsCalledBy(function);
+        return function.getTotalCalledFunctions().keySet();
     }
     
     public Set<Function> getTotalFunctionsCalling(Function function)
     {
-        return this.totalMediator.getFunctionsCalling(function);
+        return function.getCallingFunctions().keySet();
     }
     
     public Set<GlobalVariable> getTotalGlobalsUsedBy(Function function)
     {
-        return this.totalMediator.getGlobalsUsedBy(function);
+        return function.getGlobalVariables().keySet();
     }
     
     public Set<Function> getTotalFunctionUsing(GlobalVariable global)
     {
-        return this.totalMediator.getFunctionUsing(global);
+        return global.getUsingFunctions().keySet();
     }
     
     public Set<ComplexType> getTotalTypesUsedBy(Function function)
     {
-        return this.totalMediator.getTypesUsedBy(function);
+        return function.getTotalComplexTypes().keySet();
     }
     
     public Set<Function> getTotalFunctionUsing(ComplexType type)
     {
-        return this.totalMediator.getFunctionUsing(type);
+        return type.getTotalUsingFunctions().keySet();
     }
     
     public Set<GlobalVariable> getTotalGlobalsUsing(ComplexType type)
     {
-        return this.totalMediator.getGlobalsUsing(type);
+        return type.getUsingGlobalVariables();
     }
 }

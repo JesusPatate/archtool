@@ -321,7 +321,7 @@ public class ObjectiveFunction
                 graph.addEdge(fct, var);
             }
             
-            for(ComplexType t : fct.getUsedTypes().keySet())
+            for(ComplexType t : fct.getTotalComplexTypes().keySet())
             {
                 graph.addEdge(fct, t);
             }

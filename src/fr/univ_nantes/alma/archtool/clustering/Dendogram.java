@@ -333,7 +333,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
      */
     private void extractFunctions()
     {
-        for (final Function fct : this.sourceCode.getFunctions())
+        for (final Function fct : this.sourceCode.getCoreFunctions())
         {
             final Dendogram.Node node = new Node();
             node.addFunction(fct);
@@ -369,7 +369,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
      */
     private void extractTypes()
     {
-        for (final ComplexType t : this.sourceCode.getTypes())
+        for (final ComplexType t : this.sourceCode.getCoreComplexTypes())
         {
             final Dendogram.Node node = new Node();
             node.addType(t);
@@ -582,7 +582,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
                         // Body
 
-                        final Map<ComplexType, Integer> types = fct2.getUsedTypes();
+                        final Map<ComplexType, Integer> types = fct2.getTotalComplexTypes();
 
                         if (types.containsKey(t))
                         {

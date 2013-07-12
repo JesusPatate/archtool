@@ -12,7 +12,6 @@ import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
-import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
 
 public class InterfaceIdentifier
@@ -25,12 +24,12 @@ public class InterfaceIdentifier
             this.identifyGlobalVariableRequired(component, coa);
             this.identifyFunctionProvided(component, coa);
             this.identifyGlobalVariableProvided(component, coa);
+            this.identifyTypeProvided(component, coa);
         }
     }
 
     private void identifyFunctionRequired(Component component, COA coa)
     {
-        SourceCode sourceCode = coa.getSourceCode();
         Queue<Function> functionsToOut = 
                 new LinkedList<Function>(coa.getFunctionsToOut(component));
         
@@ -40,10 +39,10 @@ public class InterfaceIdentifier
             
             // Entities used by function
             Set<Function> functionsOut = 
-                    sourceCode.getCoreFunctionsCalledBy(function);
-            Set<ComplexType> typesOut = sourceCode.getCoreTypesUsedBy(function);
+                    function.getCoreCalledFunctions().keySet();
+            Set<ComplexType> typesOut = function.getCoreComplexTypes().keySet();
             Set<GlobalVariable> globalsOut = 
-                    sourceCode.getCoreGlobalsUsedBy(function);
+                    function.getGlobalVariables().keySet();
             
             // Entities of the component
             Set<Function> functionsComponent = 
@@ -54,8 +53,7 @@ public class InterfaceIdentifier
                     coa.getComponentVariables(component);
             
             // Entities using function
-            Set<Function> functionsIn = 
-                    sourceCode.getCoreFunctionsCalling(function);
+            Set<Function> functionsIn = function.getCallingFunctions().keySet();
             
             if((!Collections.disjoint(functionsOut, functionsComponent) && 
                     !Collections.disjoint(typesOut, typesComponent) && 
@@ -117,7 +115,6 @@ public class InterfaceIdentifier
     
     private void identifyGlobalVariableRequired(Component component, COA coa)
     {
-        SourceCode sourceCode = coa.getSourceCode();
         Queue<GlobalVariable> globalsToOut = 
                 new LinkedList<GlobalVariable>(coa.getGlobalsToOut(component));
         
@@ -133,8 +130,7 @@ public class InterfaceIdentifier
                     coa.getComponentTypes(component);
             
             // Entities using global variable
-            Set<Function> functionsIn = 
-                    sourceCode.getCoreFunctionUsing(variable);
+            Set<Function> functionsIn = variable.getUsingFunctions().keySet();
             
             if((typeOut.isComplex() &&
                     typesComponent.contains((ComplexType) typeOut)) ||
@@ -147,7 +143,6 @@ public class InterfaceIdentifier
                     component.addRequiredInterface(requiredInterface);
                     coa.addType((ComplexType) typeOut, requiredInterface);
                 }
-
             }
             else
             {
@@ -157,9 +152,8 @@ public class InterfaceIdentifier
                 
                 if(typeOut.isComplex())
                 {
-                    Interface inteface = 
-                            coa.getInterface((ComplexType) typeOut);
-                    coa.removeType((ComplexType) typeOut, inteface);
+                    Interface itf = coa.getInterface((ComplexType) typeOut));
+                    coa.removeType((ComplexType) typeOut, itf);
                 }
             }
         }
@@ -167,7 +161,6 @@ public class InterfaceIdentifier
     
     private void identifyFunctionProvided(Component component, COA coa)
     {
-        SourceCode sourceCode = coa.getSourceCode();
         Queue<Function> functionsToIn = 
                 new LinkedList<Function>(coa.getFunctionsToIn(component));
         
@@ -176,16 +169,15 @@ public class InterfaceIdentifier
             Function function = functionsToIn.poll();
             
             // Entities using function
-            Set<Function> functionsIn = 
-                    sourceCode.getCoreFunctionsCalling(function);
+            Set<Function> functionsIn = function.getCallingFunctions().keySet();
             
             // Entities used by function
             Set<Function> functionsOut = 
-                    sourceCode.getCoreFunctionsCalledBy(function);
-            Set<ComplexType> typesOut = sourceCode.getCoreTypesUsedBy(function);
+                    function.getCoreCalledFunctions().keySet();
+            Set<ComplexType> typesOut = function.getCoreComplexTypes().keySet();
             Set<GlobalVariable> globalsOut = 
-                    sourceCode.getCoreGlobalsUsedBy(function);
-            
+                    function.getGlobalVariables().keySet();
+    
             // Entities of the component
             Set<Function> functionsComponent = 
                     coa.getComponentFunctions(component);
@@ -201,14 +193,12 @@ public class InterfaceIdentifier
             else
             {
                 functionsToIn.addAll(functionsOut);
-
             }
         }
     }
     
     private void identifyGlobalVariableProvided(Component component, COA coa)
     {
-        SourceCode sourceCode = coa.getSourceCode();
         Queue<GlobalVariable> globalsToIn = 
                 new LinkedList<GlobalVariable>(coa.getGlobalsToIn(component));
         
@@ -217,8 +207,7 @@ public class InterfaceIdentifier
             GlobalVariable variable = globalsToIn.poll();
             
             // Entities using global variable
-            Set<Function> functionsIn = 
-                    sourceCode.getCoreFunctionUsing(variable);
+            Set<Function> functionsIn = variable.getUsingFunctions().keySet();
             
             // Entities used by global variable
             Type typeOut = variable.getType();
@@ -234,11 +223,20 @@ public class InterfaceIdentifier
                 component.addProvidedInterface(providedInterface);
                 coa.addVariable(variable, providedInterface);
             }
-            else
-            {
-                // Regarder quoi faire avec les types
-
-            }
+        }
+    }
+    
+    private void identifyTypeProvided(Component component, COA coa)
+    {
+        Queue<ComplexType> typesToIn = 
+                new LinkedList<ComplexType>(coa.getTypesToIn(component));
+        
+        while(!typesToIn.isEmpty())
+        {
+            ComplexType type = typesToIn.poll();                            
+            Interface providedInterface = new Interface();
+            component.addProvidedInterface(providedInterface);
+            coa.addType(type, providedInterface);
         }
     }
 }

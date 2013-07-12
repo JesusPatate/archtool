@@ -93,14 +93,14 @@ public class FunctionTest
     @Test
     public void testGetLocals()
     {
-        Assert.assertEquals(this.locals1, this.fct1.getLocals());
+        Assert.assertEquals(this.locals1, this.fct1.getLocalVariables());
     }
 
     @Test
     public void testGetCalls()
     {
         Assert.assertEquals(this.locals1,
-                this.fct1.getLocals());
+                this.fct1.getLocalVariables());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class FunctionTest
     @Test
     public void testGetUsedTypes()
     {
-        Assert.assertEquals(this.body1.getUsedTypes(), this.fct1.getUsedTypes());
+        Assert.assertEquals(this.body1.getComplexTypes(), this.fct1.getTotalComplexTypes());
     }
 
     /**

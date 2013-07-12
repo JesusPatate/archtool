@@ -57,7 +57,7 @@ public class ClusteringTest
         v3 = new LocalVariable("y", PrimitiveType.intType);
 
         v4 = new GlobalVariable("g", PrimitiveType.charType, false, file);
-        sourceCode.addGlobal(v4);
+        sourceCode.addGlobalVariable(v4);
         
         fct1 = createFct1();
         sourceCode.addFunction(fct1);

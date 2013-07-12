@@ -901,7 +901,7 @@ public class Cohesion
         double nbUsesOfType = 0.0;
         double total = 0.0; // Total uses of types
 
-        Map<ComplexType, Integer> usedTypes = fct.getUsedTypes();
+        Map<ComplexType, Integer> usedTypes = fct.getTotalComplexTypes();
 
         for (ComplexType t : usedTypes.keySet())
         {
@@ -1004,8 +1004,8 @@ public class Cohesion
         double result = 0.0;
         double nbCommon = 0;
 
-        Map<LocalVariable, Integer> localVars1 = f1.getLocals();
-        Map<LocalVariable, Integer> localVars2 = f2.getLocals();
+        Map<LocalVariable, Integer> localVars1 = f1.getLocalVariables();
+        Map<LocalVariable, Integer> localVars2 = f2.getLocalVariables();
 
         for (LocalVariable var1 : localVars1.keySet())
         {
@@ -1056,8 +1056,8 @@ public class Cohesion
     {
         double result = 0.0;
 
-        Map<ComplexType, Integer> usedTypesFct1 = f1.getUsedTypes();
-        Map<ComplexType, Integer> usedTypesFct2 = f2.getUsedTypes();
+        Map<ComplexType, Integer> usedTypesFct1 = f1.getTotalComplexTypes();
+        Map<ComplexType, Integer> usedTypesFct2 = f2.getTotalComplexTypes();
         
         Set<ComplexType> usedTypesTotal = new HashSet<ComplexType>();
         Set<ComplexType> usedTypesCommon = new HashSet<ComplexType>();

@@ -249,7 +249,7 @@ public class CohesionTest
                         (Double) PrivateAccessor.invoke(cohesion,
                                 "cohesionTypes", classes, args);
 
-                if (fct.getUsedTypes().size() > 0)
+                if (fct.getTotalComplexTypes().size() > 0)
                 {
                     assertTrue("Cohésion sur les types invalide (" + result
                             + ")", result == 1.0);

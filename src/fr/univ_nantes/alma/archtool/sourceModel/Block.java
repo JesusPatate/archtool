@@ -142,7 +142,7 @@ public class Block
      * @return Une map contenant les variables locales utilisées dans le bloc et
      *         pour chacune, le nombre d'utilisations.
      */
-    public Map<LocalVariable, Integer> getLocals()
+    public Map<LocalVariable, Integer> getLocalVariables()
     {
         MultiCounter<LocalVariable> localsUse =
                 new MultiCounter<LocalVariable>();
@@ -150,7 +150,7 @@ public class Block
 
         for (final Block block : this.subBlocks)
         {
-            localsUse.incrementAll(block.getLocals());
+            localsUse.incrementAll(block.getLocalVariables());
         }
 
         return localsUse.getCounters();
@@ -180,7 +180,7 @@ public class Block
      * @return Une map contenant l'ensemble des types utilisés dans le bloc et
      *         pour chacun d'eux, le nombre d'utilisations.
      */
-    public Map<ComplexType, Integer> getUsedTypes()
+    public Map<ComplexType, Integer> getComplexTypes()
     {
         MultiCounter<ComplexType> typesUse =
                 new MultiCounter<ComplexType>();
@@ -208,7 +208,7 @@ public class Block
         
         for (final Block block : this.subBlocks)
         {
-            typesUse.incrementAll(block.getUsedTypes());
+            typesUse.incrementAll(block.getComplexTypes());
         }
 
         return typesUse.getCounters();

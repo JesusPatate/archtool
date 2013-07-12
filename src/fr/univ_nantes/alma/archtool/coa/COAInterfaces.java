@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import fr.univ_nantes.alma.archtool.architectureModel.Connector;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
@@ -167,8 +166,7 @@ public class COAInterfaces
                 
                 this.itfToFcts.put(itf, itfFcts);
                 done = true;
-            }
-            
+            } 
             else
             {
                 done = this.itfToFcts.get(itf).add(fct);
@@ -196,8 +194,6 @@ public class COAInterfaces
             
             done = true;
         }
-        
-        
 
         return done;
     }
@@ -326,20 +322,17 @@ public class COAInterfaces
         {
             done = this.itfToTypes.get(itf).add(t);
         }
-        
-        Set<Interface> typeItfs = null;
 
         if (this.typeToItf.containsKey(t))
         {
-            typeItfs = this.typeToItf.get(t);
+            this.typeToItf.get(t).add(itf);
         }
         else
         {
-            typeItfs = new HashSet<Interface>();
-        }
-
-        typeItfs.add(itf);
-        this.typeToItf.put(t, typeItfs);
+            Set<Interface> typeItfs = new HashSet<Interface>();
+            typeItfs.add(itf);
+            this.typeToItf.put(t, typeItfs);
+        }      
 
         return done;
     }

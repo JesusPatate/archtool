@@ -44,7 +44,6 @@ String root = "/home/stan/Documents/development/";
         builder.build();
         
         sourceCode = builder.getSourceCode();
-        sourceCode.optimizeRelations();
 
         obj = new ObjectiveFunction();
     }

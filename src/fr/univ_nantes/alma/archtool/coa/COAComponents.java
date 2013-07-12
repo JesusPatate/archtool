@@ -400,26 +400,20 @@ class COAComponents
     }
     
     /**
-     * Retourne toutes les fonctions n'appartenant pas au composant et qui 
-     * utilisent des entités du composant.
+     * Retourne toutes les fonctions du composant appelées par des fonctions
+     * n'appartenant pas au composant.
      */
     public Set<Function> getFunctionsToIn(Component component)
     {
         Set<Function> toIn = new HashSet<Function>();
+        Set<Function> componentFunctions = this.compToFcts.get(component);   
         
-        for(Function function : this.sourceCode.getFunctions())
+        for(Function function : componentFunctions)
         {
-            if(this.fctToComp.get(function) != component)
+            if(!componentFunctions.containsAll(
+                    this.sourceCode.getCoreFunctionsCalling(function)))
             {
-                if(!Collections.disjoint(this.compToFcts.get(component), 
-                        this.sourceCode.getCoreFunctionsCalledBy(function)) ||
-                        !Collections.disjoint(this.compToTypes.get(component), 
-                        this.sourceCode.getCoreTypesUsedBy(function)) ||
-                        !Collections.disjoint(this.compToVars.get(component), 
-                        this.sourceCode.getCoreGlobalsUsedBy(function)))
-                {
-                    toIn.add(function);
-                }
+                toIn.add(function);
             }
         }
         
@@ -427,19 +421,17 @@ class COAComponents
     }
     
     /**
-     * Retourne toutes les variables globales n'appartenant pas au composant et
-     *  qui utilisent des entités du composant.
+     * Retourne toutes les variables globales du composant utilisées par des
+     * fonctions n'appartenant pas au composant.
      */
     public Set<GlobalVariable> getGlobalsToIn(Component component)
     {
         Set<GlobalVariable> toIn = new HashSet<GlobalVariable>();
         
-        for(GlobalVariable global : this.sourceCode.getGlobalVariables())
+        for(GlobalVariable global : this.compToVars.get(component))
         {
-            Type type = global.getType();
-            
-            if(type.isComplex() && 
-                    this.typeToComp.get((ComplexType) type) == component)
+            if(!this.compToFcts.get(component).containsAll(
+                    this.sourceCode.getCoreFunctionUsing(global)))
             {
                 toIn.add(global);
             }
@@ -447,6 +439,29 @@ class COAComponents
         
         return toIn;
     }
+    
+    /**
+     * Retourne tous les types du composant utilisés par des
+     * fonctions ou des variables globales n'appartenant pas au composant.
+     */
+    public Set<ComplexType> getTypesToIn(Component component)
+    {
+        Set<ComplexType> toIn = new HashSet<ComplexType>();
+        
+        for(ComplexType type : this.compToTypes.get(component))
+        {
+            if(!this.compToFcts.get(component).containsAll(
+                    this.sourceCode.getCoreFunctionUsing(type)) ||
+                    !this.compToVars.get(component).containsAll(
+                    this.sourceCode.getCoreGlobalsUsing(type)))
+            {
+                toIn.add(type);
+            }
+        }
+        
+        return toIn;
+    }
+    
 
     /**
      * Teste si un composant est répertorié par le COA.

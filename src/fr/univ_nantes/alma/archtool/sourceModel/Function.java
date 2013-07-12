@@ -3,6 +3,7 @@ package fr.univ_nantes.alma.archtool.sourceModel;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.utils.MultiCounter;
@@ -34,6 +35,32 @@ public class Function
     private File sourceFile = null;
 
     private Block body = null;
+    
+    private SourceCode sourceCode = null;
+    
+    // Cached data
+    private Map<Function, Integer> totalCalledFunctions = null;
+    
+ // Cached data
+    private Map<Function, Integer> coreCalledFunctions = null;
+    
+    // Cached data
+    private Set<Call> calls = null;
+    
+    // Cached data
+    private Map<LocalVariable, Integer> localVariablesUse = null;
+    
+    // Cached data
+    private Map<GlobalVariable, Integer> globalVariablesUse = null;
+    
+    // Cached data
+    private Map<ComplexType, Integer> totalComplexTypeUse = null;
+    
+ // Cached data
+    private Map<ComplexType, Integer> coreComplexTypeUse = null;
+    
+    // Cached data
+    private Map<Function, Integer> callingFunctions = null;
 
     /**
      * Constructeur pour les fonctions dont on ne connait pas la définition.
@@ -92,6 +119,11 @@ public class Function
     {
         return this.isStatic;
     }
+    
+    public void setSourceCode(SourceCode sourceCode)
+    {
+        this.sourceCode = sourceCode;
+    }
 
     /**
      * Retourne le fichier source dans lequel est définie la fonction.
@@ -116,7 +148,12 @@ public class Function
      */
     public Map<GlobalVariable, Integer> getGlobalVariables()
     {
-        return this.body.getGlobalVariables();
+        if(this.globalVariablesUse == null)
+        {
+            this.globalVariablesUse = this.body.getGlobalVariables();
+        }
+        
+        return new HashMap<GlobalVariable, Integer>(this.globalVariablesUse);
     }
 
     /**
@@ -155,9 +192,14 @@ public class Function
      * @return Une map ayant pour clés les variables locales utilisées dans le
      *         corps de la fonction et pour valeurs leur nombre d'utilisations.
      */
-    public Map<LocalVariable, Integer> getLocals()
-    {
-        return this.body.getLocals();
+    public Map<LocalVariable, Integer> getLocalVariables()
+    {        
+        if(this.localVariablesUse == null)
+        {
+            this.localVariablesUse = this.body.getLocalVariables();
+        }
+        
+        return new HashMap<LocalVariable, Integer>(this.localVariablesUse);
     }
 
     /**
@@ -168,53 +210,142 @@ public class Function
      */
     public Set<Call> getCalls()
     {
-        return this.body.getCalls();
+        if(this.calls == null)
+        {
+            this.calls = this.body.getCalls();
+        }
+        
+        return new HashSet<Call>(this.calls);
     }
 
     public boolean calls(final Function fct)
     {
-        boolean called = false;
-
-        for (final Call call : this.getCalls())
-        {
-            if (call.getFunction().equals(fct))
-            {
-                called = true;
-            }
-        }
-
-        return called;
+        return this.getTotalCalledFunctions().containsKey(fct);
     }
 
     /**
-     * Renvoie l'ensemble des types utilisés par la fonction.
+     * Renvoie l'ensemble des types complexes utilisés par la fonction.
      * 
      * <p>
-     * Les types utilisés peuvent être primitifs ou complexes. Sont pris en
-     * compte les types des variables utilisées, le type de retour, et les types
-     * des arguments.
+     Sont pris en compte les types des variables utilisées, le type de retour,
+      et les types des arguments.
      * </p>
      * 
      * @return Un set contenant les types utilisés dans le corps de la fonction.
      */
-    public Map<ComplexType, Integer> getUsedTypes()
+    public Map<ComplexType, Integer> getTotalComplexTypes()
     {
-        MultiCounter<ComplexType> typesUse =
-                new MultiCounter<ComplexType>();
-        typesUse.incrementAll(this.body.getUsedTypes());
+        if(this.totalComplexTypeUse == null)
+        {
+            MultiCounter<ComplexType> complextypesUse =
+                    new MultiCounter<ComplexType>();
+            complextypesUse.incrementAll(this.body.getComplexTypes());
+            
+            for (LocalVariable argument : this.arguments)
+            { 
+                Type type =  argument.getType();
+    
+                if(type.isComplex && type != ComplexType.anonymousType)
+                {
+                    complextypesUse.increment((ComplexType) type);
+                }
+            }
+    
+            this.totalComplexTypeUse = complextypesUse.getCounters();
+        }
         
-        for (LocalVariable argument : this.arguments)
-        { 
-            Type type =  argument.getType();
-
-            if(type.isComplex && type != ComplexType.anonymousType)
+        return new HashMap<ComplexType, Integer>(this.totalComplexTypeUse);
+    }
+    
+    public Map<ComplexType, Integer> getCoreComplexTypes()
+    {
+        if(this.sourceCode != null && (this.coreComplexTypeUse == null ||
+                this.sourceCode.hasChanged()))
+        {            
+            this.coreComplexTypeUse = new HashMap<ComplexType, Integer>();
+                
+            for(Entry<ComplexType, Integer> typeCounter : 
+                this.getTotalComplexTypes().entrySet())
             {
-                typesUse.increment((ComplexType) type);
+                if(this.sourceCode.getCoreComplexTypes().contains(typeCounter.getKey()))
+                {
+                    this.coreComplexTypeUse.put(typeCounter.getKey(), 
+                            typeCounter.getValue());
+                }
             }
         }
-
-        return typesUse.getCounters();
+            
+        return this.coreComplexTypeUse == null ?
+                new HashMap<ComplexType, Integer>() : 
+                new HashMap<ComplexType, Integer>(this.coreComplexTypeUse);
     }
+    
+    public Map<Function, Integer> getTotalCalledFunctions()
+    {
+        if(this.totalCalledFunctions == null)
+        {
+            MultiCounter<Function> functionCounter = 
+                    new MultiCounter<Function>();
+            
+            for(Call call : this.getCalls())
+            {
+                functionCounter.increment(call.getFunction());
+            }
+            
+            this.totalCalledFunctions = functionCounter.getCounters();
+        }
+        
+        return new HashMap<Function, Integer>(this.totalCalledFunctions);
+    }
+    
+    public Map<Function, Integer> getCoreCalledFunctions()
+    {        
+        if(this.sourceCode != null && (this.coreCalledFunctions == null ||
+                this.sourceCode.hasChanged()))
+        {            
+            this.coreCalledFunctions = new HashMap<Function, Integer>();
+            
+            for(Entry<Function, Integer> functionCounter : 
+                this.getTotalCalledFunctions().entrySet())
+            {
+                if(this.sourceCode.getCoreFunctions().
+                        contains(functionCounter.getKey()))
+                {
+                    this.coreCalledFunctions.put(functionCounter.getKey(), 
+                            functionCounter.getValue());
+                }
+            }
+        }
+        
+        return this.coreCalledFunctions == null ?
+                new HashMap<Function, Integer>() : 
+                new HashMap<Function, Integer>(this.coreCalledFunctions);
+    }
+    
+    public Map<Function, Integer> getCallingFunctions()
+    {
+        if(this.sourceCode != null && (this.callingFunctions == null ||
+                this.sourceCode.hasChanged()))
+        {            
+            this.callingFunctions = new HashMap<Function, Integer>();
+            
+            for(Function function : this.sourceCode.getCoreFunctions())
+            {
+                Map<Function, Integer> calledFunctions = 
+                        function.getCoreCalledFunctions();
+                
+                if(calledFunctions.containsKey(this))
+                {
+                    this.callingFunctions.put(function,
+                            calledFunctions.get(this));
+                }
+            }
+        }
+        
+        return this.callingFunctions == null ?
+                new HashMap<Function, Integer>() : 
+                new HashMap<Function, Integer>(this.callingFunctions);
+    }   
 
     @Override
     public String toString()

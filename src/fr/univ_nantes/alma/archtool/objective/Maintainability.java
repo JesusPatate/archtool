@@ -283,7 +283,7 @@ public class Maintainability
             }
         }
 
-        for (Type type : fct.getUsedTypes().keySet())
+        for (Type type : fct.getTotalComplexTypes().keySet())
         {
             this.functionNodes.get(fct).add(type);
 

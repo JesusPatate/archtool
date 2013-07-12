@@ -67,7 +67,7 @@ sourceCode = new SourceCode();
         v3 = new LocalVariable("y", PrimitiveType.intType);
 
         v4 = new GlobalVariable("g", PrimitiveType.charType, false, file);
-        sourceCode.addGlobal(v4);
+        sourceCode.addGlobalVariable(v4);
         
         fct1 = createFct1();
         sourceCode.addFunction(fct1);
@@ -169,7 +169,7 @@ sourceCode = new SourceCode();
             Function fctNode1 = functions1.iterator().next();
             Function fctNode2 = functions2.iterator().next();
 
-            Iterator<Function> it2 = sourceCode.getFunctions().iterator();
+            Iterator<Function> it2 = sourceCode.getCoreFunctions().iterator();
             Function fct1 = it2.next();
             Function fct2 = it2.next();
 
