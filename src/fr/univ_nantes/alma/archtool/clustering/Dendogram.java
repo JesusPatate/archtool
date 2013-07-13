@@ -9,6 +9,7 @@ import java.util.Set;
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
+import fr.univ_nantes.alma.archtool.architectureModel.Facade;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
@@ -383,8 +384,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
         {
             Component comp = new Component();
             this.architecture.addComponent(comp);
-
-            this.architecture.addComponent(comp);
+            
             comp.addFunctions(node.getFunctions());
             comp.addGlobalVariables(node.getVariables());
             comp.addComplexTypes(node.getTypes());
@@ -408,19 +408,13 @@ public class Dendogram implements Iterable<Dendogram.Node>
     }
 
     /**
-     * A COMPLETER
-     * 
-     * @param idxNode
-     *            Index du composant qui fournit la fonction en question
-     * 
-     * @see #buildInterfaces()
+     * Génère les interfaces liées aux fonctions fournies par un composant.
      */
     private void processInterfacesFct(final Component comp)
     {
         for (final Function fct : comp.getFunctions())
         {
             Interface itf = new Interface();
-
             boolean required = false;
             
             Set<Function> callers = fct.getCoreCallingFunctions().keySet();
@@ -428,8 +422,12 @@ public class Dendogram implements Iterable<Dendogram.Node>
             for (Function fct2 : callers)
             {
                 Component comp2 = this.architecture.getComponent(fct2);
-                comp2.addRequiredInterface(itf);
-                required = true;
+                
+                if(comp2.equals(comp) == false)
+                {
+                    comp2.addRequiredInterface(itf);
+                    required = true;
+                }
             }
             
             if(required == true)
@@ -441,12 +439,7 @@ public class Dendogram implements Iterable<Dendogram.Node>
     }
 
     /**
-     * A COMPLETER
-     * 
-     * @param idxNode
-     *            Index du composant qui fournit la variable en question
-     * 
-     * @see #buildInterfaces()
+     * Génère les interfaces liées aux variables fournies par un composant.
      */
     private void processInterfacesVar(Component comp)
     {
@@ -477,23 +470,8 @@ public class Dendogram implements Iterable<Dendogram.Node>
     }
 
     /**
-     * Fonction appelée à la création du dendogramme pour initialiser les
-     * interfaces liées à un type d'un composant
-     * 
-     * <p>
-     * Recherche les utilisation d'un type fourni par un composant. Une
-     * interface requise est créée pour chaque composant qui utilise ce type
-     * (contient une fonction qui utilise une variable de ce type ou une
-     * variable globale de ce type) Une interface fournie est créée pour le
-     * composant qui contient le type en question.
-     * </p>
-     * 
-     * @param idxNode
-     *            Index du composant qui fournit le type en question
-     * 
-     * @see #buildInterfaces()
+     * Génère les interfaces liées aux types fournis par un composant.
      */
-
     private void processInterfacesType(Component comp)
     {
         for (final ComplexType t : comp.getComplexTypes())
@@ -537,20 +515,59 @@ public class Dendogram implements Iterable<Dendogram.Node>
 
     private void buildConnections()
     {
-        for (Component comp : this.architecture.getComponents())
+        Component[] compArray = new Component[this.architecture.nbComponents()];
+        this.architecture.getComponents().toArray(compArray);
+        
+        for(int i = 0 ; i < compArray.length - 1 ; ++i)
         {
-            for (Interface itf : comp.getProvidedInterfaces())
+            for(int j = i + 1 ; j < compArray.length ; ++j)
             {
-                Connector con = new Connector();
-                this.architecture.addConnector(con);
-                this.architecture.addConnection(comp, con, itf);
-
-                for (Component comp2 : this.architecture.getComponents())
+                Component comp1 = compArray[i];
+                Component comp2 = compArray[j];
+                
+                Connector connector = new Connector();
+                Facade facade1 = new Facade();
+                Facade facade2 = new Facade();
+                
+                boolean useless = true;
+                
+                for(Interface itf : comp1.getRequiredInterfaces())
                 {
-                    if (comp2.requiresInterface(itf))
+                    if(comp2.providesInterface(itf))
                     {
-                        this.architecture.addConnection(comp2, con, itf);
+                        useless = false;
+                        
+                        facade1.addFunctions(itf.getFunctions());
+                        facade1.addGlobalVariables(itf.getGlobalVariables());
+                        facade1.addComplexTypes(itf.getComplexTypes());
+                        
+                        facade2.addFunctions(itf.getFunctions());
+                        facade2.addGlobalVariables(itf.getGlobalVariables());
+                        facade2.addComplexTypes(itf.getComplexTypes());
                     }
+                }
+                
+                for(Interface itf : comp2.getRequiredInterfaces())
+                {
+                    if(comp1.providesInterface(itf))
+                    {
+                        useless = false;
+                        
+                        facade1.addFunctions(itf.getFunctions());
+                        facade1.addGlobalVariables(itf.getGlobalVariables());
+                        facade1.addComplexTypes(itf.getComplexTypes());
+                        
+                        facade2.addFunctions(itf.getFunctions());
+                        facade2.addGlobalVariables(itf.getGlobalVariables());
+                        facade2.addComplexTypes(itf.getComplexTypes());
+                    }
+                }
+                
+                if(useless == false)
+                {
+                    connector.addFacade(facade1);
+                    connector.addFacade(facade2);
+                    this.architecture.addConnector(connector);
                 }
             }
         }
