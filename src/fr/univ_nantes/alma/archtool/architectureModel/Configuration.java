@@ -125,36 +125,56 @@ public class Configuration
 
     public boolean removeComponent(Component comp)
     {
-        Iterator<Connection> conIter = this.connections.iterator();
+        boolean done = false;
         
-        while(conIter.hasNext())
+        if(this.components.contains(comp))
         {
-            Connection connection = conIter.next();
+            comp.clearInterfaces();
+            /*Iterator<Connection> conIter = this.connections.iterator();
             
-            if(connection.participates(comp))
+            while(conIter.hasNext())
             {
-                conIter.remove();
-            }
+                Connection connection = conIter.next();
+                
+                if(connection.participates(comp))
+                {
+                    conIter.remove();
+                }
+            }*/
+            
+            comp.setCOA(null);
+            this.components.remove(comp);
+            done = true;
         }
-       
-        return this.components.remove(comp);
+                
+        return done;
     }
 
     public boolean removeConnector(Connector con)
     {
-        Iterator<Connection> conIter = this.connections.iterator();
+        boolean done = false;
         
-        while(conIter.hasNext())
+        if(this.connectors.contains(con))
         {
-            Connection connection = conIter.next();
-            
-            if(connection.participates(con))
-            {
-                conIter.remove();
-            }
-        }
+            con.clearFacades();
+            /*Iterator<Connection> conIter = this.connections.iterator();
         
-        return this.connectors.remove(con);
+            while(conIter.hasNext())
+            {
+                Connection connection = conIter.next();
+                
+                if(connection.participates(con))
+                {
+                    conIter.remove();
+                }
+            }*/
+            
+            con.setCOA(null);
+            this.connectors.remove(con);
+            done = true;
+        }
+                
+        return done;
     }
     
     /**
@@ -172,9 +192,8 @@ public class Configuration
         while(it.hasNext())
         {
             Connector con = it.next();
-            
             con.clearFacades();
-            this.coa.removeConnector(con);
+            con.setCOA(null);
             it.remove();
         }
     }

@@ -743,6 +743,7 @@ public class COA
         
         if(found == false)
         {
+            itf.setCOA(null);
             this.removeInterface(itf);
         }
     }

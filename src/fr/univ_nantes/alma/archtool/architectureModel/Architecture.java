@@ -42,9 +42,8 @@ public class Architecture
      */
     public boolean removeComponent(Component comp)
     {
-        // TODO
-       return this.coa.removeComponent(comp) &&
-               this.configuration.removeComponent(comp);
+        return this.configuration.removeComponent(comp) &&
+                this.coa.removeComponent(comp);
     }
 
     /**
@@ -76,9 +75,8 @@ public class Architecture
      */
     public boolean removeConnector(Connector con)
     {
-        // TODO
-       return this.coa.removeConnector(con) &&
-               this.configuration.removeConnector(con);
+        return this.configuration.removeConnector(con) &&
+                this.coa.removeConnector(con);
     }
     
     /**
@@ -199,6 +197,11 @@ public class Architecture
      */
     public void clear()
     {
+        for(Connector con : this.configuration.getConnectors())
+        {
+            this.coa.removeConnector(con);
+        }
+        
         this.configuration.clear();
     }
 

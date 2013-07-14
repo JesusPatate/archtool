@@ -93,6 +93,7 @@ public class Connector
         
         if(this.coa != null)
         {
+            fcd.setCOA(null);
             this.coa.removeFacade(fcd);
         }
     }
@@ -363,6 +364,7 @@ public class Connector
             
             if(this.coa != null)
             {
+                fcd.setCOA(null);
                 this.coa.removeFacade(fcd);
             }
         }

@@ -133,16 +133,31 @@ public class SubCOA<A>
 
         if (this.knows(archElement))
         {
-            if (this.archElementToFunctions.get(archElement).isEmpty()
-                    && this.archElementToGlobalVariables.get(archElement)
-                    .isEmpty() && this.archElementToComplexTypes.
-                    get(archElement).isEmpty())
+            for(Function f : this.archElementToFunctions.get(archElement))
             {
-                this.archElementToFunctions.remove(archElement);
-                this.archElementToGlobalVariables.remove(archElement);
-                this.archElementToComplexTypes.remove(archElement);
-                done = true;
+                this.functionToArchElement.remove(f);
             }
+            
+            this.archElementToFunctions.remove(archElement);
+            
+            
+            for(ComplexType t : this.archElementToComplexTypes.get(archElement))
+            {
+                this.complexTypeToArchElement.remove(t);
+            }
+            
+            this.archElementToComplexTypes.remove(archElement);
+            
+            
+            for(GlobalVariable v : 
+                this.archElementToGlobalVariables.get(archElement))
+            {
+                this.functionToArchElement.remove(v);
+            }
+            
+            this.archElementToGlobalVariables.remove(archElement);
+            
+            done = true;
         }
 
         return done;
@@ -171,7 +186,6 @@ public class SubCOA<A>
             compFcts.remove(function);
             this.functionToArchElement.remove(function);
             done = true;
-            this.removeArchElement(archElement);
         }
         
         return done;
@@ -192,7 +206,6 @@ public class SubCOA<A>
             toFcts.add(function);
             this.functionToArchElement.put(function, to);
             done = true;
-            this.removeArchElement(from);
         }
 
         return done;
@@ -223,7 +236,6 @@ public class SubCOA<A>
             compVars.remove(globalVariable);
             this.globalVariableToArchElement.remove(globalVariable);
             done = true;
-            this.removeArchElement(archElement);
         }
 
         return done;
@@ -246,7 +258,6 @@ public class SubCOA<A>
             toVars.add(var);
             this.globalVariableToArchElement.put(var, to);
             done = true;
-            this.removeArchElement(from);
         }
 
         return done;
@@ -276,7 +287,6 @@ public class SubCOA<A>
             compTypes.remove(t);
             this.complexTypeToArchElement.remove(t);
             done = true;
-            this.removeArchElement(archElement);
         }
 
         return done;
@@ -297,7 +307,6 @@ public class SubCOA<A>
             toTypes.add(t);
             this.complexTypeToArchElement.put(t, to);
             done = true;
-            this.removeArchElement(from);
         }
 
         return done;
