@@ -179,7 +179,10 @@ public class ObjectiveFunction
             result += subresult;
         }
 
-        result /= this.architecture.getComponents().size();
+        if(this.architecture.nbComponents() > 0)
+        {
+            result /= this.architecture.nbComponents();
+        }
 
         return result;
     }
@@ -205,7 +208,10 @@ public class ObjectiveFunction
             result += subresult;
         }
 
-        result /= this.architecture.getComponents().size();
+        if(this.architecture.nbConnectors() > 0)
+        {
+            result /= this.architecture.nbConnectors();
+        }
 
         return result;
     }

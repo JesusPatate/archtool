@@ -260,8 +260,9 @@ public class Cohesion
         int nbFcts = con.getFunctions().size();
         int nbVars = con.getGlobalVariables().size();
         int nbTypes = con.getComplexTypes().size();
-
-        if (nbFcts + nbVars + nbTypes > 1)
+        int nbEntities = nbFcts + nbVars + nbTypes;
+        
+        if (nbEntities > 1)
         {
             if (nbFcts > 0)
             {
@@ -294,9 +295,9 @@ public class Cohesion
             }
         }
 
-        else
+        else if(nbEntities > 0)
         {
-            result = 1.0;
+            result = 100.0;
         }
 
         return result;
