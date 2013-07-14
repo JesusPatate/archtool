@@ -1,13 +1,16 @@
 package fr.univ_nantes.alma.archtool.architectureModel;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
+import fr.univ_nantes.alma.archtool.utils.Triple;
 
-public class Architecture
+public class Architecture implements Cloneable
 {
     private COA coa = new COA();
     
@@ -42,12 +45,19 @@ public class Architecture
      */
     public boolean removeComponent(Component comp)
     {
-        return this.configuration.removeComponent(comp) &&
-                this.coa.removeComponent(comp);
+        return this.configuration.removeComponent(comp);
+    }
+    
+    /**
+     * Retourne l'ensemble des composants de l'architecture.
+     */
+    public Set<Component> getComponents(Connector con)
+    {
+        return this.configuration.getComponents(con);
     }
 
     /**
-     * Retourne l'ensemble des connecteurs de l'architecture.
+     * Retourne l'ensemble des composants reliés par un connecteur donné.
      */
     public Set<Connector> getConnectors()
     {
@@ -75,8 +85,7 @@ public class Architecture
      */
     public boolean removeConnector(Connector con)
     {
-        return this.configuration.removeConnector(con) &&
-                this.coa.removeConnector(con);
+        return this.configuration.removeConnector(con);
     }
     
     /**
@@ -152,7 +161,8 @@ public class Architecture
         return this.coa.moveFunction(fct, from, to);
     }
     
-    public boolean moveVariable(GlobalVariable var, Component from, Component to)
+    public boolean moveVariable(GlobalVariable var, Component from,
+            Component to)
     {
         return this.coa.moveVariable(var, from, to);
     }
@@ -167,7 +177,8 @@ public class Architecture
         return this.coa.moveFunction(fct, from, to);
     }
     
-    public boolean moveVariable(GlobalVariable var, Interface from, Interface to)
+    public boolean moveVariable(GlobalVariable var, Interface from,
+            Interface to)
     {
         return this.coa.moveVariable(var, from, to);
     }
@@ -182,7 +193,8 @@ public class Architecture
         return this.coa.moveFunction(fct, from, to);
     }
     
-    public boolean moveVariable(GlobalVariable var, Connector from, Connector to)
+    public boolean moveVariable(GlobalVariable var, Connector from,
+            Connector to)
     {
         return this.coa.moveVariable(var, from, to);
     }
@@ -197,12 +209,111 @@ public class Architecture
      */
     public void clear()
     {
-        for(Connector con : this.configuration.getConnectors())
+        this.configuration.clear();
+    }
+    
+    @Override
+    public Object clone()
+    {
+        Architecture cloned = new Architecture();
+        Map<Component, Component> originalComponentToClone = 
+                new HashMap<Component, Component>();
+        Map<Connector, Connector> originalConnectorToClone = 
+                new HashMap<Connector, Connector>();
+        Map<Interface, Interface> originalInterfaceToClone = 
+                new HashMap<Interface, Interface>();
+        
+        // Clone components
+        for(Component component : this.getComponents())
         {
-            this.coa.removeConnector(con);
+            Component clonedComponent = new Component();
+            originalComponentToClone.put(component, clonedComponent);
+            cloned.addComponent(clonedComponent);
+            
+            for(Interface required : component.getRequiredInterfaces())
+            {
+                Interface clonedRequired = null;
+                
+                if(originalInterfaceToClone.containsKey(required))
+                {
+                    clonedRequired = originalInterfaceToClone.get(required);
+                }
+                else
+                {
+                    clonedRequired = new Interface();
+                    originalInterfaceToClone.put(required, clonedRequired);
+                }
+                
+                clonedComponent.addRequiredInterface(clonedRequired);
+                clonedRequired.addFunctions(required.getFunctions());
+                clonedRequired.addComplexTypes(required.getComplexTypes());
+                clonedRequired.addGlobalVariables(
+                        required.getGlobalVariables());
+            }
+            
+            for(Interface provided : component.getProvidedInterfaces())
+            {
+                Interface clonedProvided = null;
+                
+                if(originalInterfaceToClone.containsKey(provided))
+                {
+                    clonedProvided = originalInterfaceToClone.get(provided);
+                }
+                else
+                {
+                    clonedProvided = new Interface();
+                    originalInterfaceToClone.put(provided, clonedProvided);
+                }
+                
+                clonedComponent.addProvidedInterface(clonedProvided);
+                clonedProvided.addFunctions(provided.getFunctions());
+                clonedProvided.addComplexTypes(provided.getComplexTypes());
+                clonedProvided.addGlobalVariables(
+                        provided.getGlobalVariables());
+            }
+            
+            clonedComponent.addFunctions(component.getFunctions());
+            clonedComponent.addComplexTypes(component.getComplexTypes());
+            clonedComponent.addGlobalVariables(component.getGlobalVariables()); 
         }
         
-        this.configuration.clear();
+        // Clone connectors
+        for(Connector connector : this.getConnectors())
+        {
+            Connector clonedConnector = new Connector();
+            originalConnectorToClone.put(connector, clonedConnector);
+            cloned.addConnector(clonedConnector);
+            
+            for(Facade facade : connector.getFacades())
+            {
+                Facade clonedFacade = new Facade();        
+                clonedConnector.addFacade(clonedFacade);
+                clonedFacade.addFunctions(facade.getFunctions());
+                clonedFacade.addComplexTypes(facade.getComplexTypes());
+                clonedFacade.addGlobalVariables(facade.getGlobalVariables());
+            }
+            
+            clonedConnector.addFunctions(connector.getFunctions());
+            clonedConnector.addComplexTypes(connector.getComplexTypes());
+            clonedConnector.addGlobalVariables(connector.getGlobalVariables()); 
+        }
+        
+        // Clone connections
+        for(Triple<Connector, Component, Interface> connection :
+            this.configuration.getConnections())
+        {
+            Component clonedComponent = 
+                    originalComponentToClone.get(connection.second);
+            Connector clonedConnector = 
+                    originalConnectorToClone.get(connection.first);
+            Interface clonedInterface = 
+                    originalInterfaceToClone.get(connection.third);
+            
+            cloned.addConnection(clonedComponent, clonedConnector,
+                    clonedInterface);
+        }
+        
+        return cloned;
     }
 
     @Override

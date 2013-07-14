@@ -1,23 +1,31 @@
 package fr.univ_nantes.alma.archtool.utils;
 
-public class Pair<A, B> {
-    public A first;
-    public B second;
+public class Pair<A, B> 
+{
+    public A first = null;
+    public B second = null;
 
-    public Pair(A first, B second) {
+    public Pair() 
+    {
+    }
+    
+    public Pair(A first, B second) 
+    {
         super();
         this.first = first;
         this.second = second;
     }
 
-    public int hashCode() {
+    public int hashCode() 
+    {
         int hashFirst = first != null ? first.hashCode() : 0;
         int hashSecond = second != null ? second.hashCode() : 0;
 
         return (hashFirst + hashSecond) * hashSecond + hashFirst;
     }
 
-    public boolean equals(Object other) {
+    public boolean equals(Object other) 
+    {
         if (other instanceof Pair) {
             Pair otherPair = (Pair) other;
             return 

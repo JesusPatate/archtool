@@ -36,14 +36,12 @@ public class DotGraph
                 
         for(File sourceFile : sourceCode.getSourceFiles())
         {           
-            System.out.println(sourceFile.getPath());
             this.graph.append("subgraph ");
             this.graph.append("cluster" + fileIndex + "{");
             this.graph.append("label = \"" + sourceFile.getPath() + "\";");
                 
             for(Function f : sourceCode.getFileFunctions(sourceFile))
             {
-                System.out.println(f.getName());
                 this.graph.append(f.getName() + "[fontcolor=blue];");
             }
                 
@@ -68,21 +66,24 @@ public class DotGraph
                 f.getCoreCalledFunctions().entrySet())
             {
                 this.graph.append(f.getName() + " -> " +
-                        fUse.getKey().getName() + ";");
+                        fUse.getKey().getName() + "[label=\"" + fUse.getValue()
+                        + "\"];");
             }
             
             for(Entry<ComplexType, Integer> tUse : 
                 f.getCoreComplexTypes().entrySet())
             {
                 this.graph.append(f.getName() + " -> " +
-                        tUse.getKey().getName() + ";");
+                        tUse.getKey().getName() + "[label=\"" + tUse.getValue()
+                        + "\"];");
             }
             
             for(Entry<GlobalVariable, Integer> vUse : 
                 f.getCoreGlobalVariables().entrySet())
             {
                 this.graph.append(f.getName() + " -> " +
-                        vUse.getKey().getName() + ";");
+                        vUse.getKey().getName() + "[label=\"" + vUse.getValue()
+                        + "\"];");
             }
         }
             
@@ -119,11 +120,6 @@ public class DotGraph
 			this.graph.append("subgraph ");
 			this.graph.append("cluster" + componentIndex + "{");
 			this.graph.append("label = \"Composant" + componentIndex + "\";");
-			
-			/*for(Interface required : c.getRequiredInterfaces())
-			{
-				
-			}*/
 			
 			int interfaceIndex = 0;
 			
