@@ -3335,7 +3335,8 @@ public class CParser extends Parser {
 				    
 				    ((TypeSpecifierContext)getInvokingContext(30)).name =  (((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null);
 				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  
-				            new StructOrUnionSpecifier((((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null), this.complexTypes, this.otherComplexTypes);
+				            new StructOrUnionSpecifier((((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null), this.complexTypes,
+				                    this.otherComplexTypes);
 
 				}
 				break;
@@ -3347,7 +3348,8 @@ public class CParser extends Parser {
 				setState(711); ((StructOrUnionSpecifierContext)_localctx).i = match(Identifier);
 
 				    ((TypeSpecifierContext)getInvokingContext(30)).specifier =  
-				            new StructOrUnionSpecifier((((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null), this.complexTypes, this.otherComplexTypes);
+				            new StructOrUnionSpecifier((((StructOrUnionSpecifierContext)_localctx).i!=null?((StructOrUnionSpecifierContext)_localctx).i.getText():null), this.complexTypes,
+				                    this.otherComplexTypes);
 
 				}
 				break;
@@ -6696,7 +6698,8 @@ public class CParser extends Parser {
 				                ((CompoundStatementContext)getInvokingContext(71)).globalsUse.increment(g);
 				                v = g;
 				            }
-				            else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(((BlockItemContext)_localctx).d.variableNames.get(0)))
+				            else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(
+				                    ((BlockItemContext)_localctx).d.variableNames.get(0)))
 				            {
 				            	LocalVariable l = ((CompoundStatementContext)getInvokingContext(71)).locals.get(
 				            			((BlockItemContext)_localctx).d.variableNames.get(0));
@@ -6713,8 +6716,8 @@ public class CParser extends Parser {
 					    }
 					}
 					// Variable declaration
-					else if(!((BlockItemContext)_localctx).d.isDeclarationType || ((BlockItemContext)_localctx).d.isAnonymousTypeDeclaration)
-				    {
+					else
+				    {	    
 				        for(String variableName : ((BlockItemContext)_localctx).d.variableNames)
 				        {   
 				            LocalVariable variable = new LocalVariable(variableName, ((BlockItemContext)_localctx).d.type);  
@@ -6756,7 +6759,8 @@ public class CParser extends Parser {
 				            	}
 				            	else
 				            	{
-				            	    f = new Function(function.getKey(), ComplexType.anonymousType);
+				            	    f = new Function(function.getKey(), 
+				            	            ComplexType.anonymousType);
 				            	    this.otherFunctions.put(function.getKey(), f);
 				            	}
 				    	            
@@ -6772,7 +6776,8 @@ public class CParser extends Parser {
 				    	                {
 				    	                    v = this.globalVariables.get(parameter);
 				    	                }
-				    	                else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(parameter))
+				    	                else if(((CompoundStatementContext)getInvokingContext(71)).locals.containsKey(
+				    	                        parameter))
 				    	                {
 				    	                    v = ((CompoundStatementContext)getInvokingContext(71)).locals.get(parameter);
 				    	                }
@@ -7613,8 +7618,8 @@ public class CParser extends Parser {
 			        _localctx.arguments.put(argument.getName(), argument);
 			    }
 			    
-			    ((FunctionDefinitionContext)_localctx).result =  new Function(((FunctionDefinitionContext)_localctx).d.name, returnType, ((FunctionDefinitionContext)_localctx).ds.isStatic, arguments, ((FunctionDefinitionContext)_localctx).cs.block,
-			            this.currentFile);
+			    ((FunctionDefinitionContext)_localctx).result =  new Function(((FunctionDefinitionContext)_localctx).d.name, returnType, ((FunctionDefinitionContext)_localctx).ds.isStatic, arguments,
+			            ((FunctionDefinitionContext)_localctx).cs.block, this.currentFile);
 
 			}
 		}

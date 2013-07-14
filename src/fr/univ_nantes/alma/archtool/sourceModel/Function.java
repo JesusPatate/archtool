@@ -241,7 +241,8 @@ public class Function
             for(Entry<ComplexType, Integer> typeCounter : 
                 this.getTotalComplexTypes().entrySet())
             {
-                if(this.sourceCode.getCoreComplexTypes().contains(typeCounter.getKey()))
+                if(this.sourceCode.getCoreComplexTypes().contains(
+                        typeCounter.getKey()))
                 {
                     this.coreComplexTypeUse.put(typeCounter.getKey(), 
                             typeCounter.getValue());
