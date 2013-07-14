@@ -1,6 +1,7 @@
 package fr.univ_nantes.alma.archtool.architectureModel;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.coa.COA;
@@ -69,9 +70,9 @@ public class Connector
         if(this.coa != null)
         {
             fcd.setCOA(this.coa);
-            this.coa.addFunctions(fcd.getFunctions(), this);
-            this.coa.addComplexTypes(fcd.getComplexTypes(), this);
-            this.coa.addGlobalVariables(fcd.getGlobalVariables(), this);
+            this.coa.addFunctions(fcd.getFunctions(), fcd);
+            this.coa.addComplexTypes(fcd.getComplexTypes(), fcd);
+            this.coa.addGlobalVariables(fcd.getGlobalVariables(), fcd);
         }
         else
         {
@@ -353,9 +354,36 @@ public class Connector
 
     public void clearFacades()
     {
-        for (Facade fcd : this.facades)
+        Iterator<Facade> it = this.facades.iterator();
+        
+        while(it.hasNext())
         {
-            this.removeFacade(fcd);
+            Facade fcd = it.next();
+            it.remove();
+            
+            if(this.coa != null)
+            {
+                this.coa.removeFacade(fcd);
+            }
         }
+    }
+    
+    @Override
+    public String toString()
+    {
+        StringBuffer buf = new StringBuffer("Connecteur [");
+        
+        for(Facade fcd : this.facades)
+        {
+            buf.append(fcd);
+            buf.append(", ");
+        }
+        
+        int idx = buf.lastIndexOf(",");
+        buf.delete(idx, buf.length());
+        
+        buf.append("]");
+        
+        return buf.toString();
     }
 }
