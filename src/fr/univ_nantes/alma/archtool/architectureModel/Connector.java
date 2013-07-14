@@ -65,21 +65,7 @@ public class Connector
      * On informe le coa uniquement si on le connait.
      */
     public void addFacade(Facade fcd)
-    {
-        if(this.coa != null)
-        {
-            fcd.setCOA(this.coa);
-            this.coa.addFunctions(fcd.getFunctions(), this);
-            this.coa.addComplexTypes(fcd.getComplexTypes(), this);
-            this.coa.addGlobalVariables(fcd.getGlobalVariables(), this);
-        }
-        else
-        {
-            this.addFunctions(fcd.getFunctions());
-            this.addComplexTypes(fcd.getComplexTypes());
-            this.addGlobalVariables(fcd.getGlobalVariables());
-        }
-        
+    {        
         this.facades.add(fcd);
     }
 
