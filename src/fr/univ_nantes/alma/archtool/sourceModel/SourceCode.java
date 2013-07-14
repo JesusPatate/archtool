@@ -111,4 +111,72 @@ public class SourceCode
             this.addComplexType(type);
         }
     }
+    
+    public Set<File> getSourceFiles()
+    {
+        Set<File> files = new HashSet<File>();
+        
+        for(Function function : this.coreFunctions)
+        {
+            files.add(function.getSourceFile());
+        }
+        
+        for(ComplexType type : this.coreComplexTypes)
+        {
+            files.add(type.getSourceFile());
+        }
+        
+        for(GlobalVariable variable : this.coreGlobalVariables)
+        {
+            files.add(variable.getSourceFile());
+        }
+        
+        return files;
+    }
+    
+    public Set<Function> getFileFunctions(File sourceFile)
+    {
+        Set<Function> functions = new HashSet<Function>();
+        
+        for(Function function : this.coreFunctions)
+        {
+            if(function.getSourceFile() == sourceFile)
+            {
+                functions.add(function);
+            }
+        }
+        
+        return functions;
+    }
+    
+    public Set<ComplexType> getFileComplexTypes(File sourceFile)
+    {
+        Set<ComplexType> types = new HashSet<ComplexType>();
+
+        for(ComplexType type : this.coreComplexTypes)
+        {
+            if(type.getSourceFile() == sourceFile)
+            {
+                types.add(type);
+            }
+        }
+        
+        return types;
+    }
+    
+    public Set<GlobalVariable> getFileGlobalVariables(File sourceFile)
+    {
+        Set<GlobalVariable> variables = new HashSet<GlobalVariable>();
+
+        
+        for(GlobalVariable variable : this.coreGlobalVariables)
+        {
+            if(variable.getSourceFile() == sourceFile)
+            {
+                variables.add(variable);
+            }
+        }
+        
+        return variables;
+    }
 }
