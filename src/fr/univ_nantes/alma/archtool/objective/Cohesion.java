@@ -6,6 +6,7 @@ import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
+import fr.univ_nantes.alma.archtool.architectureModel.Facade;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
@@ -66,13 +67,76 @@ public class Cohesion
 
     private static final Similarity similarity = new Similarity();
 
-
     /**
-     * Évalue la cohésion entre 2 interfaces.
+     * Évalue la cohésion entre 2 interfaces d'un composant.
      * 
      * @return Un double entre 0.0 et 100.0
      */
     public double interfacesCohesion(Interface itf1, Interface itf2)
+    {
+        double result = 0.0;
+
+        Set<Function> functions1 = itf1.getFunctions();
+        Set<Function> functions2 = itf2.getFunctions();
+
+        Set<GlobalVariable> variables1 = itf1.getGlobalVariables();
+        Set<GlobalVariable> variables2 = itf2.getGlobalVariables();
+
+        Set<ComplexType> types1 = itf1.getComplexTypes();
+        Set<ComplexType> types2 = itf2.getComplexTypes();
+
+        int nbPairs = 0;
+
+        for (Function fct1 : functions1)
+        {
+            for (Function fct2 : functions2)
+            {
+                result += cohesion(fct1, fct2);
+                ++nbPairs;
+            }
+
+            for (GlobalVariable var2 : variables2)
+            {
+                result += cohesion(fct1, var2);
+                ++nbPairs;
+            }
+
+            for (ComplexType t2 : types2)
+            {
+                result += cohesion(fct1, t2);
+                ++nbPairs;
+            }
+        }
+
+        for (Function fct2 : functions2)
+        {
+            for (GlobalVariable var1 : variables1)
+            {
+                result += cohesion(fct2, var1);
+                ++nbPairs;
+            }
+
+            for (ComplexType t1 : types1)
+            {
+                result += cohesion(fct2, t1);
+                ++nbPairs;
+            }
+        }
+
+        if (nbPairs > 0)
+        {
+            result /= nbPairs;
+        }
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion entre 2 façaces d'un connecteur.
+     * 
+     * @return Un double entre 0.0 et 100.0
+     */
+    public double facadesCohesion(Facade itf1, Facade itf2)
     {
         double result = 0.0;
 
@@ -143,46 +207,47 @@ public class Cohesion
     {
         double result = 0.0;
 
-        int nbFcts = comp.getFunctions().size();
-        int nbVars = comp.getGlobalVariables().size();
-        int nbTypes = comp.getComplexTypes().size();
+        Set<Function> compFcts = comp.getFunctions();
+        Set<GlobalVariable> compVars = comp.getGlobalVariables();
+        Set<ComplexType> compTypes = comp.getComplexTypes();
+        int nbEntities = compFcts.size() + compVars.size() + compTypes.size();
 
-        if (nbFcts + nbVars + nbTypes > 1)
+        if (nbEntities > 1)
         {
-            if (nbFcts > 0)
+            if (compFcts.size() > 0)
             {
                 int n = 0;
 
-                if (nbFcts > 1)
+                if (compFcts.size() > 1)
                 {
-                    result += internalCohesionCompFct(comp);
+                    result += cohesionFcts(compFcts);
                     ++n;
                 }
 
-                if (nbVars > 0)
+                if (compVars.size() > 0)
                 {
-                    result += internalCohesionCompFctVar(comp);
+                    result += cohesionFctsVars(compFcts, compVars);
                     ++n;
                 }
 
-                if (nbTypes > 0)
+                if (compTypes.size() > 0)
                 {
-                    result += internalCohesionCompFctType(comp);
+                    result += cohesionFctsTypes(compFcts, compTypes);
                     ++n;
                 }
 
                 result /= n;
             }
 
-            else if (nbVars > 0 && nbTypes > 0)
+            else if (compVars.size() > 0 && compTypes.size() > 0)
             {
-                result += internalCohesionCompVarType(comp);
+                result += cohesionVarsTypes(compVars, compTypes);
             }
         }
 
-        else
+        else if (nbEntities > 0)
         {
-            result = 1.0;
+            result = 100.0;
         }
 
         return result;
@@ -200,46 +265,47 @@ public class Cohesion
     {
         double result = 0.0;
 
-        int nbFcts = itf.getFunctions().size();
-        int nbVars = itf.getGlobalVariables().size();
-        int nbTypes = itf.getComplexTypes().size();
+        Set<Function> itfFcts = itf.getFunctions();
+        Set<GlobalVariable> itfVars = itf.getGlobalVariables();
+        Set<ComplexType> itfTypes = itf.getComplexTypes();
+        int nbEntities = itfFcts.size() + itfVars.size() + itfTypes.size();
 
-        if (nbFcts + nbVars + nbTypes > 1)
+        if (nbEntities > 1)
         {
-            if (nbFcts > 0)
+            if (itfFcts.size() > 0)
             {
                 int n = 0;
 
-                if (nbFcts > 1)
+                if (itfFcts.size() > 1)
                 {
-                    result += internalCohesionItfFct(itf);
+                    result += cohesionFcts(itfFcts);
                     ++n;
                 }
 
-                if (nbVars > 0)
+                if (itfVars.size() > 0)
                 {
-                    result += internalCohesionItfFctVar(itf);
+                    result += cohesionFctsVars(itfFcts, itfVars);
                     ++n;
                 }
 
-                if (nbTypes > 0)
+                if (itfTypes.size() > 0)
                 {
-                    result += internalCohesionItfFctType(itf);
+                    result += cohesionFctsTypes(itfFcts, itfTypes);
                     ++n;
                 }
 
                 result /= n;
             }
 
-            else if (nbVars > 0 && nbTypes > 0)
+            else if (itfVars.size() > 0 && itfTypes.size() > 0)
             {
-                result += internalCohesionItfVarType(itf);
+                result += cohesionVarsTypes(itfVars, itfTypes);
             }
         }
 
-        else
+        else if (nbEntities > 0)
         {
-            result = 1.0;
+            result = 100.0;
         }
 
         return result;
@@ -257,45 +323,45 @@ public class Cohesion
     {
         double result = 0.0;
 
-        int nbFcts = con.getFunctions().size();
-        int nbVars = con.getGlobalVariables().size();
-        int nbTypes = con.getComplexTypes().size();
-        int nbEntities = nbFcts + nbVars + nbTypes;
-        
+        Set<Function> conFcts = con.getFunctions();
+        Set<GlobalVariable> conVars = con.getGlobalVariables();
+        Set<ComplexType> conTypes = con.getComplexTypes();
+        int nbEntities = conFcts.size() + conVars.size() + conTypes.size();
+
         if (nbEntities > 1)
         {
-            if (nbFcts > 0)
+            if (conFcts.size() > 0)
             {
                 int n = 0;
 
-                if (nbFcts > 1)
+                if (conFcts.size() > 1)
                 {
-                    result += internalCohesionConFct(con);
+                    result += cohesionFcts(conFcts);
                     ++n;
                 }
 
-                if (nbVars > 0)
+                if (conVars.size() > 0)
                 {
-                    result += internalCohesionConFctVar(con);
+                    result += cohesionFctsVars(conFcts, conVars);
                     ++n;
                 }
 
-                if (nbTypes > 0)
+                if (conTypes.size() > 0)
                 {
-                    result += internalCohesionConFctType(con);
+                    result += cohesionFctsTypes(conFcts, conTypes);
                     ++n;
                 }
 
                 result /= n;
             }
 
-            else if (nbVars > 0 && nbTypes > 0)
+            else if (conVars.size() > 0 && conTypes.size() > 0)
             {
-                result += internalCohesionConVarType(con);
+                result += cohesionVarsTypes(conVars, conTypes);
             }
         }
 
-        else if(nbEntities > 0)
+        else if (nbEntities > 0)
         {
             result = 100.0;
         }
@@ -304,20 +370,78 @@ public class Cohesion
     }
 
     /**
-     * Évalue la cohésion moyenne des fonctions d'un composant.
+     * Évalue la cohésion interne d'une interface.
      * 
-     * @param comp
-     *            Le composant évalué
+     * @param itf
+     *            L'interface à évaluer
      * 
      * @return Un double entre 0.0 et 100.0
      */
-    private double internalCohesionCompFct(final Component comp)
+    public double facadeInternalCohesion(final Facade fcd)
+    {
+        double result = 0.0;
+
+        Set<Function> fcdFcts = fcd.getFunctions();
+        Set<GlobalVariable> fcdVars = fcd.getGlobalVariables();
+        Set<ComplexType> fcdTypes = fcd.getComplexTypes();
+        int nbEntities = fcdFcts.size() + fcdVars.size() + fcdTypes.size();
+
+        if (nbEntities > 1)
+        {
+            if (fcdFcts.size() > 0)
+            {
+                int n = 0;
+
+                if (fcdFcts.size() > 1)
+                {
+                    result += cohesionFcts(fcdFcts);
+                    ++n;
+                }
+
+                if (fcdVars.size() > 0)
+                {
+                    result += cohesionFctsVars(fcdFcts, fcdVars);
+                    ++n;
+                }
+
+                if (fcdTypes.size() > 0)
+                {
+                    result += cohesionFctsTypes(fcdFcts, fcdTypes);
+                    ++n;
+                }
+
+                result /= n;
+            }
+
+            else if (fcdVars.size() > 0 && fcdTypes.size() > 0)
+            {
+                result += cohesionVarsTypes(fcdVars, fcdTypes);
+            }
+        }
+
+        else if (nbEntities > 0)
+        {
+            result = 100.0;
+        }
+
+        return result;
+    }
+
+    /**
+     * Évalue la cohésion moyenne d'un ensemble de fonctions.
+     * 
+     * @param fcts
+     *            Un ensemble de fonctions d'un modèle de code source
+     * 
+     * @return Un double entre 0.0 et 100.0
+     */
+    private double cohesionFcts(final Set<Function> fcts)
     {
         double result = 0.0;
         double sum = 0.0;
-        
-        Function[] fctArray = new Function[comp.getFunctions().size()];
-        comp.getFunctions().toArray(fctArray);
+
+        Function[] fctArray = new Function[fcts.size()];
+        fcts.toArray(fctArray);
 
         if (fctArray.length > 0)
         {
@@ -344,101 +468,31 @@ public class Cohesion
     }
 
     /**
-     * Évalue la cohésion moyenne des fonctions d'une interface.
+     * Évalue la cohésion moyenne entre entre un ensemble de fonctions et un
+     * ensemble de variables globales.
      * 
-     * @param itf
-     *            L'interface évaluée
+     * @param fcts
+     *            Un ensemble de fonctions d'un modèle de code source
+     * @param vars
+     *            Un ensemble de variables globales d'un modèle de code source
      * 
      * @return Un double entre 0.0 et 100.0
      */
-    private double internalCohesionItfFct(final Interface itf)
+    private double cohesionFctsVars(final Set<Function> fcts,
+            final Set<GlobalVariable> vars)
     {
         double result = 0.0;
         double sum = 0.0;
 
-        Function[] fctArray = new Function[itf.getFunctions().size()];
-        itf.getFunctions().toArray(fctArray);
-
-        if (fctArray.length > 0)
+        for (Function fct : fcts)
         {
-            for (int i = 0; i < (fctArray.length - 2); ++i)
-            {
-                for (int j = (i + 1); j < (fctArray.length - 1); ++j)
-                {
-                    final Function f1 = fctArray[i];
-                    final Function f2 = fctArray[j];
-
-                    sum += this.cohesion(f1, f2);
-                }
-            }
-
-            result = sum / (fctArray.length * (fctArray.length - 1) / 2);
-        }
-
-        return result;
-    }
-
-    /**
-     * Évalue la cohésion moyenne des fonctions d'un connecteur.
-     * 
-     * @param con
-     *            Le connecteur évalué
-     * 
-     * @return Un double entre 0.0 et 100.0
-     */
-    private double internalCohesionConFct(final Connector con)
-    {
-        double result = 0.0;
-        double sum = 0.0;
-
-        Function[] fctArray = new Function[con.getFunctions().size()];
-        con.getFunctions().toArray(fctArray);
-
-        if (fctArray.length > 0)
-        {
-            for (int i = 0; i < (fctArray.length - 2); ++i)
-            {
-                for (int j = (i + 1); j < (fctArray.length - 1); ++j)
-                {
-                    final Function f1 = fctArray[i];
-                    final Function f2 = fctArray[j];
-
-                    sum += this.cohesion(f1, f2);
-                }
-            }
-
-            result = sum / (fctArray.length * (fctArray.length - 1) / 2);
-        }
-
-        return result;
-    }
-
-    /**
-     * Évalue la cohésion moyenne entre les fonctions et les variables d'un
-     * composant.
-     * 
-     * @param comp
-     *            Le composant évalué
-     * 
-     * @return Un double entre 0.0 et 100.0
-     */
-    private double internalCohesionCompFctVar(final Component comp)
-    {
-        double result = 0.0;
-        double sum = 0.0;
-
-        Set<Function> compFcts = comp.getFunctions();
-        Set<GlobalVariable> compVars = comp.getGlobalVariables();
-
-        for (Function fct : compFcts)
-        {
-            for (GlobalVariable var : compVars)
+            for (GlobalVariable var : vars)
             {
                 sum += this.cohesion(fct, var);
             }
         }
 
-        double nbPairs = compFcts.size() * compVars.size();
+        double nbPairs = fcts.size() * vars.size();
 
         if (nbPairs > 0)
         {
@@ -449,101 +503,29 @@ public class Cohesion
     }
 
     /**
-     * Évalue la cohésion moyenne entre les fonctions et les variables d'une
-     * interface.
+     * Évalue la cohésion moyenne entre un ensemble de fonctions et un ensemble de types.
      * 
-     * @param itf
-     *            L'interface évaluée
-     * 
-     * @return Un double entre 0.0 et 100.0
-     */
-    private double internalCohesionItfFctVar(final Interface itf)
-    {
-        double result = 0.0;
-        double sum = 0.0;
-
-        Set<Function> itfFcts = itf.getFunctions();
-        Set<GlobalVariable> itfVars = itf.getGlobalVariables();
-
-        for (Function fct : itfFcts)
-        {
-            for (GlobalVariable var : itfVars)
-            {
-                sum += this.cohesion(fct, var);
-            }
-        }
-
-        double nbPairs = itfFcts.size() * itfVars.size();
-
-        if (nbPairs > 0)
-        {
-            result = sum / nbPairs;
-        }
-
-        return result;
-    }
-
-    /**
-     * Évalue la cohésion moyenne entre les fonctions et les variables d'un
-     * connecteur.
-     * 
-     * @param con
-     *            Le connecteur évalué
+     * @param fcts
+     *            Un ensemble de fonctions d'un modèle de code source
+     * @param types
+     *            Un ensemble de types d'un modèle de code source
      * 
      * @return Un double entre 0.0 et 100.0
      */
-    private double internalCohesionConFctVar(final Connector con)
+    private double cohesionFctsTypes(final Set<Function> fcts, final Set<ComplexType> types)
     {
         double result = 0.0;
-        double sum = 0.0;
+        double sum = 0.0;;
 
-        Set<Function> conFcts = con.getFunctions();
-        Set<GlobalVariable> conVars = con.getGlobalVariables();
-
-        for (Function fct : conFcts)
+        for (Function fct : fcts)
         {
-            for (GlobalVariable var : conVars)
-            {
-                sum += this.cohesion(fct, var);
-            }
-        }
-
-        double nbPairs = conFcts.size() * conVars.size();
-
-        if (nbPairs > 0)
-        {
-            result = sum / nbPairs;
-        }
-
-        return result;
-    }
-
-    /**
-     * Évalue la cohésion moyenne entre les fonctions et les types d'un
-     * composant.
-     * 
-     * @param comp
-     *            Le composant évalué
-     * 
-     * @return Un double entre 0.0 et 100.0
-     */
-    private double internalCohesionCompFctType(Component comp)
-    {
-        double result = 0.0;
-        double sum = 0.0;
-
-        Set<Function> compFcts = comp.getFunctions();
-        Set<ComplexType> compTypes = comp.getComplexTypes();
-
-        for (Function fct : compFcts)
-        {
-            for (ComplexType type : compTypes)
+            for (ComplexType type : types)
             {
                 sum += this.cohesion(fct, type);
             }
         }
 
-        double nbPairs = compFcts.size() * compTypes.size();
+        double nbPairs = fcts.size() * types.size();
 
         if (nbPairs > 0)
         {
@@ -554,100 +536,24 @@ public class Cohesion
     }
 
     /**
-     * Évalue la cohésion moyenne entre les fonctions et les types d'une
-     * interface.
+     * Évalue la cohésion moyenne entre entre un ensemble de variables globales et un
+     * ensemble de types.
      * 
-     * @param itf
-     *            L'interface évaluée
+     * @param fcts
+     *            Un ensemble de variables globales d'un modèle de code source
+     * @param vars
+     *            Un ensemble de types d'un modèle de code source
      * 
      * @return Un double entre 0.0 et 100.0
      */
-    private double internalCohesionItfFctType(Interface itf)
+    private double cohesionVarsTypes(final Set<GlobalVariable> vars, Set<ComplexType> types)
     {
         double result = 0.0;
         double sum = 0.0;
 
-        Set<Function> itfFcts = itf.getFunctions();
-        Set<ComplexType> itfTypes = itf.getComplexTypes();
-
-        for (Function fct : itfFcts)
+        for (Variable var : vars)
         {
-            for (ComplexType type : itfTypes)
-            {
-                sum += this.cohesion(fct, type);
-            }
-        }
-
-        double nbPairs = itfFcts.size() * itfTypes.size();
-
-        if (nbPairs > 0)
-        {
-            result = sum / nbPairs;
-        }
-
-        return result;
-    }
-
-    /**
-     * Évalue la cohésion moyenne entre les fonctions et les types d'un
-     * connecteur.
-     * 
-     * @param comp
-     *            Le connecteur évalué
-     * 
-     * @return Un double entre 0.0 et 100.0
-     */
-    private double internalCohesionConFctType(Connector con)
-    {
-        double result = 0.0;
-        double sum = 0.0;
-
-        Set<Function> conFcts = con.getFunctions();
-        Set<ComplexType> conTypes = con.getComplexTypes();
-
-        for (Function fct : conFcts)
-        {
-            for (ComplexType type : conTypes)
-            {
-                sum += this.cohesion(fct, type);
-            }
-        }
-
-        double nbPairs = conFcts.size() * conTypes.size();
-
-        if (nbPairs > 0)
-        {
-            result = sum / nbPairs;
-        }
-
-        return result;
-    }
-
-    /**
-     * Evalue la cohésion moyenne entre les variables et les types d'un
-     * composant.
-     * 
-     * <p>
-     * Calcule le pourcentage de paires (<em>v</em>,<em>t</em>) telles que la
-     * variable <em>v</em> est de type <em>t</em>.
-     * </p>
-     * 
-     * @param comp
-     *            Le composant évalué
-     * 
-     * @return Un double entre 0.0 et 100.0
-     */
-    private double internalCohesionCompVarType(Component comp)
-    {
-        double result = 0.0;
-        double sum = 0.0;
-
-        Set<GlobalVariable> compVars = comp.getGlobalVariables();
-        Set<ComplexType> compTypes = comp.getComplexTypes();
-
-        for (Variable var : compVars)
-        {
-            for (ComplexType t : compTypes)
+            for (ComplexType t : types)
             {
                 if (var.ofType(t))
                 {
@@ -656,93 +562,7 @@ public class Cohesion
             }
         }
 
-        double nbPairs = compVars.size() * compTypes.size();
-
-        if (nbPairs > 0)
-        {
-            result = 100.0 * sum / nbPairs;
-        }
-
-        return result;
-    }
-
-    /**
-     * Evalue la cohésion moyenne entre les variables et les types d'une
-     * interface.
-     * 
-     * <p>
-     * Calcule le pourcentage de paires (<em>v</em>,<em>t</em>) telles que la
-     * variable <em>v</em> est de type <em>t</em>.
-     * </p>
-     * 
-     * @param itf
-     *            L'interface évaluée
-     * 
-     * @return Un double entre 0.0 et 100.0
-     */
-    private double internalCohesionItfVarType(Interface itf)
-    {
-        double result = 0.0;
-        double sum = 0.0;
-
-        Set<GlobalVariable> compVars = itf.getGlobalVariables();
-        Set<ComplexType> compTypes = itf.getComplexTypes();
-
-        for (Variable var : compVars)
-        {
-            for (ComplexType t : compTypes)
-            {
-                if (var.ofType(t))
-                {
-                    ++sum;
-                }
-            }
-        }
-
-        double nbPairs = compVars.size() * compTypes.size();
-
-        if (nbPairs > 0)
-        {
-            result = 100.0 * sum / nbPairs;
-        }
-
-        return result;
-    }
-
-    /**
-     * Evalue la cohésion moyenne entre les variables et les types d'un
-     * connecteur.
-     * 
-     * <p>
-     * Calcule le pourcentage de paires (<em>v</em>,<em>t</em>) telles que la
-     * variable <em>v</em> est de type <em>t</em>.
-     * </p>
-     * 
-     * @param con
-     *            Le connecteur évalué
-     * 
-     * @return Un double entre 0.0 et 100.0
-     */
-    private double internalCohesionConVarType(Connector con)
-    {
-        double result = 0.0;
-        double sum = 0.0;
-
-        Set<GlobalVariable> compVars = con.getGlobalVariables();
-        Set<ComplexType> compTypes = con.getComplexTypes();
-
-        for (Variable var : compVars)
-        {
-            for (ComplexType t : compTypes)
-            {
-                if (var.ofType(t))
-                {
-                    ++sum;
-                }
-            }
-        }
-
-        double nbPairs = compVars.size() * compTypes.size();
+        double nbPairs = vars.size() * types.size();
 
         if (nbPairs > 0)
         {
@@ -804,9 +624,9 @@ public class Cohesion
 
         result = (result > 100.0) ? 100.0 : result;
 
-//         System.out.println(f1.getName() + " - " + f2.getName() + " : "
-//         + "CC=" + cc + " CG=" + cg + " CL=" + cl + " CT=" + ct
-//         + " CA=" + ca + " -- " + result); // DBG
+        // System.out.println(f1.getName() + " - " + f2.getName() + " : "
+        // + "CC=" + cc + " CG=" + cg + " CL=" + cl + " CT=" + ct
+        // + " CA=" + ca + " -- " + result); // DBG
 
         return result;
     }
@@ -867,9 +687,8 @@ public class Cohesion
      * 
      * <p>
      * La cohésion entre une fonction <em>f</em> et un type <em>t</em> est égal
-     * au pourcentage d'utilisations de <em>t</em> par <em>f</em> sur le
-     * nombre total d'utilisations de l'ensemble des types utilisés par
-     * <em>f</em>.
+     * au pourcentage d'utilisations de <em>t</em> par <em>f</em> sur le nombre
+     * total d'utilisations de l'ensemble des types utilisés par <em>f</em>.
      * </p>
      * 
      * @param fct
@@ -918,9 +737,9 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le pourcentage de variables globales au programme accédées en commun
-     * sur le nombre total de variables globales au programme accédées dans les
-     * deux fonctions.
+     * Calcule le pourcentage de variables globales au programme accédées en
+     * commun sur le nombre total de variables globales au programme accédées
+     * dans les deux fonctions.
      * </p>
      * 
      * @param f1
@@ -938,7 +757,7 @@ public class Cohesion
 
         Map<GlobalVariable, Integer> globalVars1 = f1.getCoreGlobalVariables();
         Map<GlobalVariable, Integer> globalVars2 = f2.getCoreGlobalVariables();
-        
+
         Set<GlobalVariable> globalVarsTotal = new HashSet<GlobalVariable>();
         Set<GlobalVariable> globalVarsCommon = new HashSet<GlobalVariable>();
 
@@ -946,12 +765,12 @@ public class Cohesion
         {
             globalVarsTotal.add(var);
         }
-        
+
         for (GlobalVariable var : globalVars2.keySet())
         {
             boolean newVar = globalVarsTotal.add(var);
-            
-            if(newVar == false)
+
+            if (newVar == false)
             {
                 globalVarsCommon.add(var);
             }
@@ -969,9 +788,9 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le pourcentage de variables locales similaires entre les deux fonctions
-     * sur le nombre total de variables locales utilisées dans les deux
-     * fonctions.
+     * Calcule le pourcentage de variables locales similaires entre les deux
+     * fonctions sur le nombre total de variables locales utilisées dans les
+     * deux fonctions.
      * </p>
      * 
      * @param f1
@@ -1008,7 +827,7 @@ public class Cohesion
                 }
             }
         }
-        
+
         double nbPairs = localVars1.size() * localVars2.size();
 
         if (nbPairs > 0)
@@ -1023,8 +842,8 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le pourcentage de types utilisés en commun dans les deux fonctions sur
-     * le nombre total de types utilisés dans les deux fonctions.
+     * Calcule le pourcentage de types utilisés en commun dans les deux
+     * fonctions sur le nombre total de types utilisés dans les deux fonctions.
      * </p>
      * 
      * @param f1
@@ -1042,7 +861,7 @@ public class Cohesion
 
         Map<ComplexType, Integer> usedTypesFct1 = f1.getTotalComplexTypes();
         Map<ComplexType, Integer> usedTypesFct2 = f2.getTotalComplexTypes();
-        
+
         Set<ComplexType> usedTypesTotal = new HashSet<ComplexType>();
         Set<ComplexType> usedTypesCommon = new HashSet<ComplexType>();
 
@@ -1061,8 +880,8 @@ public class Cohesion
                     && t.equals(ComplexType.anonymousType) == false)
             {
                 boolean newType = usedTypesTotal.add(t);
-                
-                if(newType == false)
+
+                if (newType == false)
                 {
                     usedTypesCommon.add(t);
                 }
@@ -1081,9 +900,9 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le pourcentage d'appels de fonction communs dans les deux fonctions sur
-     * le nombre total d'appels dans les deux fonctions. Les paramètres des
-     * appels ne sont pas pris en compte.
+     * Calcule le pourcentage d'appels de fonction communs dans les deux
+     * fonctions sur le nombre total d'appels dans les deux fonctions. Les
+     * paramètres des appels ne sont pas pris en compte.
      * </p>
      * 
      * @param f1
@@ -1134,8 +953,8 @@ public class Cohesion
      * Méthode appelée pour le calcul de la cohésion entre 2 fonctions.
      * 
      * <p>
-     * Calcule le pourcentage de paramètres similaires entre les deux fonctions sur
-     * l'ensemble des paramètres des deux fonctions.
+     * Calcule le pourcentage de paramètres similaires entre les deux fonctions
+     * sur l'ensemble des paramètres des deux fonctions.
      * </p>
      * 
      * @param f1
