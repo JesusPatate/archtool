@@ -70,15 +70,6 @@ public class Connector
         if(this.coa != null)
         {
             fcd.setCOA(this.coa);
-            this.coa.addFunctions(fcd.getFunctions(), fcd);
-            this.coa.addComplexTypes(fcd.getComplexTypes(), fcd);
-            this.coa.addGlobalVariables(fcd.getGlobalVariables(), fcd);
-        }
-        else
-        {
-            this.addFunctions(fcd.getFunctions());
-            this.addComplexTypes(fcd.getComplexTypes());
-            this.addGlobalVariables(fcd.getGlobalVariables());
         }
         
         this.facades.add(fcd);
