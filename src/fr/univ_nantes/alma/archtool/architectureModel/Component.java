@@ -1,6 +1,7 @@
 package fr.univ_nantes.alma.archtool.architectureModel;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.coa.COA;
@@ -496,14 +497,29 @@ public class Component
     
     public void clearInterfaces()
     {
-        for(Interface itf : this.providedInterfaces)
+    	Iterator<Interface> itPro = this.providedInterfaces.iterator();
+        Iterator<Interface> itReq = this.requiredInterfaces.iterator();
+    	
+        while(itPro.hasNext())
         {
-            this.removeProvidedInterface(itf);
+            Interface itf = itPro.next();
+            itPro.remove();
+            
+            if(this.coa != null)
+            {
+                this.coa.checkInterface(itf);
+            }
         }
         
-        for(Interface itf : this.requiredInterfaces)
+        while(itReq.hasNext())
         {
-            this.removeRequiredInterface(itf);
+            Interface itf = itReq.next();
+            itReq.remove();
+            
+            if(this.coa != null)
+            {
+                this.coa.checkInterface(itf);
+            }
         }
     }
     
