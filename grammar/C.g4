@@ -886,12 +886,14 @@ structOrUnionSpecifier
     
     $typeSpecifier::name = $i.text;
     $typeSpecifier::specifier = 
-            new StructOrUnionSpecifier($i.text, this.complexTypes, this.otherComplexTypes);
+            new StructOrUnionSpecifier($i.text, this.complexTypes,
+                    this.otherComplexTypes);
 }
     | structOrUnion i=Identifier
 {
     $typeSpecifier::specifier = 
-            new StructOrUnionSpecifier($i.text, this.complexTypes, this.otherComplexTypes);
+            new StructOrUnionSpecifier($i.text, this.complexTypes,
+                    this.otherComplexTypes);
 }
     ;
 
@@ -1352,7 +1354,8 @@ blockItem
                 $compoundStatement::globalsUse.increment(g);
                 v = g;
             }
-            else if($compoundStatement::locals.containsKey($d.variableNames.get(0)))
+            else if($compoundStatement::locals.containsKey(
+                    $d.variableNames.get(0)))
             {
             	LocalVariable l = $compoundStatement::locals.get(
             			$d.variableNames.get(0));
@@ -1369,8 +1372,8 @@ blockItem
 	    }
 	}
 	// Variable declaration
-	else if(!$d.isDeclarationType || $d.isAnonymousTypeDeclaration)
-    {
+	else
+    {	    
         for(String variableName : $d.variableNames)
         {   
             LocalVariable variable = new LocalVariable(variableName, $d.type);  
@@ -1412,7 +1415,8 @@ blockItem
             	}
             	else
             	{
-            	    f = new Function(function.getKey(), ComplexType.anonymousType);
+            	    f = new Function(function.getKey(), 
+            	            ComplexType.anonymousType);
             	    this.otherFunctions.put(function.getKey(), f);
             	}
     	            
@@ -1428,7 +1432,8 @@ blockItem
     	                {
     	                    v = this.globalVariables.get(parameter);
     	                }
-    	                else if($compoundStatement::locals.containsKey(parameter))
+    	                else if($compoundStatement::locals.containsKey(
+    	                        parameter))
     	                {
     	                    v = $compoundStatement::locals.get(parameter);
     	                }
@@ -1737,8 +1742,8 @@ functionDefinition returns [Function result]
         $arguments.put(argument.getName(), argument);
     }
     
-    $result = new Function($d.name, returnType, $ds.isStatic, arguments, $cs.block,
-            this.currentFile);
+    $result = new Function($d.name, returnType, $ds.isStatic, arguments,
+            $cs.block, this.currentFile);
 } 
     ;
 
