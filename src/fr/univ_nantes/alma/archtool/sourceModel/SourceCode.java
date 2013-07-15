@@ -17,8 +17,6 @@ public class SourceCode
 
     private final Set<ComplexType> coreComplexTypes = 
             new HashSet<ComplexType>();
-
-    private boolean hasChanged = false;
     
     public Set<Function> getCoreFunctions()
     {
@@ -40,18 +38,8 @@ public class SourceCode
         return total;
     }
     
-    public boolean hasChanged()
-    {
-        return this.hasChanged;
-    }
-    
     public void addFunction(final Function function)
-    {
-        if(!this.coreFunctions.contains(function))
-        {
-            this.hasChanged = true;
-        }
-           
+    {           
         this.coreFunctions.add(function);
         function.setSourceCode(this);
     }
@@ -71,11 +59,6 @@ public class SourceCode
 
     public void addGlobalVariable(final GlobalVariable globalVariable)
     {
-        if(!this.coreGlobalVariables.contains(globalVariable))
-        {
-            this.hasChanged = true;
-        }
-        
         this.coreGlobalVariables.add(globalVariable);
         globalVariable.setSourceCode(this);
     }
@@ -95,11 +78,6 @@ public class SourceCode
 
     public void addComplexType(final ComplexType type)
     {
-        if(!this.coreComplexTypes.contains(type))
-        {
-            this.hasChanged = true;
-        }
-        
         this.coreComplexTypes.add(type);
         type.setSourceCode(this);
     }

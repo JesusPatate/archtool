@@ -233,8 +233,7 @@ public class Function
     
     public Map<ComplexType, Integer> getCoreComplexTypes()
     {
-        if(this.sourceCode != null && (this.coreComplexTypeUse == null ||
-                this.sourceCode.hasChanged()))
+        if(this.sourceCode != null && this.coreComplexTypeUse == null)
         {            
             this.coreComplexTypeUse = new HashMap<ComplexType, Integer>();
                 
@@ -275,8 +274,7 @@ public class Function
     
     public Map<Function, Integer> getCoreCalledFunctions()
     {        
-        if(this.sourceCode != null && (this.coreCalledFunctions == null ||
-                this.sourceCode.hasChanged()))
+        if(this.sourceCode != null && this.coreCalledFunctions == null)
         {            
             this.coreCalledFunctions = new HashMap<Function, Integer>();
             
@@ -299,8 +297,7 @@ public class Function
     
     public Map<Function, Integer> getCoreCallingFunctions()
     {
-        if(this.sourceCode != null && (this.coreCallingFunctions == null ||
-                this.sourceCode.hasChanged()))
+        if(this.sourceCode != null && this.coreCallingFunctions == null)
         {            
             this.coreCallingFunctions = new HashMap<Function, Integer>();
             
