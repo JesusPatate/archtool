@@ -568,6 +568,9 @@ public class Dendogram implements Iterable<Dendogram.Node>
                     connector.addFacade(facade1);
                     connector.addFacade(facade2);
                     this.architecture.addConnector(connector);
+                    
+                    this.architecture.addConnection(comp1, connector);
+                    this.architecture.addConnection(comp2, connector);
                 }
             }
         }
