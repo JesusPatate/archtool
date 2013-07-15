@@ -1685,7 +1685,7 @@ externalDeclaration
 		this.otherFunctions.put(declaredFunction.getName(), declaredFunction);
 	}
     // Global variable(s) declaration
-	else if(!$d.isDeclarationType || $d.isAnonymousTypeDeclaration)
+	else
 	{    
 		for(String variableName : $d.variableNames)
 		{	

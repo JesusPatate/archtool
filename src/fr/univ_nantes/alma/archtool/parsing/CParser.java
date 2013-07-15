@@ -7484,7 +7484,7 @@ public class CParser extends Parser {
 						this.otherFunctions.put(declaredFunction.getName(), declaredFunction);
 					}
 				    // Global variable(s) declaration
-					else if(!((ExternalDeclarationContext)_localctx).d.isDeclarationType || ((ExternalDeclarationContext)_localctx).d.isAnonymousTypeDeclaration)
+					else
 					{    
 						for(String variableName : ((ExternalDeclarationContext)_localctx).d.variableNames)
 						{	
