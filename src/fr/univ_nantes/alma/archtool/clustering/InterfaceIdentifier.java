@@ -54,10 +54,10 @@ public class InterfaceIdentifier
             Set<Function> functionsIn =
                     function.getCoreCallingFunctions().keySet();
 
-            if ((!Collections.disjoint(functionsOut, functionsComponent)
-                    && !Collections.disjoint(typesOut, typesComponent) && !Collections
-                        .disjoint(globalsOut, globalsComponent))
-                    || functionsIn.isEmpty())
+            if (!Collections.disjoint(functionsOut, functionsComponent) ||
+                    !Collections.disjoint(typesOut, typesComponent) ||
+                    !Collections.disjoint(globalsOut, globalsComponent) ||
+                    functionsIn.isEmpty())
             {
                 functionsOut.removeAll(functionsComponent);
                 typesOut.removeAll(typesComponent);
@@ -173,8 +173,8 @@ public class InterfaceIdentifier
             Set<Function> functionsIn =
                     variable.getCoreUsingFunctions().keySet();
 
-            if ((typeOut.isComplex() && typesComponent
-                    .contains((ComplexType) typeOut)) || functionsIn.isEmpty())
+            if ((typeOut.isComplex() && typesComponent.contains(
+                    (ComplexType) typeOut)) || functionsIn.isEmpty())
             {
                 if (typeOut.isComplex()
                         && !typesComponent.contains((ComplexType) typeOut))
