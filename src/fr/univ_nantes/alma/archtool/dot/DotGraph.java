@@ -9,6 +9,8 @@ import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
+import fr.univ_nantes.alma.archtool.architectureModel.Connector;
+import fr.univ_nantes.alma.archtool.architectureModel.Facade;
 import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.File;
@@ -108,7 +110,8 @@ public class DotGraph
 				+ " filled\", color=black, fillcolor=\"#CCE5FF\", fontsize=11, "
 				+ "fontname=Helvetica];node [shape=plaintext];");
 		
-		int componentIndex = 0;
+		int nodeIndex = 0;
+		int clusterIndex = 0;
 		
 		for(Component c : architecture.getComponents())
 		{
@@ -118,32 +121,32 @@ public class DotGraph
 					new HashSet<GlobalVariable>();
 			
 			this.graph.append("subgraph ");
-			this.graph.append("cluster" + componentIndex + "{");
-			this.graph.append("label = \"Composant" + componentIndex + "\";");
-			
-			int interfaceIndex = 0;
+			this.graph.append("cluster" + clusterIndex + "{");
+			this.graph.append("label = \"Composant" + clusterIndex++ + "\";");
 			
 			for(Interface provided : c.getProvidedInterfaces())
 			{
 				this.graph.append("subgraph ");
-				this.graph.append("cluster" + componentIndex + "" 
-						+ interfaceIndex + "{");
+				this.graph.append("cluster" + clusterIndex++ + "{");
 				this.graph.append("label = \"Fournit\";");
 				this.graph.append("fillcolor = \"#FFB266\";");
 				
 				for(Function f : provided.getFunctions())
 				{
-					this.graph.append(f.getName() + "[fontcolor=blue];");
+					this.graph.append("n" + nodeIndex++ + "[label= " 
+					        + f.getName() + " ,fontcolor=blue];");
 				}
 				
 				for(ComplexType t : provided.getComplexTypes())
 				{
-					this.graph.append(t.getName() + "[fontcolor=green];");
+				    this.graph.append("n" + nodeIndex++ + "[label= " 
+                            + t.getName() + " ,fontcolor=green];");
 				}
 				
 				for(GlobalVariable v : provided.getGlobalVariables())
 				{
-					this.graph.append(v.getName() + "[fontcolor=red];");
+				    this.graph.append("n" + nodeIndex++ + "[label= " 
+                            + v.getName() + " ,fontcolor=red];");
 				}
 				
 				functionsInInterfaces.addAll(provided.getFunctions());
@@ -151,7 +154,6 @@ public class DotGraph
 				globalsInInterfaces.addAll(provided.getGlobalVariables());
 				
 				this.graph.append("}");
-				interfaceIndex++;
 			}
 			
 			// Create nodes for entities out of interfaces
@@ -165,21 +167,78 @@ public class DotGraph
 			
 			for(Function f : functionsOutInterfaces)
 			{
-			    this.graph.append(f.getName() + "[fontcolor=blue];");
+			    this.graph.append("n" + nodeIndex++ + "[label= " 
+                        + f.getName() + " ,fontcolor=blue];");
 			}
 			
 			for(ComplexType t : typesOutInterfaces)
 			{
-			    this.graph.append(t.getName() + "[fontcolor=green];");
+			    this.graph.append("n" + nodeIndex++ + "[label= " 
+                        + t.getName() + " ,fontcolor=green];");
 			}
 			
 			for(GlobalVariable v : globalsOutInterfaces)
 			{
-			    this.graph.append(v.getName() + "[fontcolor=red];");
+			    this.graph.append("n" + nodeIndex++ + "[label= " 
+                        + v.getName() + " ,fontcolor=red];");
 			}
 			
 			this.graph.append("}");
-			componentIndex++;
+		}
+		
+		for(Connector con : architecture.getConnectors())
+		{
+		    this.graph.append("subgraph ");
+            this.graph.append("cluster" + clusterIndex + "{");
+            this.graph.append("label = \"Connecteur" + clusterIndex++ + "\";");
+            
+            for(Facade facade : con.getFacades())
+            {
+                this.graph.append("subgraph ");
+                this.graph.append("cluster" + clusterIndex++ + "{");
+                this.graph.append("label = \"Façade\";");
+                this.graph.append("fillcolor = \"#FFB266\";");
+                
+                for(Function f : facade.getFunctions())
+                {
+                    this.graph.append("n" + nodeIndex++ + "[label= " 
+                            + f.getName() + " ,fontcolor=blue];");
+                }
+                
+                for(ComplexType t : facade.getComplexTypes())
+                {
+                    this.graph.append("n" + nodeIndex++ + "[label= " 
+                            + t.getName() + " ,fontcolor=green];");
+                }
+                
+                for(GlobalVariable v : facade.getGlobalVariables())
+                {
+                    this.graph.append("n" + nodeIndex++ + "[label= " 
+                            + v.getName() + " ,fontcolor=red];");
+                }
+                
+                this.graph.append("}");
+            }
+            
+            for(Function f : con.getFunctions())
+            {
+                this.graph.append("n" + nodeIndex++ + "[label= " 
+                        + f.getName() + " ,fontcolor=blue];");
+            }
+            
+            for(ComplexType t : con.getComplexTypes())
+            {
+                this.graph.append("n" + nodeIndex++ + "[label= " 
+                        + t.getName() + " ,fontcolor=green];");
+            }
+            
+            for(GlobalVariable v : con.getGlobalVariables())
+            {
+                this.graph.append("n" + nodeIndex++ + "[label= " 
+                        + v.getName() + " ,fontcolor=red];");
+            }
+            
+            this.graph.append("}");
 		}
 		
 		this.graph.append("}");
