@@ -149,6 +149,10 @@ public class ObjectiveFunction
         result += WEIGHT_COMP_SEM * this.evaluateSemanticComponent();
         result += WEIGHT_CON_SEM * this.evaluateSemanticConnector();
 
+        result /= WEIGHT_COMP_SEM + WEIGHT_CON_SEM
+                        + this.architecture.nbComponents()
+                        + this.architecture.nbConnectors();
+
         return result;
     }
 
@@ -185,8 +189,7 @@ public class ObjectiveFunction
             double spec = this.specificity(comp);
             subresult += ObjectiveFunction.WEIGHT_COMP_SPECI * spec;
 
-            subresult /=
-                    ObjectiveFunction.WEIGHT_COMP_COMPO
+            subresult /= ObjectiveFunction.WEIGHT_COMP_COMPO
                             + ObjectiveFunction.WEIGHT_COMP_INDE
                             + ObjectiveFunction.WEIGHT_COMP_SPECI;
 
@@ -220,8 +223,7 @@ public class ObjectiveFunction
 
             subresult *= this.independence(con);
 
-            subresult /= ObjectiveFunction.WEIGHT_CON_SPECI
-                    + WEIGHT_CON_GEN;
+            subresult /= ObjectiveFunction.WEIGHT_CON_SPECI + WEIGHT_CON_GEN;
 
             result += subresult;
         }
@@ -263,9 +265,8 @@ public class ObjectiveFunction
 
             avgCohesion = sumCohesion / proInterfaces.size();
 
-            result =
-                    avgCohesion
-                            - (ObjectiveFunction.WEIGHT_COMPO_ITFS_REQ * nbReqInterfaces);
+            result = avgCohesion- (ObjectiveFunction.WEIGHT_COMPO_ITFS_REQ
+                    * nbReqInterfaces);
         }
 
         return result;
@@ -397,13 +398,12 @@ public class ObjectiveFunction
                 {
                     for (int idx2 = idx1 + 1; idx2 < itfs.length; ++idx2)
                     {
-                        sum +=
-                                this.cohesion.interfacesCohesion(itfs[idx1],
+                        sum += this.cohesion.interfacesCohesion(itfs[idx1],
                                         itfs[idx2]);
                     }
                 }
 
-                final double nbPairs =
+                final double nbPairs = 
                         (nbProInterfaces * (nbProInterfaces - 1)) / 2;
 
                 result += sum / nbPairs;
@@ -459,14 +459,14 @@ public class ObjectiveFunction
     {
         double result = 0.0;
         double sum = 0.0;
-        
+
         Facade[] facades = new Facade[con.getFacades().size()];
         con.getFacades().toArray(facades);
-        
+
         // Cohesion between roles
-        
+
         double rolesCohesion = 0.0;
-        
+
         for (int idx1 = 0; idx1 < (facades.length - 1); ++idx1)
         {
             for (int idx2 = idx1 + 1; idx2 < facades.length; ++idx2)
@@ -479,12 +479,12 @@ public class ObjectiveFunction
         double nbPairs = (facades.length * (facades.length - 1)) / 2;
 
         rolesCohesion += sum / nbPairs;
-        
+
         // Coupling between roles
-        
+
         double rolesCoupling = 0.0;
         sum = 0.0;
-        
+
         for (int idx1 = 0; idx1 < (facades.length - 1); ++idx1)
         {
             for (int idx2 = idx1 + 1; idx2 < facades.length; ++idx2)
@@ -497,26 +497,26 @@ public class ObjectiveFunction
         nbPairs = (facades.length * (facades.length - 1)) / 2;
 
         rolesCohesion += sum / nbPairs;
-        
+
         // TODO Déplacer dans une constante
         result = 0.25 * (rolesCohesion + rolesCoupling);
-        
+
         // Cohesion and coupling of each role
-        
+
         sum = 0.0;
-        
-        for(Facade fcd : con.getFacades())
+
+        for (Facade fcd : con.getFacades())
         {
             sum += this.cohesion.facadeInternalCohesion(fcd);
             sum += this.coupling.facadeCoupling(fcd);
         }
-        
+
         result += sum / 8 * facades.length; // TODO Déplacer dans une constante
-        
+
         return result;
     }
 
-    private double evaluateMaintainabilityComp()
+    private double evaluateMaintainability()
     {
         double result = 0.0;
         double subresult = 0.0;
@@ -546,84 +546,7 @@ public class ObjectiveFunction
 
         result += subresult;
 
-        result +=
-                (1 / WEIGHT_MAIN_CONF)
-                        * this.maintainability.process(this.architecture
-                                .getConfiguration());
-
-        return result;
-    }
-
-    private double evaluateMaintainabilityCon()
-    {
-        double result = 0.0;
-        double subresult = 0.0;
-
-        for (Component comp : this.architecture.getComponents())
-        {
-            subresult += this.maintainability.process(comp);
-        }
-
-        if (this.architecture.nbComponents() > 0)
-        {
-            subresult /= WEIGHT_MAIN_COMP * this.architecture.nbComponents();
-        }
-
-        result += subresult;
-        subresult = 0.0;
-
-        for (Connector con : this.architecture.getConnectors())
-        {
-            subresult += this.maintainability.process(con);
-        }
-
-        if (this.architecture.nbConnectors() > 0)
-        {
-            subresult /= WEIGHT_MAIN_CON * this.architecture.nbConnectors();
-        }
-
-        result += subresult;
-
-        result +=
-                (1 / WEIGHT_MAIN_CONF)
-                        * this.maintainability.process(this.architecture
-                                .getConfiguration());
-
-        return result;
-    }
-
-    private double evaluateMaintainabilityConf()
-    {
-        double result = 0.0;
-        double subresult = 0.0;
-
-        for (Component comp : this.architecture.getComponents())
-        {
-            subresult += this.maintainability.process(comp);
-        }
-
-        if (this.architecture.nbComponents() > 0)
-        {
-            subresult /= WEIGHT_MAIN_COMP * this.architecture.nbComponents();
-        }
-
-        result += subresult;
-        subresult = 0.0;
-
-        for (Connector con : this.architecture.getConnectors())
-        {
-            subresult += this.maintainability.process(con);
-        }
-
-        if (this.architecture.nbConnectors() > 0)
-        {
-            subresult /= WEIGHT_MAIN_CON * this.architecture.nbConnectors();
-        }
-
-        result += subresult;
-
-        result +=
-                (1 / WEIGHT_MAIN_CONF)
+        result += (1 / WEIGHT_MAIN_CONF)
                         * this.maintainability.process(this.architecture
                                 .getConfiguration());
 
