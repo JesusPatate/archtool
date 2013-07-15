@@ -8,7 +8,7 @@ import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.sourceModel.ComplexType;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
-import fr.univ_nantes.alma.archtool.utils.Triple;
+import fr.univ_nantes.alma.archtool.utils.Pair;
 
 public class Architecture implements Cloneable
 {
@@ -22,6 +22,14 @@ public class Architecture implements Cloneable
     public Set<Component> getComponents()
     {
         return this.configuration.getComponents();
+    }
+    
+    /**
+     * Retourne l'ensemble des composants qui requiert cette interface.
+     */
+    public Set<Component> getComponents(Interface required)
+    {
+        return this.configuration.getComponents(required);
     }
     
     /**
@@ -49,7 +57,7 @@ public class Architecture implements Cloneable
     }
     
     /**
-     * Retourne l'ensemble des composants de l'architecture.
+     * Retourne l'ensemble des composants reliés par un connecteur donné.
      */
     public Set<Component> getComponents(Connector con)
     {
@@ -57,7 +65,7 @@ public class Architecture implements Cloneable
     }
 
     /**
-     * Retourne l'ensemble des composants reliés par un connecteur donné.
+     * Retourne l'ensemble des connecteurs de l'architecture.
      */
     public Set<Connector> getConnectors()
     {
@@ -106,9 +114,9 @@ public class Architecture implements Cloneable
      * @param itf
      *            L'interface par lequel le composant est connecté
      */
-    public boolean addConnection(Component comp, Connector con, Interface itf)
+    public boolean addConnection(Component comp, Connector con)
     {
-        return this.configuration.addConnection(comp, con, itf);
+        return this.configuration.addConnection(comp, con);
     }
     
     public Component getComponent(final Function fct)
@@ -299,18 +307,15 @@ public class Architecture implements Cloneable
         }
         
         // Clone connections
-        for(Triple<Connector, Component, Interface> connection :
+        for(Pair<Connector, Component> connection : 
             this.configuration.getConnections())
         {
             Component clonedComponent = 
                     originalComponentToClone.get(connection.second);
             Connector clonedConnector = 
                     originalConnectorToClone.get(connection.first);
-            Interface clonedInterface = 
-                    originalInterfaceToClone.get(connection.third);
             
-            cloned.addConnection(clonedComponent, clonedConnector,
-                    clonedInterface);
+            cloned.addConnection(clonedComponent, clonedConnector);
         }
         
         return cloned;

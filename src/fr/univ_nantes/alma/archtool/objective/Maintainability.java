@@ -8,12 +8,11 @@ import java.util.Set;
 import fr.univ_nantes.alma.archtool.architectureModel.Component;
 import fr.univ_nantes.alma.archtool.architectureModel.Configuration;
 import fr.univ_nantes.alma.archtool.architectureModel.Connector;
-import fr.univ_nantes.alma.archtool.architectureModel.Interface;
 import fr.univ_nantes.alma.archtool.sourceModel.Call;
 import fr.univ_nantes.alma.archtool.sourceModel.Function;
 import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Type;
-import fr.univ_nantes.alma.archtool.utils.Triple;
+import fr.univ_nantes.alma.archtool.utils.Pair;
 
 public class Maintainability
 {
@@ -185,16 +184,16 @@ public class Maintainability
                this.componentNodes.put(comp, new HashSet<Object>());
             }
             
-            Set<Triple<Connector, Component, Interface>> compConnections =
+            Set<Pair<Connector, Component>> compConnections =
                     conf.getConnections(comp);
             
-            for(Triple<Connector, Component, Interface> cComp : compConnections)
+            for(Pair<Connector, Component> cComp : compConnections)
             {
                 Connector con = cComp.first;
-                Set<Triple<Connector, Component, Interface>> conConnections =
+                Set<Pair<Connector, Component>> conConnections =
                         conf.getConnections(con);
                 
-                for(Triple<Connector, Component, Interface> cCon :
+                for(Pair<Connector, Component> cCon :
                     conConnections)
                 {
                     Component comp2 = cCon.second;

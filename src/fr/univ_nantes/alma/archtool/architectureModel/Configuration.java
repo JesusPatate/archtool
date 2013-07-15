@@ -8,15 +8,13 @@ import java.util.Set;
 
 import fr.univ_nantes.alma.archtool.coa.COA;
 import fr.univ_nantes.alma.archtool.utils.Pair;
-import fr.univ_nantes.alma.archtool.utils.Triple;
 
 public class Configuration
 {
     private Set<Component> components = new HashSet<Component>();
     
-    private Map<Connector, Set<Pair<Component, Interface>>> 
-        connectorToComponents = 
-        new HashMap<Connector, Set<Pair<Component, Interface>>>();
+    private Map<Connector, Set<Component>> connectorToComponents = 
+        new HashMap<Connector, Set<Component>>();
     
     private COA coa;
     
@@ -77,40 +75,37 @@ public class Configuration
         if(!this.connectorToComponents.containsKey(con))
         {
             this.connectorToComponents.put(con, 
-                    new HashSet<Pair<Component, Interface>>());
+                    new HashSet<Component>());
             done = true;
         }
         
         return done;
     }
     
-    public Set<Triple<Connector, Component, Interface>> getConnections()
+    public Set<Pair<Connector, Component>> getConnections()
     {
-        Set<Triple<Connector, Component, Interface>> connections = 
-                new HashSet<Triple<Connector, Component, Interface>>();
+        Set<Pair<Connector, Component>> connections = 
+                new HashSet<Pair<Connector, Component>>();
         
         for(Connector con : this.connectorToComponents.keySet())
         {
-            for(Pair<Component, Interface> connect : 
-                this.connectorToComponents.get(con))
+            for(Component component : this.connectorToComponents.get(con))
             {
-                 connections.add(
-                         new Triple<Connector, Component, Interface>(con,
-                         connect.first, connect.second));
+                 connections.add(new Pair<Connector, Component>(con,
+                         component));
             }
         }
 
         return connections;
     }
     
-    public boolean addConnection(Component comp, Connector con, Interface itf)
+    public boolean addConnection(Component comp, Connector con)
     {
         boolean done = false;
         
         if(this.connectorToComponents.containsKey(con))
         {
-            this.connectorToComponents.get(con).add(
-                    new Pair<Component, Interface>(comp, itf));
+            this.connectorToComponents.get(con).add(comp);
         }
         
         return done;
@@ -122,25 +117,18 @@ public class Configuration
      * @param comp
      *            Le composant recherché
      */
-    public Set<Triple<Connector, Component, Interface>> getConnections(
-            Component comp)
+    public Set<Pair<Connector, Component>> getConnections(Component comp)
     {
-        Set<Triple<Connector, Component, Interface>> connections = 
-                new HashSet<Triple<Connector, Component, Interface>>();
+        Set<Pair<Connector, Component>> connections = 
+                new HashSet<Pair<Connector, Component>>();
 
         if(this.components.contains(comp))
         {
             for(Connector con : this.connectorToComponents.keySet())
             {
-                for(Pair<Component, Interface> connect : 
-                    this.connectorToComponents.get(con))
+                if(this.connectorToComponents.get(con).contains(comp))
                 {
-                    if(connect.first == comp)
-                    {
-                        connections.add(
-                                new Triple<Connector, Component, Interface>(con, 
-                                connect.first, connect.second));
-                    }
+                    connections.add(new Pair<Connector, Component>(con, comp));
                 }
             }
         }
@@ -154,19 +142,16 @@ public class Configuration
      * @param con
      *            Le composant recherché
      */
-    public Set<Triple<Connector, Component, Interface>> getConnections(
-            Connector con)
+    public Set<Pair<Connector, Component>> getConnections(Connector con)
     {
-        Set<Triple<Connector, Component, Interface>> connections = 
-                new HashSet<Triple<Connector, Component, Interface>>();
+        Set<Pair<Connector, Component>> connections = 
+                new HashSet<Pair<Connector, Component>>();
         
         if(this.connectorToComponents.containsKey(con))
         {
-            for(Pair<Component, Interface> connect : 
-                this.connectorToComponents.get(con))
+            for(Component comp : this.connectorToComponents.get(con))
             {
-                connections.add(new Triple<Connector, Component, Interface>(con, 
-                        connect.first, connect.second));
+                connections.add(new Pair<Connector, Component>(con, comp));
             }
         }
 
@@ -194,21 +179,9 @@ public class Configuration
             
             comp.setCOA(null);
             
-            for(Set<Pair<Component, Interface>> connections 
-                    : this.connectorToComponents.values())
+            for(Set<Component> comps : this.connectorToComponents.values())
             {
-                Iterator<Pair<Component, Interface>> conIter =
-                        connections.iterator();
-                
-                while(conIter.hasNext())
-                {
-                    Pair<Component, Interface> con = conIter.next();
-                    
-                    if(con.first == comp)
-                    {
-                        conIter.remove();
-                    }
-                }
+                comps.remove(comp);
             }
 
             this.components.remove(comp);
@@ -275,13 +248,24 @@ public class Configuration
         
         if(this.connectorToComponents.containsKey(con))
         {
-            for(Pair<Component, Interface> connection : 
-                this.connectorToComponents.get(con))
-            {
-                components.add(connection.first);
-            }
+            components.addAll(this.connectorToComponents.get(con));
         }
             
+        return components;
+    }
+
+    public Set<Component> getComponents(Interface required)
+    {
+        Set<Component> components = new HashSet<Component>();
+        
+        for(Component component : this.components)
+        {
+            if(component.getRequiredInterfaces().contains(required))
+            {
+                components.add(component);
+            }
+        }
+        
         return components;
     }
 }
