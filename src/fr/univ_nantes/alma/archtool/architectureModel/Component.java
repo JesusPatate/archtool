@@ -19,7 +19,7 @@ public class Component
 
     private Set<GlobalVariable> cachedGlobalVariables = null;
     
-    private Set<ComplexType> cachedComplexType = null;
+    private Set<ComplexType> cachedComplexTypes = null;
     
     private COA coa = null;
 
@@ -50,10 +50,10 @@ public class Component
                 this.cachedFunctions = null;
             }
             
-            if(this.cachedComplexType != null)
+            if(this.cachedComplexTypes != null)
             {
-                this.coa.addComplexTypes(this.cachedComplexType, this);
-                this.cachedComplexType = null;
+                this.coa.addComplexTypes(this.cachedComplexTypes, this);
+                this.cachedComplexTypes = null;
             }
             
             if(this.cachedGlobalVariables != null)
@@ -72,6 +72,11 @@ public class Component
     public boolean requiresInterface(final Interface i)
     {
         return this.requiredInterfaces.contains(i);
+    }
+    
+    public int nbRequiredInterfaces()
+    {
+        return this.requiredInterfaces.size();
     }
 
     /**
@@ -110,6 +115,11 @@ public class Component
         return this.providedInterfaces.contains(i);
     }
     
+    public int nbProvidedInterfaces()
+    {
+        return this.providedInterfaces.size();
+    }
+    
     /**
      * On informe le coa uniquement si on le connait.
      */
@@ -143,6 +153,12 @@ public class Component
         {
             this.coa.checkInterface(i);
         }
+    }
+    
+    public int nbInterfaces()
+    {
+        return this.providedInterfaces.size()
+                + this.requiredInterfaces.size();
     }
     
     /**
@@ -199,9 +215,9 @@ public class Component
         
         if(this.coa == null)
         {
-            complexTypes = this.cachedComplexType == null ?
+            complexTypes = this.cachedComplexTypes == null ?
                     new HashSet<ComplexType>() : 
-                    new HashSet<ComplexType>(this.cachedComplexType);
+                    new HashSet<ComplexType>(this.cachedComplexTypes);
         }
         else
         {
@@ -308,12 +324,12 @@ public class Component
         
         if(this.coa == null)
         {
-            if(this.cachedComplexType == null)
+            if(this.cachedComplexTypes == null)
             {
-                this.cachedComplexType = new HashSet<ComplexType>();
+                this.cachedComplexTypes = new HashSet<ComplexType>();
             }
             
-            done = this.cachedComplexType.add(t);
+            done = this.cachedComplexTypes.add(t);
         }
         else
         {
@@ -330,12 +346,12 @@ public class Component
     {
         if(this.coa == null)
         {
-            if(this.cachedComplexType == null)
+            if(this.cachedComplexTypes == null)
             {
-                this.cachedComplexType = new HashSet<ComplexType>();
+                this.cachedComplexTypes = new HashSet<ComplexType>();
             }
             
-            this.cachedComplexType.addAll(types);
+            this.cachedComplexTypes.addAll(types);
         }
         else
         {
@@ -388,9 +404,9 @@ public class Component
     {
         boolean done = false;
         
-        if(this.coa == null && this.cachedComplexType != null)
+        if(this.coa == null && this.cachedComplexTypes != null)
         {            
-            done = this.cachedComplexType.remove(t);
+            done = this.cachedComplexTypes.remove(t);
         }
         else if(this.coa != null)
         {
@@ -521,6 +537,29 @@ public class Component
                 this.coa.checkInterface(itf);
             }
         }
+    }
+    
+    public Component copy()
+    {
+        Component comp = new Component();
+        
+        if(this.coa != null)
+        {
+            comp.cachedFunctions = this.getFunctions();
+            comp.cachedGlobalVariables = this.getGlobalVariables();
+            comp.cachedComplexTypes = this.getComplexTypes();
+        }
+        else
+        {
+            comp.cachedFunctions = this.cachedFunctions;
+            comp.cachedGlobalVariables = this.cachedGlobalVariables;
+            comp.cachedComplexTypes = this.cachedComplexTypes;
+        }
+        
+        comp.requiredInterfaces.addAll(this.requiredInterfaces);
+        comp.providedInterfaces.addAll(this.providedInterfaces);
+        
+        return comp;
     }
     
     @Override

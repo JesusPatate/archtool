@@ -62,6 +62,11 @@ public class Connector
         return new HashSet<Facade>(this.facades);
     }
     
+    public int nbFacades()
+    {
+        return this.facades.size();
+    }
+    
     /**
      * On informe le coa uniquement si on le connait.
      */
