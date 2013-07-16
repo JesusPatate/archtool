@@ -49,8 +49,7 @@ public class GlobalVariable extends Variable
     
     public Map<Function, Integer> getCoreUsingFunctions()
     {
-        if(this.sourceCode != null && (this.coreUsingFunctions == null ||
-                this.sourceCode.hasChanged()))
+        if(this.sourceCode != null && this.coreUsingFunctions == null)
         {            
             this.coreUsingFunctions = new HashMap<Function, Integer>();
             

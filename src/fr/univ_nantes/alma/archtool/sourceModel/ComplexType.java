@@ -33,8 +33,7 @@ public class ComplexType extends Type
     
     public Set<GlobalVariable> getCoreUsingGlobalVariables()
     {
-        if(this.sourceCode != null && (this.coreUsingGlobalVariables == null ||
-                this.sourceCode.hasChanged()))
+        if(this.sourceCode != null && this.coreUsingGlobalVariables == null)
         {            
             this.coreUsingGlobalVariables = new HashSet<GlobalVariable>();
             
@@ -57,8 +56,7 @@ public class ComplexType extends Type
     
     public Map<Function, Integer> getTotalUsingFunctions()
     {
-        if(this.sourceCode != null && (this.totalUsingFunctions == null ||
-                this.sourceCode.hasChanged()))
+        if(this.sourceCode != null && this.totalUsingFunctions == null)
         {            
             this.totalUsingFunctions = new HashMap<Function, Integer>();
             
@@ -82,8 +80,7 @@ public class ComplexType extends Type
     
     public Map<Function, Integer> getCoreUsingFunctions()
     {
-        if(this.sourceCode != null && (this.coreUsingFunctions == null ||
-                this.sourceCode.hasChanged()))
+        if(this.sourceCode != null && this.coreUsingFunctions == null)
         {            
             this.coreUsingFunctions = new HashMap<Function, Integer>();
             
