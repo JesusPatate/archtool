@@ -13,7 +13,7 @@ import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.Variable;
 
 public class Coupling
-{    
+{
     /**
      * Évalue le couplage interne d'un composant.
      * 
@@ -25,21 +25,33 @@ public class Coupling
      * @see #coupling(Function, ComplexType)
      * @see #coupling(Variable, ComplexType)
      */
-    public int componentCoupling(Component comp)
+    public double componentCoupling(Component comp)
     {
-        int result = 0;
+        double result = 0;
+        double nbPairs = 0;
 
-        Set<Function> functions = comp.getFunctions();
-        Set<GlobalVariable> variables = comp.getGlobalVariables();
-        Set<ComplexType> types = comp.getComplexTypes();
+        Function[] functions = new Function[comp.getFunctions().size()];
+        comp.getFunctions().toArray(functions);
 
-        if (functions.size() > 0)
+        GlobalVariable[] variables = new GlobalVariable[comp
+                .getGlobalVariables().size()];
+        comp.getGlobalVariables().toArray(variables);
+
+        ComplexType[] types = new ComplexType[comp.getComplexTypes().size()];
+        comp.getComplexTypes().toArray(types);
+
+        if (functions.length > 0)
         {
-            for (Function fct1 : functions)
+            for (int idx1 = 0 ; idx1 < functions.length ; ++idx1)
             {
-                for (Function fct2 : functions)
+                for (int idx2 = idx1 + 1 ; idx2 < functions.length ; ++idx2)
                 {
-                    result += coupling(fct1, fct2);
+                    if(coupling(functions[idx1], functions[idx2]) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
 
@@ -47,7 +59,12 @@ public class Coupling
             {
                 for (Function fct : functions)
                 {
-                    result += coupling(fct, var);
+                    if(coupling(fct, var) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
 
@@ -55,7 +72,12 @@ public class Coupling
             {
                 for (Function fct : functions)
                 {
-                    result += coupling(fct, type);
+                    if(coupling(fct, type) > 0)
+                    {
+                        ++result;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
         }
@@ -64,13 +86,28 @@ public class Coupling
         {
             for (ComplexType type : types)
             {
-                result += coupling(var, type);
+                if(coupling(var, type) > 0)
+                {
+                    ++result;
+                }
+                
+                ++nbPairs;
             }
+        }
+
+        if (nbPairs > 0)
+        {
+            result = 100 * result / nbPairs;
+        }
+        
+        else
+        {
+            result = 100.0;
         }
 
         return result;
     }
-    
+
     /**
      * Évalue le couplage interne d'une interface.
      * 
@@ -82,21 +119,29 @@ public class Coupling
      * @see #coupling(Function, ComplexType)
      * @see #coupling(Variable, ComplexType)
      */
-    public int interfaceCoupling(Interface itf)
+    public double interfaceCoupling(Interface itf)
     {
-        int result = 0;
+        double result = 0;
+        double nbPairs = 0;
 
-        Set<Function> functions = itf.getFunctions();
+        Function[] functions = new Function[itf.getFunctions().size()];
+        itf.getFunctions().toArray(functions);
+        
         Set<GlobalVariable> variables = itf.getGlobalVariables();
         Set<ComplexType> types = itf.getComplexTypes();
 
-        if (functions.size() > 0)
+        if (functions.length > 0)
         {
-            for (Function fct1 : functions)
+            for (int idx1 = 0 ; idx1 < functions.length ; ++idx1)
             {
-                for (Function fct2 : functions)
+                for (int idx2 = idx1 + 1 ; idx2 < functions.length ; ++idx2)
                 {
-                    result += coupling(fct1, fct2);
+                    if(coupling(functions[idx1], functions[idx2]) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
 
@@ -104,7 +149,12 @@ public class Coupling
             {
                 for (Function fct : functions)
                 {
-                    result += coupling(fct, var);
+                    if(coupling(fct, var) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
 
@@ -112,7 +162,12 @@ public class Coupling
             {
                 for (Function fct : functions)
                 {
-                    result += coupling(fct, type);
+                    if(coupling(fct, type) > 0)
+                    {
+                        ++result;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
         }
@@ -121,13 +176,28 @@ public class Coupling
         {
             for (ComplexType type : types)
             {
-                result += coupling(var, type);
+                if(coupling(var, type) > 0)
+                {
+                    ++result;
+                }
+                
+                ++nbPairs;
             }
+        }
+
+        if (nbPairs > 0)
+        {
+            result = 100 * result / nbPairs;
+        }
+        
+        else
+        {
+            result = 100.0;
         }
 
         return result;
     }
-    
+
     /**
      * Évalue le couplage interne d'un connecteur.
      * 
@@ -139,21 +209,29 @@ public class Coupling
      * @see #coupling(Function, ComplexType)
      * @see #coupling(Variable, ComplexType)
      */
-    public int connectorCoupling(Connector con)
+    public double connectorCoupling(Connector con)
     {
-        int result = 0;
+        double result = 0;
+        double nbPairs = 0;
 
-        Set<Function> functions = con.getFunctions();
+        Function[] functions = new Function[con.getFunctions().size()];
+        con.getFunctions().toArray(functions);
+        
         Set<GlobalVariable> variables = con.getGlobalVariables();
         Set<ComplexType> types = con.getComplexTypes();
 
-        if (functions.size() > 0)
+        if (functions.length > 0)
         {
-            for (Function fct1 : functions)
+            for (int idx1 = 0 ; idx1 < functions.length ; ++idx1)
             {
-                for (Function fct2 : functions)
+                for (int idx2 = idx1 + 1 ; idx2 < functions.length ; ++idx2)
                 {
-                    result += coupling(fct1, fct2);
+                    if(coupling(functions[idx1], functions[idx2]) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
 
@@ -161,7 +239,12 @@ public class Coupling
             {
                 for (Function fct : functions)
                 {
-                    result += coupling(fct, var);
+                    if(coupling(fct, var) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
 
@@ -169,7 +252,12 @@ public class Coupling
             {
                 for (Function fct : functions)
                 {
-                    result += coupling(fct, type);
+                    if(coupling(fct, type) > 0)
+                    {
+                        ++result;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
         }
@@ -178,13 +266,28 @@ public class Coupling
         {
             for (ComplexType type : types)
             {
-                result += coupling(var, type);
+                if(coupling(var, type) > 0)
+                {
+                    ++result;
+                }
+                
+                ++nbPairs;
             }
+        }
+
+        if (nbPairs > 0)
+        {
+            result = 100 * result / nbPairs;
+        }
+        
+        else
+        {
+            result = 100.0;
         }
 
         return result;
     }
-    
+
     /**
      * Évalue le couplage interne d'une facade.
      * 
@@ -196,21 +299,29 @@ public class Coupling
      * @see #coupling(Function, ComplexType)
      * @see #coupling(Variable, ComplexType)
      */
-    public int facadeCoupling(Facade fcd)
+    public double facadeCoupling(Facade fcd)
     {
-        int result = 0;
+        double result = 0;
+        double nbPairs = 0;
 
-        Set<Function> functions = fcd.getFunctions();
+        Function[] functions = new Function[fcd.getFunctions().size()];
+        fcd.getFunctions().toArray(functions);
+        
         Set<GlobalVariable> variables = fcd.getGlobalVariables();
         Set<ComplexType> types = fcd.getComplexTypes();
 
-        if (functions.size() > 0)
+        if (functions.length > 0)
         {
-            for (Function fct1 : functions)
+            for (int idx1 = 0 ; idx1 < functions.length ; ++idx1)
             {
-                for (Function fct2 : functions)
+                for (int idx2 = idx1 + 1 ; idx2 < functions.length ; ++idx2)
                 {
-                    result += coupling(fct1, fct2);
+                    if(coupling(functions[idx1], functions[idx2]) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
 
@@ -218,7 +329,12 @@ public class Coupling
             {
                 for (Function fct : functions)
                 {
-                    result += coupling(fct, var);
+                    if(coupling(fct, var) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
 
@@ -226,7 +342,12 @@ public class Coupling
             {
                 for (Function fct : functions)
                 {
-                    result += coupling(fct, type);
+                    if(coupling(fct, type) > 0)
+                    {
+                        ++result;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
         }
@@ -235,13 +356,28 @@ public class Coupling
         {
             for (ComplexType type : types)
             {
-                result += coupling(var, type);
+                if(coupling(var, type) > 0)
+                {
+                    ++result;
+                }
+                
+                ++nbPairs;
             }
+        }
+
+        if (nbPairs > 0)
+        {
+            result = 100 * result / nbPairs;
+        }
+        
+        else
+        {
+            result = 100.0;
         }
 
         return result;
     }
-    
+
     /**
      * Évalue le couplage entre 2 facades.
      * 
@@ -253,10 +389,11 @@ public class Coupling
      * @see #coupling(Function, ComplexType)
      * @see #coupling(Variable, ComplexType)
      */
-    public int facadesCoupling(Facade fcd1, Facade fcd2)
+    public double facadesCoupling(Facade fcd1, Facade fcd2)
     {
-        int result = 0;
-
+        double result = 0;
+        double nbPairs = 0;
+        
         Set<Function> fcd1Fcts = fcd1.getFunctions();
         Set<GlobalVariable> fcd1Vars = fcd1.getGlobalVariables();
         Set<ComplexType> fcd1Types = fcd1.getComplexTypes();
@@ -264,69 +401,114 @@ public class Coupling
         Set<Function> fcd2Fcts = fcd2.getFunctions();
         Set<GlobalVariable> fcd2Vars = fcd2.getGlobalVariables();
         Set<ComplexType> fcd2Types = fcd2.getComplexTypes();
-        
+
         if (fcd1Fcts.size() > 0)
         {
             for (Function fct1 : fcd1Fcts)
             {
                 for (Function fct2 : fcd2Fcts)
                 {
-                    result += coupling(fct1, fct2);
+                    if(coupling(fct1, fct2) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
-            
+
             for (Function fct1 : fcd1Fcts)
             {
                 for (GlobalVariable var2 : fcd2Vars)
                 {
-                    result += coupling(fct1, var2);
+                    if(coupling(fct1, var2) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
-            
+
             for (Function fct1 : fcd1Fcts)
             {
                 for (ComplexType type2 : fcd2Types)
                 {
-                    result += coupling(fct1, type2);
+                    if(coupling(fct1, type2) > 0)
+                    {
+                        ++result;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
         }
-        
+
         for (GlobalVariable var1 : fcd1Vars)
         {
             for (ComplexType type2 : fcd2Types)
             {
-                result += coupling(var1, type2);
+                if(coupling(var1, type2) > 0)
+                {
+                    ++result;
+                }
+                
+                ++nbPairs;
             }
         }
-        
+
         if (fcd2Fcts.size() > 0)
         {
             for (Function fct2 : fcd2Fcts)
             {
                 for (GlobalVariable var1 : fcd1Vars)
                 {
-                    result += coupling(fct2, var1);
+                    if(coupling(fct2, var1) > 0)
+                    {
+                        result += 0.75;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
-            
+
             for (Function fct2 : fcd1Fcts)
             {
                 for (ComplexType type1 : fcd1Types)
                 {
-                    result += coupling(fct2, type1);
+                    if(coupling(fct2, type1) > 0)
+                    {
+                        ++result;
+                    }
+                    
+                    ++nbPairs;
                 }
             }
         }
-        
+
         for (GlobalVariable var2 : fcd2Vars)
         {
             for (ComplexType type1 : fcd1Types)
             {
-                result += coupling(var2, type1);
+                if(coupling(var2, type1) > 0)
+                {
+                    ++result;
+                }
+                
+                ++nbPairs;
             }
         }
+
+        if (nbPairs > 0)
+        {
+            result = 100 * result / nbPairs;
+        }
         
+        else
+        {
+            result = 100.0;
+        }
+
         return result;
     }
 
@@ -335,7 +517,8 @@ public class Coupling
      * 
      * <p>
      * Le couplage d'une fonction <em>f1</em> par rapport à une autre fonction
-     * <em>f2</em> est égal au nombre d'appels à <em>f2</em> par <em>f1</em>.
+     * <em>f2</em> est égal au nombre d'appels à <em>f2</em> par <em>f1</em> et
+     * inversement.
      * </p>
      * 
      * @param f1
@@ -351,13 +534,13 @@ public class Coupling
         {
             Map<Function, Integer> calledF1 = f1.getCoreCalledFunctions();
             Map<Function, Integer> calledF2 = f2.getCoreCalledFunctions();
-            
-            if(calledF1.containsKey(f2) == true)
+
+            if (calledF1.containsKey(f2) == true)
             {
                 result += calledF1.get(f2);
             }
-            
-            if(calledF2.containsKey(f1) == true)
+
+            if (calledF2.containsKey(f1) == true)
             {
                 result += calledF2.get(f1);
             }
@@ -387,7 +570,7 @@ public class Coupling
         {
             Map<GlobalVariable, Integer> globalVarsFct = fct
                     .getCoreGlobalVariables();
-            
+
             if (globalVarsFct.containsKey(var))
             {
                 result = globalVarsFct.get(var);
