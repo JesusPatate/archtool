@@ -13,6 +13,8 @@ public class Clustering
     private Dendogram dendogram;
     
     private InterfaceIdentifier itfIdentifier = new InterfaceIdentifier();
+    
+    private ConnectorIdentifier conIdentifier = new ConnectorIdentifier();
 
     private ObjectiveFunction objectiveFct = new ObjectiveFunction();
 
@@ -37,8 +39,9 @@ public class Clustering
         this.buildDendogram();
         this.phase2();
         
-        this.resultArch.clear();
-        this.itfIdentifier.identify(this.resultArch);
+//        this.resultArch.clear();
+//        this.itfIdentifier.identify(this.resultArch);
+//        this.conIdentifier.identify(this.resultArch);
         
         return this.resultArch;
     }
@@ -111,7 +114,10 @@ public class Clustering
         double score2 = 0.0;
 
         int idx = 0;
-
+        
+        currentArch = this.dendogram.getArchitecture();
+        currentScore = objectiveFct.evaluate(currentArch);
+        
         while (idx < this.dendogram.size())
         {
             dendo = this.dendogram.splitNode(idx);
@@ -119,9 +125,6 @@ public class Clustering
             // The node has been splitted successfully
             if (dendo != null)
             {
-                currentArch = this.dendogram.getArchitecture();
-                currentScore = objectiveFct.evaluate(currentArch);
-
                 arch2 = dendo.getArchitecture();
                 score2 = objectiveFct.evaluate(arch2);
 
@@ -129,6 +132,7 @@ public class Clustering
                 if (score2 > currentScore)
                 {
                     this.dendogram = dendo;
+                    currentScore = score2;
                 }
 
                 // Try to split the next node
