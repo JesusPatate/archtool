@@ -25,15 +25,10 @@ public class Cohesion
     static final double BONUS_SAME_FILE = 1.2;
 
     /**
-     * Valeur maximale de cohésion entre 2 fonctions.
-     */
-    static final double MAX_COHESION_FCT_FCT = 4.0;
-
-    /**
      * Poids de la cohésion sur les appels communs dans le calcul de la cohésion
      * entre 2 fonctions.
      */
-    static final double WEIGHT_FCT_COHESION_CALLS = 2.0;
+    static final double WEIGHT_FCT_COHESION_CALLS = 1.0;
 
     /**
      * Poids de la cohésion sur les variables globales communes dans le calcul
@@ -203,7 +198,7 @@ public class Cohesion
      * 
      * @return Un double entre 0.0 et 100.0
      */
-    public double componentInternalCohesion(final Component comp)
+    public double internalCohesion(final Component comp)
     {
         double result = 0.0;
 
@@ -261,7 +256,7 @@ public class Cohesion
      * 
      * @return Un double entre 0.0 et 100.0
      */
-    public double interfaceInternalCohesion(final Interface itf)
+    public double internalCohesion(final Interface itf)
     {
         double result = 0.0;
 
@@ -319,7 +314,7 @@ public class Cohesion
      * 
      * @return Un double entre 0.0 et 100.0
      */
-    public double connectorInternalCohesion(final Connector con)
+    public double internalCohesion(final Connector con)
     {
         double result = 0.0;
 
@@ -377,7 +372,7 @@ public class Cohesion
      * 
      * @return Un double entre 0.0 et 100.0
      */
-    public double facadeInternalCohesion(final Facade fcd)
+    public double internalCohesion(final Facade fcd)
     {
         double result = 0.0;
 
