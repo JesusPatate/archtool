@@ -46,7 +46,7 @@ public class ObjectiveFunction
      * Poids de la spécificité des composants dans le calcul de la validité
      * sémantique des composants.
      */
-    static final double WEIGHT_COMP_SPECI = 1.0;
+    static final double WEIGHT_COMP_SPECI = 2.0;
 
     /**
      * Poids de la composabilité des composants dans le calcul de la validité
@@ -67,8 +67,8 @@ public class ObjectiveFunction
     static final double WEIGHT_CON_SPECI = 1.0;
 
     /**
-     * Poids du nombre d'interfaces requises dans le calcul de la composabilité
-     * des composants
+     * Poids du nombre d'interfaces requises dans le calcul de l'autonomie des
+     * composants
      */
     static final double WEIGHT_INDE_ITFS_REQ = 5.0;
 
@@ -91,22 +91,28 @@ public class ObjectiveFunction
     static final double WEIGHT_MAIN = 1.0;
 
     /**
+     * Poids de la complexité des éléments architecturaux dans le calcul de la
+     * qualité de l'architecture.
+     */
+    static final double WEIGHT_COMP = 1.0;
+
+    /**
      * Poids de la maintenabilité des composants dans le calcul de la
      * maintenabilité de l'architecture.
      */
-    static final double WEIGHT_MAIN_COMP = 1.0;
+    static final double WEIGHT_MAIN_COMP = 3.0;
 
     /**
      * Poids de la maintenabilité des connecteurs dans le calcul de la
      * maintenabilité de l'architecture.
      */
-    static final double WEIGHT_MAIN_CON = 1.0;
+    static final double WEIGHT_MAIN_CON = 3.0;
 
     /**
      * Poids de la maintenabilité des connecteurs dans le calcul de la
      * maintenabilité de l'architecture.
      */
-    static final double WEIGHT_MAIN_CONF = 1.0;
+    static final double WEIGHT_MAIN_CONF = 3.0;
 
     private Architecture architecture;
 
@@ -134,7 +140,7 @@ public class ObjectiveFunction
         this.maintainability = new Maintainability();
 
         result += WEIGHT_SEM * this.evaluateSemanticArchitecture();
-//        result += WEIGHT_QUAL * this.evaluateArchQuality();
+        result += WEIGHT_QUAL * this.evaluateArchQuality();
 
         return result;
     }
@@ -149,9 +155,10 @@ public class ObjectiveFunction
         result += WEIGHT_COMP_SEM * this.evaluateSemanticComponent();
         result += WEIGHT_CON_SEM * this.evaluateSemanticConnector();
 
-        result /= WEIGHT_COMP_SEM + WEIGHT_CON_SEM
-                        + this.architecture.nbComponents()
-                        + this.architecture.nbConnectors();
+        result /= WEIGHT_COMP_SEM
+                + WEIGHT_CON_SEM
+                + this.architecture.nbComponents()
+                + this.architecture.nbConnectors();
 
         return result;
     }
@@ -165,6 +172,7 @@ public class ObjectiveFunction
         double result = 0.0;
 
         result += WEIGHT_MAIN * this.evaluateMaintainability();
+        result -= WEIGHT_COMP * this.evaluateComplexity();
 
         return result;
     }
@@ -178,27 +186,20 @@ public class ObjectiveFunction
 
         for (Component comp : this.architecture.getComponents())
         {
-            double subresult = 0.0;
+            double subresult = ObjectiveFunction.WEIGHT_COMP_COMPO
+                    * this.composability(comp);
 
-            double compo = this.composability(comp);
-            subresult = ObjectiveFunction.WEIGHT_COMP_COMPO * compo;
+            subresult += ObjectiveFunction.WEIGHT_COMP_INDE
+                    * this.independence(comp);
 
-            double inde = this.independence(comp);
-            subresult += ObjectiveFunction.WEIGHT_COMP_INDE * inde;
-
-            double spec = this.specificity(comp);
-            subresult += ObjectiveFunction.WEIGHT_COMP_SPECI * spec;
+            subresult += ObjectiveFunction.WEIGHT_COMP_SPECI
+                    * this.specificity(comp);
 
             subresult /= ObjectiveFunction.WEIGHT_COMP_COMPO
-                            + ObjectiveFunction.WEIGHT_COMP_INDE
-                            + ObjectiveFunction.WEIGHT_COMP_SPECI;
+                    + ObjectiveFunction.WEIGHT_COMP_INDE
+                    + ObjectiveFunction.WEIGHT_COMP_SPECI;
 
             result += subresult;
-        }
-
-        if (this.architecture.nbComponents() > 0)
-        {
-            result /= this.architecture.nbComponents();
         }
 
         return result;
@@ -213,13 +214,11 @@ public class ObjectiveFunction
 
         for (Connector con : this.architecture.getConnectors())
         {
-            double subresult = 0.0;
+            double subresult = ObjectiveFunction.WEIGHT_CON_SPECI
+                    * this.specificity(con);
 
-            double spec = this.specificity(con);
-            subresult += ObjectiveFunction.WEIGHT_CON_SPECI * spec;
-
-            double gen = this.genericity(con);
-            subresult += ObjectiveFunction.WEIGHT_CON_GEN * gen;
+            subresult += ObjectiveFunction.WEIGHT_CON_GEN
+                    * this.genericity(con);
 
             subresult *= this.independence(con);
 
@@ -260,13 +259,13 @@ public class ObjectiveFunction
 
             for (final Interface itf : proInterfaces)
             {
-                sumCohesion += this.cohesion.interfaceInternalCohesion(itf);
+                sumCohesion += this.cohesion.internalCohesion(itf);
             }
 
             avgCohesion = sumCohesion / proInterfaces.size();
 
-            result = avgCohesion- (ObjectiveFunction.WEIGHT_COMPO_ITFS_REQ
-                    * nbReqInterfaces);
+            result = avgCohesion
+                    - (ObjectiveFunction.WEIGHT_COMPO_ITFS_REQ * nbReqInterfaces);
         }
 
         return result;
@@ -380,7 +379,7 @@ public class ObjectiveFunction
 
             for (final Interface itf : comp.getProvidedInterfaces())
             {
-                sum += this.cohesion.interfaceInternalCohesion(itf);
+                sum += this.cohesion.internalCohesion(itf);
             }
 
             result += sum / nbProInterfaces;
@@ -394,30 +393,29 @@ public class ObjectiveFunction
 
                 sum = 0.0;
 
-                for (int idx1 = 0; idx1 < (itfs.length - 1); ++idx1)
+                for (int idx1 = 0 ; idx1 < (itfs.length - 1) ; ++idx1)
                 {
-                    for (int idx2 = idx1 + 1; idx2 < itfs.length; ++idx2)
+                    for (int idx2 = idx1 + 1 ; idx2 < itfs.length ; ++idx2)
                     {
                         sum += this.cohesion.interfacesCohesion(itfs[idx1],
-                                        itfs[idx2]);
+                                itfs[idx2]);
                     }
                 }
 
-                final double nbPairs = 
-                        (nbProInterfaces * (nbProInterfaces - 1)) / 2;
+                final double nbPairs = (nbProInterfaces * (nbProInterfaces - 1)) / 2;
 
                 result += sum / nbPairs;
             }
 
             else
             {
-                result += 1.0;
+                result += 100.0;
             }
         }
 
         // Component internal cohesion
 
-        result += this.cohesion.componentInternalCohesion(comp);
+        result += this.cohesion.internalCohesion(comp);
 
         // Component internal coupling
 
@@ -427,14 +425,14 @@ public class ObjectiveFunction
 
         result -= WEIGHT_SPECI_ITFS_PRO * nbProInterfaces;
 
-        return 0.25 * result; // TODO Déplacer dans une constante
+        return result; // TODO Déplacer dans une constante
     }
 
     /**
      * Évalue la spécificité d'un connecteur.
      * 
-     * La spécificité d'un connecteur est évaluée sur sa cohésion interne et sa
-     * cohésion interne.
+     * La spécificité d'un connecteur est évaluée sur sa cohésion interne et son
+     * couplage interne.
      * 
      * @param con
      *            Le connecteur à évaluer
@@ -443,7 +441,7 @@ public class ObjectiveFunction
     {
         double result = 0.0;
 
-        result += this.cohesion.connectorInternalCohesion(con);
+        result += this.cohesion.internalCohesion(con);
         result += coupling.connectorCoupling(con);
 
         return 0.5 * result; // TODO Déplacer dans une constante
@@ -465,41 +463,37 @@ public class ObjectiveFunction
 
         // Cohesion between roles
 
-        double rolesCohesion = 0.0;
-
-        for (int idx1 = 0; idx1 < (facades.length - 1); ++idx1)
+        for (int idx1 = 0 ; idx1 < (facades.length - 1) ; ++idx1)
         {
-            for (int idx2 = idx1 + 1; idx2 < facades.length; ++idx2)
+            for (int idx2 = idx1 + 1 ; idx2 < facades.length ; ++idx2)
             {
                 sum += this.cohesion.facadesCohesion(facades[idx1],
-                                facades[idx2]);
+                        facades[idx2]);
             }
         }
 
         double nbPairs = (facades.length * (facades.length - 1)) / 2;
 
-        rolesCohesion += sum / nbPairs;
+        result += sum / nbPairs;
 
         // Coupling between roles
 
-        double rolesCoupling = 0.0;
         sum = 0.0;
 
-        for (int idx1 = 0; idx1 < (facades.length - 1); ++idx1)
+        for (int idx1 = 0 ; idx1 < (facades.length - 1) ; ++idx1)
         {
-            for (int idx2 = idx1 + 1; idx2 < facades.length; ++idx2)
+            for (int idx2 = idx1 + 1 ; idx2 < facades.length ; ++idx2)
             {
                 sum += this.coupling.facadesCoupling(facades[idx1],
-                                facades[idx2]);
+                        facades[idx2]);
             }
         }
 
         nbPairs = (facades.length * (facades.length - 1)) / 2;
 
-        rolesCohesion += sum / nbPairs;
+        result += sum / nbPairs;
 
-        // TODO Déplacer dans une constante
-        result = 0.25 * (rolesCohesion + rolesCoupling);
+        result /= 0.25; // TODO Déplacer dans une constante
 
         // Cohesion and coupling of each role
 
@@ -507,7 +501,7 @@ public class ObjectiveFunction
 
         for (Facade fcd : con.getFacades())
         {
-            sum += this.cohesion.facadeInternalCohesion(fcd);
+            sum += this.cohesion.internalCohesion(fcd);
             sum += this.coupling.facadeCoupling(fcd);
         }
 
@@ -547,8 +541,54 @@ public class ObjectiveFunction
         result += subresult;
 
         result += (1 / WEIGHT_MAIN_CONF)
-                        * this.maintainability.process(this.architecture
-                                .getConfiguration());
+                * this.maintainability.process(this.architecture
+                        .getConfiguration());
+
+        return result;
+    }
+
+    private double evaluateComplexity()
+    {
+        double result = 0.0;
+
+        for (Component comp : this.architecture.getComponents())
+        {
+            result += this.evaluateComplexity(comp);
+        }
+
+        for (Connector con : this.architecture.getConnectors())
+        {
+            result += this.evaluateComplexity(con);
+        }
+
+        result /= this.architecture.nbComponents()
+                + this.architecture.nbConnectors();
+
+        return result;
+    }
+
+    private double evaluateComplexity(Component comp)
+    {
+        double result = 0.0;
+
+        double intra = this.cohesion.internalCohesion(comp);
+        double inter = comp.nbInterfaces();
+
+        result = intra * Math.pow(inter, 2);
+        result /= Math.pow(10, 4);
+
+        return result;
+    }
+
+    private double evaluateComplexity(Connector con)
+    {
+        double result = 0.0;
+
+        double intra = this.cohesion.internalCohesion(con);
+        double inter = con.nbFacades();
+
+        result = intra * Math.pow(inter, 2);
+        result /= Math.pow(10, 4);
 
         return result;
     }
