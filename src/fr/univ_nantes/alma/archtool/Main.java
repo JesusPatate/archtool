@@ -15,11 +15,10 @@ public class Main
     {
         String root = "/home/gaetan/fac/horoquartz/";
 
-        String[] sourceFilePaths = new String[] {root + "sou/qhe/hrdjou1.qhe",
+        String[] sourceFilePaths = new String[] {
+                root + "sou/hr/srclib/hrrpro.c",
                 root + "sou/hr/srclib/hrrjou.c"};
 
-//        String[] sourceFilePaths = new String[] {root + "sou/hr/srclib/hrrjou.c"};
-        
         List<String> pathList = Arrays.asList(sourceFilePaths);
 
         SourceCodeBuilder builder = new SourceCodeBuilder(pathList);
@@ -32,7 +31,8 @@ public class Main
 
         clustering.process(sourceCode);
 
-        System.out.println(clustering.getArchitecture());
+        System.out.println("Nbre de composants : "
+                + clustering.getArchitecture().nbComponents());
 
         System.out.println(obj.evaluate(clustering.getArchitecture()));
 
