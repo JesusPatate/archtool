@@ -1,6 +1,7 @@
 package fr.univ_nantes.alma.archtool.clustering;
 
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
+import fr.univ_nantes.alma.archtool.dot.DotGraph;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.utils.Pair;
@@ -37,6 +38,14 @@ public class Clustering
     {
         this.dendogram = new Dendogram(sourceCode);
         this.buildDendogram();
+        
+        // Vue du dendogramme
+        DotGraph dot = new DotGraph();
+        dot.createGraph(this.dendogram);
+        dot.writeToFile("dendo.dot");
+        //
+        
+        
         this.phase2();
         
 //        this.resultArch.clear();
