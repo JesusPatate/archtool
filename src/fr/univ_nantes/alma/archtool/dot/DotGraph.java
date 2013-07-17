@@ -131,6 +131,8 @@ public class DotGraph
 		String nodeName;
 		int compIndex = 0;
 		int conIndex = 0;
+		int itfIndex = 0;
+		int facIndex = 0;
 		String clusterName;
 		
 		for(Component c : architecture.getComponents())
@@ -147,9 +149,7 @@ public class DotGraph
 			
 			this.graph.append(clusterName + "{");
 			this.graph.append("label = \"Composant" + compIndex++ + "\";");
-			
-			int itfIndex = 0;
-			
+						
 			for(Interface provided : c.getProvidedInterfaces())
 			{
 				this.graph.append("subgraph ");
@@ -233,9 +233,7 @@ public class DotGraph
 		    conToIds.put(con, clusterName);
             this.graph.append(clusterName + "{");
             this.graph.append("label = \"Connecteur" + conIndex++ + "\";");
-            
-            int facIndex = 0;
-            
+                        
             for(Facade facade : con.getFacades())
             {
                 this.graph.append("subgraph ");
