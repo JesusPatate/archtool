@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -113,17 +112,9 @@ public class DotGraph
 	    Map<Connector, String> conToIds = new HashMap<Connector, String>();
 	    Map<Interface, String> itfToIds = new HashMap<Interface, String>();
         Map<Facade, String> facToIds = new HashMap<Facade, String>();
-        Map<Function, String> compFctToIds = new HashMap<Function, String>();
-        Map<ComplexType, String> compTpfToIds = new HashMap<ComplexType, String>();
-        Map<GlobalVariable, String> compGvToIds =
-                new HashMap<GlobalVariable, String>();
-        Map<Function, String> conFctToIds = new HashMap<Function, String>();
-        Map<ComplexType, String> conTpfToIds = new HashMap<ComplexType, String>();
-        Map<GlobalVariable, String> conGvToIds =
-                new HashMap<GlobalVariable, String>();
 	    
 	    this.graph.setLength(0);	    
-		this.graph.append("digraph G{compound=true;graph [style=\"rounded,"
+		this.graph.append("digraph G{concentrate=true;graph [style=\"rounded,"
 				+ " filled\", color=black, fillcolor=\"#CCE5FF\", fontsize=11, "
 				+ "fontname=Helvetica];node [shape=plaintext];");
 		
@@ -162,7 +153,6 @@ public class DotGraph
 				for(Function f : provided.getFunctions())
 				{
 				    nodeName = "n" + nodeIndex++;
-				    compFctToIds.put(f, nodeName);
 					this.graph.append(nodeName+ "[label= " 
 					        + f.getName() + " ,fontcolor=blue];");
 				}
@@ -170,7 +160,6 @@ public class DotGraph
 				for(ComplexType t : provided.getComplexTypes())
 				{
 				    nodeName = "n" + nodeIndex++;
-				    compTpfToIds.put(t, nodeName);
 				    this.graph.append(nodeName + "[label= " 
                             + t.getName() + " ,fontcolor=green];");
 				}
@@ -178,7 +167,6 @@ public class DotGraph
 				for(GlobalVariable v : provided.getGlobalVariables())
 				{
 				    nodeName = "n" + nodeIndex++;
-				    compGvToIds.put(v, nodeName);
 				    this.graph.append(nodeName + "[label= " 
                             + v.getName() + " ,fontcolor=red];");
 				}
@@ -202,7 +190,6 @@ public class DotGraph
 			for(Function f : functionsOutInterfaces)
 			{
 			    nodeName = "n" + nodeIndex++;
-			    compFctToIds.put(f, nodeName);
 			    this.graph.append(nodeName + "[label= " 
                         + f.getName() + " ,fontcolor=blue];");
 			}
@@ -210,7 +197,6 @@ public class DotGraph
 			for(ComplexType t : typesOutInterfaces)
 			{
 			    nodeName = "n" + nodeIndex++;
-			    compTpfToIds.put(t, nodeName);
 			    this.graph.append(nodeName + "[label= " 
                         + t.getName() + " ,fontcolor=green];");
 			}
@@ -218,7 +204,6 @@ public class DotGraph
 			for(GlobalVariable v : globalsOutInterfaces)
 			{
 			    nodeName = "n" + nodeIndex++;
-			    compGvToIds.put(v, nodeName);
 			    this.graph.append(nodeName + "[label= " 
                         + v.getName() + " ,fontcolor=red];");
 			}
@@ -246,7 +231,6 @@ public class DotGraph
                 for(Function f : facade.getFunctions())
                 {
                     nodeName = "n" + nodeIndex++;
-                    conFctToIds.put(f, nodeName);
                     this.graph.append(nodeName + "[label= " 
                             + f.getName() + " ,fontcolor=blue];");
                 }
@@ -254,7 +238,6 @@ public class DotGraph
                 for(ComplexType t : facade.getComplexTypes())
                 {
                     nodeName = "n" + nodeIndex++;
-                    conTpfToIds.put(t, nodeName);
                     this.graph.append(nodeName + "[label= " 
                             + t.getName() + " ,fontcolor=green];");
                 }
@@ -262,7 +245,6 @@ public class DotGraph
                 for(GlobalVariable v : facade.getGlobalVariables())
                 {
                     nodeName = "n" + nodeIndex++;
-                    conGvToIds.put(v, nodeName);
                     this.graph.append(nodeName + "[label= " 
                             + v.getName() + " ,fontcolor=red];");
                 }
@@ -273,7 +255,6 @@ public class DotGraph
             for(Function f : con.getFunctions())
             {
                 nodeName = "n" + nodeIndex++;
-                conFctToIds.put(f, nodeName);
                 this.graph.append(nodeName + "[label= " 
                         + f.getName() + " ,fontcolor=blue];");
             }
@@ -281,7 +262,6 @@ public class DotGraph
             for(ComplexType t : con.getComplexTypes())
             {
                 nodeName = "n" + nodeIndex++;
-                conTpfToIds.put(t, nodeName);
                 this.graph.append(nodeName + "[label= " 
                         + t.getName() + " ,fontcolor=green];");
             }
@@ -289,7 +269,6 @@ public class DotGraph
             for(GlobalVariable v : con.getGlobalVariables())
             {
                 nodeName = "n" + nodeIndex++;
-                conGvToIds.put(v, nodeName);
                 this.graph.append(nodeName + "[label= " 
                         + v.getName() + " ,fontcolor=red];");
             }
@@ -301,67 +280,8 @@ public class DotGraph
 		    architecture.getConfiguration().getConnections())
 		{
 		    String componentCluster = compToIds.get(connection.second);
-		    String connectorCluster = conToIds.get(connection.first);
-		    
-		    String componentNode;
-		    String connectorNode;
-		    
-		    if(!connection.second.getFunctions().isEmpty())
-		    {
-		        Iterator<Function> iter = 
-		                connection.second.getFunctions().iterator();
-		        
-		        Function f = iter.next();
-		        componentNode = compFctToIds.get(f);
-		    }
-		    else if(!connection.second.getComplexTypes().isEmpty())
-		    {
-		        Iterator<ComplexType> iter = 
-                        connection.second.getComplexTypes().iterator();
-                
-		        ComplexType t = iter.next();
-                componentNode = compTpfToIds.get(t);
-		    }
-		    else
-		    {
-		        Iterator<GlobalVariable> iter = 
-                        connection.second.getGlobalVariables().iterator();
-                
-		        GlobalVariable v = iter.next();
-                componentNode = compGvToIds.get(v);
-		    }
-		    
-		    Facade fac = connection.first.getFacades().iterator().next();
-		    
-		    
-		    if(!fac.getFunctions().isEmpty())
-            {
-                Iterator<Function> iter = 
-                        fac.getFunctions().iterator();
-                
-                Function f = iter.next();
-                connectorNode = conFctToIds.get(f);
-            }
-            else if(!fac.getComplexTypes().isEmpty())
-            {
-                Iterator<ComplexType> iter = 
-                        fac.getComplexTypes().iterator();
-                
-                ComplexType t = iter.next();
-                connectorNode = conTpfToIds.get(t);
-            }
-            else
-            {
-                Iterator<GlobalVariable> iter = 
-                        fac.getGlobalVariables().iterator();
-                
-                GlobalVariable v = iter.next();
-                connectorNode = conGvToIds.get(v);
-            }
-		   
-		    System.out.println();
-		    
-		    this.graph.append(componentNode + "->" + connectorNode + "[ltail=" + componentCluster +", lhead=" + connectorCluster + "];");
+		    String connectorCluster = conToIds.get(connection.first);		    
+		    this.graph.append(componentCluster + "->" + connectorCluster + ";");
 		}
 		
 		this.graph.append("}");
