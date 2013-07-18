@@ -1,5 +1,8 @@
 package fr.univ_nantes.alma.archtool.clustering;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import fr.univ_nantes.alma.archtool.architectureModel.Architecture;
 import fr.univ_nantes.alma.archtool.objective.ObjectiveFunction;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
@@ -108,44 +111,65 @@ public class Clustering
         Architecture currentArch = null;
         double currentScore = 0.0;
 
-        Dendogram dendo = null;
-
         Architecture arch2 = null;
-        double score2 = 0.0;
-
-        int idx = 0;
+        double newScore = 0.0;
+        
+        Map<Integer, Double> scores = new HashMap();
+        boolean stop = false;
         
         currentArch = this.dendogram.getArchitecture();
         currentScore = objectiveFct.evaluate(currentArch);
         
-        while (idx < this.dendogram.size())
+        while(stop == false)
         {
-            dendo = this.dendogram.splitNode(idx);
+            int idx = 0;
+            
+            double bestScore = Double.NEGATIVE_INFINITY;
+            int bestIdx = 0;
 
-            // The node has been splitted successfully
-            if (dendo != null)
+            Dendogram dendo = null;
+            Dendogram bestDendo = null;
+        
+            while (idx < this.dendogram.size())
             {
-                arch2 = dendo.getArchitecture();
-                score2 = objectiveFct.evaluate(arch2);
-
-                // Better architecture when the node is splitted
-                if (score2 > currentScore)
+                dendo = this.dendogram.splitNode(idx);
+    
+                // The node has been splitted successfully
+                if (dendo != null)
                 {
-                    this.dendogram = dendo;
-                    currentScore = score2;
+                    arch2 = dendo.getArchitecture();
+                    
+                    if(scores.containsKey(idx))
+                    {
+                        newScore = scores.get(idx);
+                    }
+                    else
+                    {
+                        newScore = objectiveFct.evaluate(arch2);
+                        scores.put(idx, newScore);
+                    }
+                    
+                    // Better architecture when the node is splitted
+                    if (newScore > currentScore && newScore > bestScore)
+                    {
+                        bestDendo = dendo;
+                        bestScore = newScore;
+                        bestIdx = idx;
+                    }
                 }
-
-                // Try to split the next node
-                else
-                {
-                    ++idx;
-                }
+                
+                ++idx;
             }
-
-            // Try to split the next node
+            
+            if(bestDendo != null)
+            {
+                this.dendogram = bestDendo;
+                currentScore = bestScore;
+                scores.remove(bestIdx);
+            }
             else
             {
-                ++idx;
+                stop = true;
             }
         }
 
