@@ -25,7 +25,7 @@ import fr.univ_nantes.alma.archtool.sourceModel.GlobalVariable;
 import fr.univ_nantes.alma.archtool.sourceModel.SourceCode;
 import fr.univ_nantes.alma.archtool.utils.Pair;
 
-public class DotGraph
+public class CopyOfDotGraph
 {
     private StringBuffer graph = new StringBuffer();
 
@@ -295,19 +295,21 @@ public class DotGraph
 
     public void createGraph(Dendogram dendo)
     {
-        Map<Node, Integer> levels = new HashMap<Node, Integer>();
-        Map<Integer, Set<Node>> nodeByLevels = new HashMap<Integer, Set<Node>>();
         Set<Pair<Node, Node>> edges = new HashSet<Pair<Node, Node>>();
         Map<Node, String> nodeToId = new HashMap<Node, String>();
+        int clusterIndex = 0;
+        String clusterId;
         int nodeIndex = 0;
         String nodeId;
         
         this.graph.setLength(0);
-        this.graph.append("digraph G{rankdir=BT;\n");
+        this.graph
+                .append("digraph G{graph [style=\"rounded,"
+                        + " filled\", color=black, fillcolor=\"#CCE5FF\", fontsize=11, "
+                        + "fontname=Helvetica];node [shape=plaintext];");
         
         for(Node node : dendo)
         {
-            this.nodeLevels(node, levels, nodeByLevels);
             Queue<Pair<Node, Integer>> nodes = 
                     new LinkedList<Pair<Node, Integer>>();
             nodes.add(new Pair<Node, Integer>(node, 0));
@@ -315,35 +317,35 @@ public class DotGraph
             while(!nodes.isEmpty())
             {
                 Pair<Node, Integer> current = nodes.poll();
-                nodeId = "n_" + nodeIndex++;
-                nodeToId.put(current.first, nodeId);
+                clusterId = "cluster_" + clusterIndex++;
+                nodeToId.put(current.first, clusterId);
                 
-                // Node creation with entities
-                this.graph.append(nodeId + "[label= <<table border=\"0\""
-                        + " cellborder=\"0\" cellpadding=\"3\""
-                        + " bgcolor=\"white\">");
-                
-                
+                // Subgraph creation with entities
+                this.graph.append("subgraph ");
+                this.graph.append(clusterId + "{");
 
                 for (Function f : current.first.getFunctions())
                 {
-                    this.graph.append("<tr><td><font color=\"blue\">" +
-                            f.getName() + "</font></td></tr>");
+                    nodeId = "n" + nodeIndex++;
+                    this.graph.append(nodeId + "[label= " + f.getName()
+                            + " ,fontcolor=blue];");
                 }
 
                 for (ComplexType t : current.first.getTypes())
                 {
-                    this.graph.append("<tr><td><font color=\"green\">" +
-                            t.getName() + "</font></td></tr>");
+                    nodeId = "n" + nodeIndex++;
+                    this.graph.append(nodeId + "[label= " + t.getName()
+                            + " ,fontcolor=green];");
                 }
 
                 for (GlobalVariable v : current.first.getVariables())
                 {
-                    this.graph.append("<tr><td><font color=\"red\">" +
-                            v.getName() + "</font></td></tr>");
+                    nodeId = "n" + nodeIndex++;
+                    this.graph.append(nodeId + "[label= " + v.getName()
+                            + " ,fontcolor=red];");
                 }
 
-                this.graph.append("</table>> ];\n");
+                this.graph.append("}");
                 
                 Node left = current.first.getLeftChild();
                 Node right = current.first.getRightChild();
@@ -361,69 +363,14 @@ public class DotGraph
             }
         }
         
-        for(Integer level : nodeByLevels.keySet())
-        {
-            this.graph.append("{rank = same;");
-            
-            for(Node node : nodeByLevels.get(level))
-            {
-                String id = nodeToId.get(node);
-                this.graph.append(id + ";");
-            }
-
-            this.graph.append("}");
-        }
-        
         for(Pair<Node, Node> edge : edges)
         {
             String from = nodeToId.get(edge.first);
             String to = nodeToId.get(edge.second);
-            this.graph.append(from + "->" + to + ";\n");
+            this.graph.append(from + "->" + to + ";");
         }
         
         this.graph.append("}");
-    }
-    
-    private void nodeLevels(Node node, Map<Node, Integer> levels,
-            Map<Integer, Set<Node>> nodeByLevels)
-    {
-        if(node.getLeftChild() != null)
-        {
-            Node left = node.getLeftChild();
-            Node right = node.getRightChild();
-            nodeLevels(left, levels, nodeByLevels);
-            nodeLevels(right, levels, nodeByLevels);
-            
-            int maxChildLevel = levels.get(right) >= levels.get(left) ?
-                    levels.get(right) : levels.get(left);
-            levels.put(node, maxChildLevel + 1);
-            
-            if(!nodeByLevels.containsKey(maxChildLevel + 1))
-            {
-                Set<Node> nodes = new HashSet<Node>();
-                nodes.add(node);
-                nodeByLevels.put(maxChildLevel + 1, nodes);
-            }
-            else
-            {
-                nodeByLevels.get(maxChildLevel + 1).add(node);
-            }
-        }
-        else
-        {
-            levels.put(node, 1);
-            
-            if(!nodeByLevels.containsKey(1))
-            {
-                Set<Node> nodes = new HashSet<Node>();
-                nodes.add(node);
-                nodeByLevels.put(1, nodes);
-            }
-            else
-            {
-                nodeByLevels.get(1).add(node);
-            }
-        }
     }
 
     public void writeToFile(String filename)
